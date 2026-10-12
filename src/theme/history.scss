@@ -1,0 +1,216 @@
+.history-page-root {
+  background: transparent;
+}
+
+.history-content-area {
+  --background: transparent;
+}
+
+.history-page-wrapper {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 16px 20px 40px 20px;
+}
+
+.section-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+
+  &.mt-6 {
+    margin-top: 24px;
+  }
+}
+
+.section-label-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+// KPI Grid
+.stats-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  .kpi-icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    &.icon-indigo {
+      background: rgba(99, 102, 241, 0.12);
+      color: var(--color-indigo);
+    }
+    &.icon-cyan {
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--color-cyan);
+    }
+    &.icon-emerald {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--color-emerald);
+    }
+  }
+
+  .kpi-value {
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-main);
+    line-height: 1.1;
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: -0.01em;
+  }
+}
+
+// Milestone Banner
+.milestone-banner {
+  margin-top: 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(6, 182, 212, 0.08));
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .milestone-icon {
+    color: var(--color-indigo);
+    flex-shrink: 0;
+  }
+
+  .milestone-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .milestone-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .milestone-sub {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+  }
+}
+
+// Timeline
+.session-timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timeline-session-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateX(3px);
+  }
+
+  .timeline-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+
+    .indicator-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+
+      &.dot-focus {
+        background: var(--color-indigo);
+        box-shadow: 0 0 8px var(--color-indigo-glow);
+      }
+      &.dot-break {
+        background: var(--color-emerald);
+        box-shadow: 0 0 8px var(--color-emerald-glow);
+      }
+    }
+  }
+
+  .session-info-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .session-headline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .session-type-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .session-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--bg-card-subtle);
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .session-meta-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+
+    .bullet-sep {
+      opacity: 0.5;
+    }
+  }
+}

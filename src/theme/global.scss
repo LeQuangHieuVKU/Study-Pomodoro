@@ -1,0 +1,592 @@
+* {
+  box-sizing: border-box;
+  font-family: var(--app-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  font-family: var(--app-font-family);
+  overflow-x: hidden;
+  user-select: none;
+
+  &.has-bg-image {
+    background-color: transparent !important;
+  }
+}
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 9999px;
+}
+
+// Ionic container transparency for global background visibility
+ion-app,
+ion-tabs,
+ion-router-outlet,
+ion-page,
+ion-content {
+  background: transparent !important;
+  --background: transparent !important;
+}
+
+ion-content::part(background),
+ion-content::part(scroll) {
+  background: transparent !important;
+  --background: transparent !important;
+}
+
+// Frosted glass adaptation & Wallpaper Transparency
+.has-bg-image {
+  // 100% Transparent Header & Tab bar in both Light and Dark mode
+  .app-header,
+  ion-header.app-header {
+    background: transparent !important;
+    --background: transparent !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .app-toolbar,
+  ion-toolbar.app-toolbar {
+    background: transparent !important;
+    --background: transparent !important;
+    border: none !important;
+    --border-width: 0 !important;
+  }
+
+  ion-tab-bar,
+  .custom-tab-bar {
+    background: transparent !important;
+    --background: transparent !important;
+    border: none !important;
+    --border: none !important;
+    border-top: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    ion-tab-button {
+      background: transparent !important;
+      --background: transparent !important;
+      --color: rgba(255, 255, 255, 0.8) !important;
+      --color-selected: #FFFFFF !important;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.85);
+
+      ion-icon,
+      .tab-icon {
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85));
+      }
+
+      &.tab-selected {
+        --color-selected: #FFFFFF !important;
+        font-weight: 700;
+
+        ion-icon,
+        .tab-icon {
+          color: var(--color-indigo) !important;
+          filter: drop-shadow(0 2px 10px var(--color-indigo-glow)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
+        }
+      }
+    }
+  }
+
+  &.dark,
+  .dark & {
+    .app-header,
+    ion-header.app-header {
+      background: transparent !important;
+      --background: transparent !important;
+      border: none !important;
+      border-bottom: none !important;
+    }
+
+    ion-tab-bar,
+    .custom-tab-bar {
+      background: transparent !important;
+      --background: transparent !important;
+      border: none !important;
+      --border: none !important;
+      border-top: none !important;
+    }
+  }
+
+  // Ensure header text is crisp white on wallpaper
+  .brand-title,
+  .page-header-title {
+    color: #FFFFFF !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .brand-subtitle,
+  .page-header-subtitle {
+    color: rgba(255, 255, 255, 0.88) !important;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.85) !important;
+  }
+
+  // High-contrast white text for all section titles/labels sitting on wallpaper
+  .settings-group-title,
+  .sound-section-title,
+  .history-section-title,
+  .notes-section-title {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .settings-group-subdesc,
+  .sound-section-subdesc,
+  .history-section-subdesc,
+  .notes-section-subdesc {
+    color: rgba(255, 255, 255, 0.88) !important;
+    font-weight: 500 !important;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9) !important;
+  }
+
+  .note-card,
+  .kpi-card,
+  .timeline-session-card,
+  .setting-card,
+  .empty-state-card,
+  .app-info-card,
+  .sound-master-card,
+  .lofi-track-card,
+  .external-playlist-btn {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  &.dark,
+  .dark & {
+    .note-card,
+    .kpi-card,
+    .timeline-session-card,
+    .setting-card,
+    .empty-state-card,
+    .app-info-card,
+    .sound-master-card,
+    .lofi-track-card,
+    .external-playlist-btn {
+      background: rgba(19, 26, 42, 0.82);
+    }
+  }
+}
+
+// App Header & Toolbars (Frosted Translucent)
+.app-header {
+  background: rgba(255, 255, 255, 0.45);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.dark, .ion-palette-dark, [color-scheme="dark"] {
+  .app-header {
+    background: rgba(11, 15, 25, 0.55);
+  }
+}
+
+.app-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  padding: 4px 12px;
+}
+
+.header-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.brand-logo-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-indigo), var(--color-cyan));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 4px 12px var(--color-indigo-glow);
+}
+
+.brand-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  padding: 0;
+  color: var(--text-main);
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.85);
+}
+
+.brand-subtitle {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.8);
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.page-header-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding: 0;
+  color: var(--text-main);
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.85);
+}
+
+.page-header-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.8);
+}
+
+.dark, .ion-palette-dark, [color-scheme="dark"] {
+  .brand-title,
+  .page-header-title {
+    color: #F8FAFC;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+  }
+
+  .brand-subtitle,
+  .page-header-subtitle {
+    color: #94A3B8;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  }
+}
+
+.header-action-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-indigo);
+  color: #ffffff;
+  border: none;
+  outline: none;
+  padding: 7px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px var(--color-indigo-glow);
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.header-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &.btn-danger-subtle {
+    color: var(--color-rose);
+    &:hover {
+      background: rgba(244, 63, 94, 0.1);
+    }
+  }
+}
+
+// Tab Bar Styling (Floating modern glass look)
+.custom-tab-bar {
+  --background: var(--tab-bar-bg);
+  --border: 1px solid var(--tab-bar-border);
+  height: 64px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+
+  ion-tab-button {
+    --color: var(--text-muted);
+    --color-selected: var(--color-indigo);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+    ion-icon, .tab-icon {
+      font-size: 22px;
+      margin-bottom: 3px;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    &.tab-selected {
+      --color-selected: var(--color-indigo);
+      ion-icon, .tab-icon {
+        transform: translateY(-2px) scale(1.1);
+      }
+    }
+
+    &:active {
+      transform: scale(0.94);
+    }
+  }
+}
+
+// Global Button styles
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--color-indigo), var(--color-indigo-hover));
+  color: #ffffff;
+  border: none;
+  outline: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px var(--color-indigo-glow);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    filter: brightness(1.06);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-card-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  outline: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.96);
+    background: var(--border-subtle);
+  }
+}
+
+// Modal Backdrop Overlay
+.modal-backdrop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+
+  @media (min-width: 640px) {
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+.note-modal-dialog {
+  background: var(--bg-card);
+  width: 100%;
+  max-width: 520px;
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (min-width: 640px) {
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-card-subtle);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  font-family: var(--app-font-family);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    border-color: var(--color-indigo);
+    box-shadow: 0 0 0 3px var(--color-indigo-glow);
+  }
+
+  &::placeholder {
+    color: var(--text-subtle);
+  }
+}
+
+.form-error-msg {
+  font-size: 0.78rem;
+  color: var(--color-rose);
+  margin-top: 2px;
+}
+
+.tag-selector-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-choice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card-subtle);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.selected {
+    border-color: var(--color-indigo);
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--color-indigo);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.modal-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+// Keyframes
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}

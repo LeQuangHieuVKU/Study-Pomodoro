@@ -1,0 +1,21 @@
+// Core Ionic CSS imports
+@use '@ionic/react/css/core.css';
+@use '@ionic/react/css/normalize.css';
+@use '@ionic/react/css/structure.css';
+@use '@ionic/react/css/typography.css';
+@use '@ionic/react/css/padding.css';
+@use '@ionic/react/css/float-elements.css';
+@use '@ionic/react/css/text-alignment.css';
+@use '@ionic/react/css/text-transformation.css';
+@use '@ionic/react/css/flex-utils.css';
+@use '@ionic/react/css/display.css';
+
+// App Custom SCSS Modules
+@use './variables.scss';
+@use './background.scss';
+@use './global.scss';
+@use './timer.scss';
+@use './notes.scss';
+@use './history.scss';
+@use './sound.scss';
+@use './settings.scss';
