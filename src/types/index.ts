@@ -10,15 +10,21 @@ export interface StudySession {
   dateKey: string; // YYYY-MM-DD
 }
 
+export type NoteStatus = 'pending' | 'todo' | 'in_progress' | 'completed' | 'cancelled';
+export type NotePriority = 'none' | 'high' | 'medium' | 'low';
 export type NoteTag = 'study' | 'urgent' | 'idea' | 'review';
 
 export interface NoteItemType {
   id: string;
   title: string;
   content: string;
-  tag: NoteTag;
+  status: NoteStatus;
+  priority: NotePriority;
+  dueDate?: string | null;
+  labels: string[];
   createdAt: string;
   updatedAt: string;
+  tag?: NoteTag;
 }
 
 export type AppLanguage = 'vi' | 'en';

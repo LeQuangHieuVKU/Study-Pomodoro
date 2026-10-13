@@ -338,7 +338,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -418,13 +418,64 @@
   }
 }
 
+// Track Icon Badge & EQ
+.track-icon-wrapper {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .track-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-indigo);
+    transition: all 0.2s ease;
+  }
+
+  .mini-eq-indicator {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+    background: var(--color-indigo);
+    padding: 2px 4px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px var(--color-indigo-glow);
+
+    .mini-bar {
+      width: 2.5px;
+      background: #ffffff;
+      border-radius: 1px;
+      height: 4px;
+
+      &.b1 { animation: eqBounce 0.8s infinite alternate ease-in-out; }
+      &.b2 { animation: eqBounce 1.2s infinite 0.2s alternate ease-in-out; }
+      &.b3 { animation: eqBounce 0.9s infinite 0.4s alternate ease-in-out; }
+    }
+  }
+}
+
 // Track Info
+.track-info-content,
 .track-info-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   overflow: hidden;
+  min-width: 0;
 }
 
 .track-title-row {
@@ -434,9 +485,10 @@
   gap: 6px;
 }
 
+.track-name-heading,
 .track-title-text {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text-main);

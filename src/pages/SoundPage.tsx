@@ -13,7 +13,6 @@ import {
   Volume2,
   VolumeX,
   Volume1,
-  Sparkles,
   Link2,
   X,
   AlertCircle,
@@ -378,31 +377,9 @@ export const SoundPage: React.FC = () => {
                     role="button"
                     tabIndex={0}
                   >
-                    <div className="track-icon-wrapper">
-                      <div className="track-icon-badge">
-                        <Sparkles size={18} />
-                      </div>
-                      {isCurrentPlaying && (
-                        <div className="mini-eq-indicator">
-                          <span className="mini-bar b1" />
-                          <span className="mini-bar b2" />
-                          <span className="mini-bar b3" />
-                        </div>
-                      )}
-                    </div>
-
                     <div className="track-info-content">
                       <div className="track-title-row">
                         <h4 className="track-name-heading">{track.title}</h4>
-                        {isCurrent && (
-                          <span className="track-active-pill">
-                            {isPlaying ? (
-                              <span>{t('soundPlayingNow')}</span>
-                            ) : (
-                              <span>{t('nowPlayingTrack')}</span>
-                            )}
-                          </span>
-                        )}
                       </div>
 
                       <p className="track-artist-text">{track.artist}</p>
@@ -412,30 +389,6 @@ export const SoundPage: React.FC = () => {
                         <span className="track-duration-pill">{track.duration}</span>
                       </div>
                     </div>
-
-                    {/* Play / Select Action Button */}
-                    <button
-                      type="button"
-                      className={`track-play-action-btn ${isCurrentPlaying ? 'btn-playing' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (isCurrent && isPlaying) {
-                          togglePlayPause();
-                        } else {
-                          if (isYtPlaying) {
-                            setIsYtPlaying(false);
-                          }
-                          selectTrack(track);
-                        }
-                      }}
-                      title={isCurrentPlaying ? t('pause') : t('clickToPlay')}
-                    >
-                      {isCurrentPlaying ? (
-                        <Pause size={17} />
-                      ) : (
-                        <Play size={17} className="ml-0.5" />
-                      )}
-                    </button>
                   </div>
                 );
               })}

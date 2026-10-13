@@ -61,6 +61,54 @@ export const TRANSLATIONS = {
     delete: "Xóa",
     copied: "Đã sao chép vào bộ nhớ tạm",
 
+    // Note Status (New)
+    noteStatusLabel: "Trạng thái",
+    statusPending: "Chờ xử lý",
+    statusTodo: "Cần làm",
+    statusInProgress: "Đang làm",
+    statusCompleted: "Đã xong",
+    statusCancelled: "Đã hủy",
+
+    // Note Priority (New)
+    notePriorityLabel: "Mức độ ưu tiên",
+    priorityNone: "Không có",
+    priorityHigh: "Cao",
+    priorityMedium: "Vừa",
+    priorityLow: "Thấp",
+
+    // Note Due Date (New)
+    noteDueDateLabel: "Hạn chót",
+    dueDateEmpty: "Chưa đặt hạn chót",
+    clearDueDate: "Xóa hạn chót",
+    overdueBadge: "Quá hạn",
+    today: "Hôm nay",
+    tomorrow: "Ngày mai",
+
+    // Note Labels (New)
+    noteLabelsLabel: "Nhãn",
+    addCustomLabel: "Thêm nhãn mới",
+    newCustomLabelPlaceholder: "Tên nhãn mới...",
+    labelPersonal: "Cá nhân",
+    labelStudy: "Học tập",
+    labelWork: "Công việc",
+    labelImportant: "Quan trọng",
+    labelIdea: "Ý tưởng",
+    labelReminder: "Nhắc nhở",
+    labelOther: "Khác",
+
+    // Note Filters (New)
+    filterAll: "Tất cả",
+    filterStatus: "Trạng thái",
+    filterPriority: "Ưu tiên",
+    filterLabel: "Nhãn",
+    clearFilters: "Đặt lại",
+    noMatchingNotes: "Không có ghi chú nào phù hợp bộ lọc",
+    filterResultCount: "ghi chú phù hợp",
+    filterQuickUnfinished: "Chỉ việc chưa xong",
+    filterQuickOverdue: "Quá hạn",
+    filterQuickHighPriority: "Ưu tiên cao",
+    filterSectionQuick: "Bộ lọc nhanh",
+
     // History
     historyTitle: "Lịch Sử Phiên Học",
     historySubtitle: "Theo dõi tiến độ & thời gian tập trung",
@@ -241,6 +289,54 @@ export const TRANSLATIONS = {
     cancel: "Cancel",
     delete: "Delete",
     copied: "Copied to clipboard",
+
+    // Note Status (New)
+    noteStatusLabel: "Status",
+    statusPending: "Pending",
+    statusTodo: "To Do",
+    statusInProgress: "In Progress",
+    statusCompleted: "Completed",
+    statusCancelled: "Cancelled",
+
+    // Note Priority (New)
+    notePriorityLabel: "Priority",
+    priorityNone: "None",
+    priorityHigh: "High",
+    priorityMedium: "Medium",
+    priorityLow: "Low",
+
+    // Note Due Date (New)
+    noteDueDateLabel: "Due Date",
+    dueDateEmpty: "No due date",
+    clearDueDate: "Clear due date",
+    overdueBadge: "Overdue",
+    today: "Today",
+    tomorrow: "Tomorrow",
+
+    // Note Labels (New)
+    noteLabelsLabel: "Labels",
+    addCustomLabel: "Add new label",
+    newCustomLabelPlaceholder: "New label name...",
+    labelPersonal: "Personal",
+    labelStudy: "Study",
+    labelWork: "Work",
+    labelImportant: "Important",
+    labelIdea: "Idea",
+    labelReminder: "Reminder",
+    labelOther: "Other",
+
+    // Note Filters (New)
+    filterAll: "All",
+    filterStatus: "Status",
+    filterPriority: "Priority",
+    filterLabel: "Label",
+    clearFilters: "Reset",
+    noMatchingNotes: "No notes matched your filter criteria",
+    filterResultCount: "matching notes",
+    filterQuickUnfinished: "Unfinished only",
+    filterQuickOverdue: "Overdue",
+    filterQuickHighPriority: "High priority",
+    filterSectionQuick: "Quick filters",
 
     // History
     historyTitle: "Session History",
