@@ -85,6 +85,7 @@ export interface LofiTrack {
   duration: string;
   url: string;
   coverImage?: string;
+  isComingSoon?: boolean;
 }
 
 export interface SoundSettings {

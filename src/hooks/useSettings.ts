@@ -20,19 +20,59 @@ export const DEFAULT_SETTINGS: AppSettings = {
   customBgData: undefined,
 };
 
-// Helper to update accent color CSS custom properties
+// Helper to update accent color CSS custom properties across both Light and Dark modes
 export const applyAccentColorToDOM = (hex: string) => {
   if (typeof document === 'undefined') return;
   const cleanHex = hex.replace('#', '');
   const r = parseInt(cleanHex.substring(0, 2), 16) || 99;
   const g = parseInt(cleanHex.substring(2, 4), 16) || 102;
   const b = parseInt(cleanHex.substring(4, 6), 16) || 241;
+  const glow = `rgba(${r}, ${g}, ${b}, 0.35)`;
 
-  document.documentElement.style.setProperty('--color-indigo', hex);
-  document.documentElement.style.setProperty('--color-indigo-hover', hex);
-  document.documentElement.style.setProperty('--color-indigo-glow', `rgba(${r}, ${g}, ${b}, 0.35)`);
-  document.documentElement.style.setProperty('--accent-color', hex);
+  const targets = [document.documentElement, document.body];
+  targets.forEach((el) => {
+    if (!el) return;
+    el.style.setProperty('--color-indigo', hex);
+    el.style.setProperty('--color-indigo-hover', hex);
+    el.style.setProperty('--color-indigo-glow', glow);
+    el.style.setProperty('--accent-color', hex);
+  });
+
+  // Inject a high-priority stylesheet rule so .dark mode can never overwrite the selected accent color
+  let styleEl = document.getElementById('app-dynamic-accent-style') as HTMLStyleElement | null;
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'app-dynamic-accent-style';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `
+    :root, html, body, .dark, .ion-palette-dark, [color-scheme="dark"], .about-page-root {
+      --color-indigo: ${hex} !important;
+      --color-indigo-hover: ${hex} !important;
+      --color-indigo-glow: ${glow} !important;
+      --accent-color: ${hex} !important;
+    }
+  `;
 };
+
+// Immediately apply saved or default accent color to prevent flash of unstyled accent
+if (typeof window !== 'undefined') {
+  try {
+    const raw = localStorage.getItem('study_pomodoro_settings') || localStorage.getItem('CapacitorStorage.study_pomodoro_settings');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.accentColor) {
+        applyAccentColorToDOM(parsed.accentColor);
+      } else {
+        applyAccentColorToDOM(DEFAULT_SETTINGS.accentColor);
+      }
+    } else {
+      applyAccentColorToDOM(DEFAULT_SETTINGS.accentColor);
+    }
+  } catch {
+    applyAccentColorToDOM(DEFAULT_SETTINGS.accentColor);
+  }
+}
 
 export const useSettings = () => {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -94,6 +134,7 @@ export const useSettings = () => {
       const next = { ...prev, [key]: val };
       if (key === 'darkMode') {
         applyTheme(Boolean(val));
+        applyAccentColorToDOM(next.accentColor || DEFAULT_SETTINGS.accentColor);
       }
       if (key === 'accentColor' && typeof val === 'string') {
         applyAccentColorToDOM(val);

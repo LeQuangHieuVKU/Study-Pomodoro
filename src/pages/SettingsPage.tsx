@@ -7,6 +7,7 @@ import {
   IonTitle,
   IonAlert,
   IonToast,
+  useIonRouter,
 } from '@ionic/react';
 import {
   Clock,
@@ -29,6 +30,7 @@ import {
   Sun,
   Bell,
   Play,
+  ChevronRight,
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { AppSettings, AppLanguage, BackgroundEffectType } from '../types';
@@ -51,6 +53,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   onResetAllData,
 }) => {
   const { language, setLanguage, t } = useLanguage();
+  const router = useIonRouter();
   const [showResetAlert, setShowResetAlert] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -641,6 +644,31 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               >
                 {t('clearAllDataBtn')}
               </button>
+            </div>
+          </div>
+
+          {/* Section 8: Giới thiệu StudyPomodoro (About & Guide) */}
+          <div className="settings-group">
+            <h3 className="settings-group-title">{t('aboutGroupTitle')}</h3>
+
+            <div
+              className="setting-card about-nav-card"
+              onClick={() => router.push('/about', 'forward', 'push')}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="setting-info">
+                <div className="setting-icon-box icon-indigo">
+                  <Sparkles size={18} />
+                </div>
+                <div>
+                  <span className="setting-name">{t('aboutNavTitle')}</span>
+                  <span className="setting-description">{t('aboutNavSubtitle')}</span>
+                </div>
+              </div>
+              <div className="about-nav-arrow">
+                <ChevronRight size={20} />
+              </div>
             </div>
           </div>
 

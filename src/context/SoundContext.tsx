@@ -47,7 +47,7 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           setVolume(parsed.volume ?? 0.65);
           audioService.setVolume(parsed.volume ?? 0.65);
 
-          const savedTrack = LOFI_TRACKS.find((t) => t.id === parsed.activeTrackId) || LOFI_TRACKS[0];
+          const savedTrack = LOFI_TRACKS.find((t) => t.id === parsed.activeTrackId && !t.isComingSoon) || LOFI_TRACKS[0];
           setCurrentTrack(savedTrack);
           audioService.setTrack(savedTrack, false);
         } else {
@@ -104,6 +104,7 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Select Track
   const selectTrack = useCallback(async (track: LofiTrack) => {
+    if (track.isComingSoon) return;
     setCurrentTrack(track);
     // If master sound is enabled, auto-play new track; otherwise just cue it
     if (isEnabled) {

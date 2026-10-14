@@ -76,6 +76,7 @@ class AudioService {
   }
 
   public async setTrack(track: LofiTrack, autoPlay: boolean = true): Promise<void> {
+    if (track.isComingSoon || !track.url) return;
     this.initAudio();
     this.stopFallbackSynth();
 
@@ -96,12 +97,13 @@ class AudioService {
 
   public async play(): Promise<void> {
     this.initAudio();
-    if (!this.currentTrack) {
+    if (!this.currentTrack || this.currentTrack.isComingSoon) {
       this.currentTrack = LOFI_TRACKS[0];
     }
 
-    if (this.audio) {
-      if (!this.audio.src || !this.audio.src.includes(this.currentTrack.id)) {
+    if (this.audio && this.currentTrack.url) {
+      const cleanUrl = this.currentTrack.url.replace(/^\//, '');
+      if (!this.audio.src || !this.audio.src.endsWith(cleanUrl)) {
         this.audio.src = this.currentTrack.url;
       }
       this.audio.volume = this.volume;

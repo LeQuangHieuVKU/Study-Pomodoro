@@ -367,6 +367,26 @@
     border-color: var(--color-indigo);
     box-shadow: 0 4px 18px var(--color-indigo-glow);
   }
+
+  &.track-coming-soon {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: var(--bg-card-subtle);
+
+    &:hover {
+      transform: none !important;
+      box-shadow: var(--card-shadow) !important;
+      border-color: var(--border-subtle) !important;
+    }
+
+    &:active {
+      transform: none !important;
+    }
+
+    .track-name-heading {
+      color: var(--text-muted);
+    }
+  }
 }
 
 // Track Thumbnail
@@ -504,6 +524,25 @@
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
+}
+
+.coming-soon-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(148, 163, 184, 0.16);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.pill-coming-soon {
+  color: var(--text-subtle);
+  font-style: italic;
 }
 
 .track-artist-text {

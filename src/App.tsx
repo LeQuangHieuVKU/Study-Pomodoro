@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Route, Navigate } from 'react-router-dom';
+import { Route, Navigate, useLocation } from 'react-router-dom';
 import {
   IonApp,
   IonRouterOutlet,
@@ -17,6 +17,7 @@ import { NotesPage } from './pages/NotesPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SoundPage } from './pages/SoundPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { AboutPage } from './pages/AboutPage';
 import { BackgroundRenderer } from './components/BackgroundRenderer';
 
 import { LanguageProvider, useLanguage } from './i18n/LanguageContext';
@@ -49,6 +50,8 @@ const AppNavigation: React.FC<AppNavigationProps> = ({
   resetSettings,
 }) => {
   const { t } = useLanguage();
+  const location = useLocation();
+  const isAboutPage = location.pathname === '/about';
   const { sessions, todayStats, addSession, clearHistory } = useHistory();
   const { clearAllNotes } = useNotes();
 
@@ -107,11 +110,15 @@ const AppNavigation: React.FC<AppNavigationProps> = ({
             />
           }
         />
+        <Route
+          path="/about"
+          element={<AboutPage />}
+        />
         <Route path="/" element={<Navigate to="/timer" replace />} />
         <Route path="*" element={<Navigate to="/timer" replace />} />
       </IonRouterOutlet>
 
-      <IonTabBar slot="bottom" className="custom-tab-bar">
+      <IonTabBar slot="bottom" className={`custom-tab-bar ${isAboutPage ? 'tab-bar-hidden' : ''}`}>
         <IonTabButton tab="timer" href="/timer">
           <Timer className="tab-icon" size={21} />
           <IonLabel>{t('tabTimer')}</IonLabel>

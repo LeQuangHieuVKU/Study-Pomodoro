@@ -356,14 +356,16 @@ export const SoundPage: React.FC = () => {
 
             <div className="lofi-tracks-grid">
               {tracks.map((track) => {
-                const isCurrent = currentTrack.id === track.id;
+                const isComingSoon = Boolean(track.isComingSoon);
+                const isCurrent = !isComingSoon && currentTrack.id === track.id;
                 const isCurrentPlaying = isCurrent && isPlaying;
 
                 return (
                   <div
                     key={track.id}
-                    className={`lofi-track-card ${isCurrent ? 'track-selected' : ''} ${isCurrentPlaying ? 'track-playing' : ''}`}
+                    className={`lofi-track-card ${isCurrent ? 'track-selected' : ''} ${isCurrentPlaying ? 'track-playing' : ''} ${isComingSoon ? 'track-coming-soon' : ''}`}
                     onClick={() => {
+                      if (isComingSoon) return;
                       if (isCurrent && isPlaying) {
                         togglePlayPause();
                       } else {
@@ -375,18 +377,26 @@ export const SoundPage: React.FC = () => {
                       }
                     }}
                     role="button"
-                    tabIndex={0}
+                    tabIndex={isComingSoon ? -1 : 0}
+                    aria-disabled={isComingSoon}
                   >
                     <div className="track-info-content">
                       <div className="track-title-row">
                         <h4 className="track-name-heading">{track.title}</h4>
+                        {isComingSoon && (
+                          <span className="coming-soon-badge">
+                            {language === 'vi' ? 'Sắp có' : 'Coming soon'}
+                          </span>
+                        )}
                       </div>
 
                       <p className="track-artist-text">{track.artist}</p>
 
                       <div className="track-meta-row">
                         <span className="track-category-tag">{track.category}</span>
-                        <span className="track-duration-pill">{track.duration}</span>
+                        <span className={`track-duration-pill ${isComingSoon ? 'pill-coming-soon' : ''}`}>
+                          {isComingSoon ? (language === 'vi' ? 'Sắp có' : 'Soon') : track.duration}
+                        </span>
                       </div>
                     </div>
                   </div>
