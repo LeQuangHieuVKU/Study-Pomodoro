@@ -1,7 +1,7 @@
 import React from 'react';
 import type { SessionMode, TimerStatus } from '../types';
 import { Focus3DOrb } from './Focus3DOrb';
-import { Flame, Coffee, Eye, Pause, Play } from 'lucide-react';
+import { Flame, Coffee, Eye } from 'lucide-react';
 
 interface TimerDisplayProps {
   mode: SessionMode;
@@ -157,31 +157,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
           {formattedTime}
         </div>
 
-        {/* Sub-status label */}
-        <div className="time-substatus">
-          {status === 'running' && (
-            <span className="flex items-center gap-1.5 status-active">
-              <span className="status-dot pulsing" />
-              {isFocus
-                ? t('focusingMessage')
-                : isLongBreak
-                ? t('longBreakMessage')
-                : t('breakMessage')}
-            </span>
-          )}
-          {status === 'paused' && (
-            <span className="flex items-center gap-1.5 status-paused">
-              <Pause size={13} />
-              {t('pause')}
-            </span>
-          )}
-          {status === 'idle' && (
-            <span className="flex items-center gap-1.5 status-idle">
-              <Play size={13} />
-              {t('readyMessage')}
-            </span>
-          )}
-        </div>
+
 
         {/* Keep Awake micro-indicator */}
         {isAwake && status === 'running' && (

@@ -13,7 +13,7 @@ import {
   Timer,
   Headphones,
   FileText,
-  Sparkles,
+  Palette,
   ShieldCheck,
   Laptop,
   Smartphone,
@@ -198,14 +198,21 @@ export const AboutPage: React.FC = () => {
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
 
-  // Listen to content scroll to toggle header title visibility
+  // Listen to content scroll to toggle header title visibility (hide on scroll down, show on scroll up)
   useEffect(() => {
     let isMounted = true;
     let scrollEl: HTMLElement | null = null;
+    let lastTop = 0;
 
     const handleScrollEvent = () => {
       if (!scrollEl || !isMounted) return;
-      setIsScrolled(scrollEl.scrollTop > 20);
+      const current = scrollEl.scrollTop;
+      if (current > lastTop + 6 && current > 20) {
+        setIsScrolled(true);
+      } else if (current < lastTop - 6 || current <= 15) {
+        setIsScrolled(false);
+      }
+      lastTop = current;
     };
 
     const setupScroll = async () => {
@@ -337,7 +344,7 @@ export const AboutPage: React.FC = () => {
     if (router.canGoBack()) {
       router.goBack();
     } else {
-      router.push('/settings', 'root', 'replace');
+      router.push('/settings', 'back', 'replace');
     }
   };
 
@@ -363,7 +370,7 @@ export const AboutPage: React.FC = () => {
       {/* Fixed Back Button - Always pinned at top-left (position: fixed) */}
       <button
         type="button"
-        className="about-back-btn"
+        className={`about-back-btn ${isLeaving ? 'is-leaving' : ''}`}
         onClick={handleBackToSettings}
         aria-label={t('backToSettings')}
       >
@@ -397,7 +404,6 @@ export const AboutPage: React.FC = () => {
           <section className="about-hero-section">
             <div className="about-hero-content">
               <div className="about-badge-pill">
-                <Sparkles size={14} className="badge-icon-spark" />
                 <span>{t('aboutHeroBadge')}</span>
               </div>
 
@@ -440,7 +446,7 @@ export const AboutPage: React.FC = () => {
           {/* SECTION B: CORE HIGHLIGHTS BENTO GRID */}
           <section id="about-features-section" ref={featuresRef} className="about-section">
             <div className="section-title-block">
-              <span className="section-eyebrow">Pillars of Productivity</span>
+              <span className="section-eyebrow">Pillars of productivity</span>
               <h3 className="section-main-heading">{t('aboutFeaturesTitle')}</h3>
               <p className="section-sub-heading">{t('aboutFeaturesSubtitle')}</p>
             </div>
@@ -501,7 +507,7 @@ export const AboutPage: React.FC = () => {
               <div className="about-feature-card feat-visuals">
                 <div className="feat-card-header">
                   <div className="feat-icon-box icon-cyan">
-                    <Sparkles size={22} />
+                    <Palette size={22} />
                   </div>
                   <span className="feat-chip-badge">Wave • Rain • Particles</span>
                 </div>
@@ -526,7 +532,7 @@ export const AboutPage: React.FC = () => {
           {/* SECTION C: HOW IT WORKS (4 STEPS) */}
           <section className="about-section">
             <div className="section-title-block">
-              <span className="section-eyebrow">Simple Workflow</span>
+              <span className="section-eyebrow">Simple workflow</span>
               <h3 className="section-main-heading">{t('aboutHowTitle')}</h3>
               <p className="section-sub-heading">{t('aboutHowSubtitle')}</p>
             </div>
@@ -573,7 +579,7 @@ export const AboutPage: React.FC = () => {
           {/* SECTION D: THE POMODORO TECHNIQUE */}
           <section className="about-section">
             <div className="section-title-block">
-              <span className="section-eyebrow">Cognitive Science</span>
+              <span className="section-eyebrow">Cognitive science</span>
               <h3 className="section-main-heading">{t('aboutPomoTitle')}</h3>
               <p className="section-sub-heading">{t('aboutPomoSubtitle')}</p>
             </div>
@@ -820,7 +826,7 @@ export const AboutPage: React.FC = () => {
           {/* SECTION F: FREQUENTLY ASKED QUESTIONS (FAQ ACCORDION) */}
           <section className="about-section">
             <div className="section-title-block">
-              <span className="section-eyebrow">Help & Clarity</span>
+              <span className="section-eyebrow">Help & clarity</span>
               <h3 className="section-main-heading">{t('aboutFaqTitle')}</h3>
               <p className="section-sub-heading">{t('aboutFaqSubtitle')}</p>
             </div>
@@ -861,7 +867,7 @@ export const AboutPage: React.FC = () => {
             <div className="final-cta-card">
               <div className="final-cta-glow-bg" />
               <div className="final-cta-content">
-                <span className="final-cta-eyebrow">Begin Your Flow State</span>
+                <span className="final-cta-eyebrow">Begin your flow state</span>
 
                 {/* Sẵn sàng + Cycling Typing Animation Phrase */}
                 <h3 className="final-cta-heading">
@@ -887,7 +893,7 @@ export const AboutPage: React.FC = () => {
           {/* Minimalist Tech Footer */}
           <footer className="about-app-footer">
             <p className="footer-credits-text">
-              StudyPomodoro v1.2.0 • React + TypeScript + Capacitor + Three.js
+              Study Pomodoro v1.2.0 • React + TypeScript + Capacitor + Three.js
             </p>
           </footer>
         </div>

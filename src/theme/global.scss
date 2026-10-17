@@ -1,6 +1,6 @@
 * {
   box-sizing: border-box;
-  font-family: var(--app-font-family);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -10,13 +10,32 @@ body, html {
   padding: 0;
   background-color: var(--bg-app);
   color: var(--text-main);
-  font-family: var(--app-font-family);
+  font-family: var(--font-body);
   overflow-x: hidden;
   user-select: none;
 
   &.has-bg-image {
     background-color: transparent !important;
   }
+}
+
+h1, h2, h3, h4, h5, h6,
+.page-header-title,
+.brand-title,
+.section-title,
+.sound-section-title,
+.settings-group-title,
+.about-hero-heading,
+.about-header-title,
+.section-main-heading,
+.features-section-heading,
+.how-section-heading,
+.pomo-section-heading,
+.faq-section-heading,
+.final-cta-heading,
+.step-card-title,
+.feature-card-title {
+  font-family: var(--font-heading) !important;
 }
 
 // Custom Scrollbar
@@ -100,7 +119,7 @@ ion-content::part(scroll) {
         ion-icon,
         .tab-icon {
           color: var(--color-indigo) !important;
-          filter: drop-shadow(0 2px 10px var(--color-indigo-glow)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
+          filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
         }
       }
     }
@@ -194,6 +213,14 @@ ion-content::part(scroll) {
   border-bottom: 1px solid var(--border-subtle);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  will-change: transform, opacity;
+
+  &.header-hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 .dark, .ion-palette-dark, [color-scheme="dark"] {
@@ -219,12 +246,13 @@ ion-content::part(scroll) {
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--color-indigo), var(--color-cyan));
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  box-shadow: 0 4px 12px var(--color-indigo-glow);
+  color: var(--color-indigo);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .brand-title {
@@ -234,6 +262,53 @@ ion-content::part(scroll) {
   padding: 0;
   color: var(--text-main);
   text-shadow: 0 1px 10px rgba(255, 255, 255, 0.85);
+
+  &.brand-title-editable {
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    user-select: none;
+    display: inline-block;
+
+    &:hover {
+      opacity: 0.85;
+      text-decoration: underline dotted rgba(255, 255, 255, 0.45);
+    }
+  }
+}
+
+.brand-title-input {
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  font-family: inherit;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 1px 8px;
+  outline: none;
+  min-width: 140px;
+  max-width: 240px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  &:focus {
+    border-color: var(--color-indigo, #818CF8);
+    background: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+  }
+}
+
+html:not(.dark):not(.ion-palette-dark),
+body:not(.dark):not(.ion-palette-dark) {
+  .brand-title-input {
+    background: rgba(15, 23, 42, 0.08);
+    border-color: rgba(15, 23, 42, 0.22);
+    color: #0F172A;
+
+    &:focus {
+      background: rgba(255, 255, 255, 0.95);
+    }
+  }
 }
 
 .brand-subtitle {
@@ -241,8 +316,8 @@ ion-content::part(scroll) {
   font-size: 0.72rem;
   color: var(--text-muted);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: none;
+  letter-spacing: normal;
   text-shadow: 0 1px 6px rgba(255, 255, 255, 0.8);
 }
 
@@ -252,6 +327,38 @@ ion-content::part(scroll) {
   justify-content: space-between;
   width: 100%;
   padding: 4px 0;
+}
+
+.header-left-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    border-color: var(--color-indigo);
+    color: var(--color-indigo);
+    transform: translateX(-2px);
+  }
+
+  &:active {
+    transform: scale(0.94);
+  }
 }
 
 .page-header-title {
@@ -299,7 +406,7 @@ ion-content::part(scroll) {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 14px var(--color-indigo-glow);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
   &:active {
     transform: scale(0.95);
@@ -330,40 +437,14 @@ ion-content::part(scroll) {
   }
 }
 
-// Tab Bar Styling (Floating modern glass look)
+// Tab Bar Completely Hidden
+ion-tab-bar,
 .custom-tab-bar {
-  --background: var(--tab-bar-bg);
-  --border: 1px solid var(--tab-bar-border);
-  height: 64px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
-
-  ion-tab-button {
-    --color: var(--text-muted);
-    --color-selected: var(--color-indigo);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-
-    ion-icon, .tab-icon {
-      font-size: 22px;
-      margin-bottom: 3px;
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    &.tab-selected {
-      --color-selected: var(--color-indigo);
-      ion-icon, .tab-icon {
-        transform: translateY(-2px) scale(1.1);
-      }
-    }
-
-    &:active {
-      transform: scale(0.94);
-    }
-  }
+  display: none !important;
+  height: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }
 
 // Global Button styles
@@ -381,7 +462,7 @@ ion-content::part(scroll) {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 16px var(--color-indigo-glow);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
@@ -415,13 +496,11 @@ ion-content::part(scroll) {
   }
 }
 
-// Modal Backdrop Overlay
+// Modal Backdrop Overlay (Transparent - no darkening/blur overlay behind note modal)
 .modal-backdrop-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: transparent;
   z-index: 9999;
   display: flex;
   align-items: flex-end;
@@ -499,8 +578,8 @@ ion-content::part(scroll) {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .form-input, .form-textarea {
@@ -511,13 +590,13 @@ ion-content::part(scroll) {
   padding: 12px 14px;
   color: var(--text-main);
   font-size: 0.95rem;
-  font-family: var(--app-font-family);
+  font-family: var(--font-body);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:focus {
     border-color: var(--color-indigo);
-    box-shadow: 0 0 0 3px var(--color-indigo-glow);
+    box-shadow: 0 0 0 2px var(--border-focus);
   }
 
   &::placeholder {

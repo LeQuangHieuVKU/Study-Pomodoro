@@ -17,10 +17,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Sun,
-  Sparkles,
   Trash2,
 } from 'lucide-react';
-import { PRESET_LABELS, getLabelDisplayName } from '../hooks/useNotes';
+import { PRESET_LABELS, getLabelDisplayName, getLabelColor } from '../hooks/useNotes';
+import {
+  STATUS_LIST,
+  getStatusLabel,
+  StatusIcon,
+} from '../constants/statusConfig';
 
 interface NoteModalProps {
   isOpen: boolean;
@@ -192,13 +196,8 @@ export const NoteModal: React.FC<NoteModalProps> = ({
   };
 
   const handleToggleLabel = (labelName: string) => {
-    setSelectedLabels((prev) => {
-      if (prev.includes(labelName)) {
-        return prev.filter((l) => l !== labelName);
-      } else {
-        return [...prev, labelName];
-      }
-    });
+    setSelectedLabels((prev) => (prev.includes(labelName) ? [] : [labelName]));
+    setActiveDropdown(null);
   };
 
   const handleAddNewLabel = async () => {
@@ -211,19 +210,17 @@ export const NoteModal: React.FC<NoteModalProps> = ({
     setNewLabelInput('');
   };
 
-  const statusOptions: { key: NoteStatus; labelKey: string; icon: React.ReactNode }[] = [
-    { key: 'pending', labelKey: 'statusPending', icon: <Clock size={14} /> },
-    { key: 'todo', labelKey: 'statusTodo', icon: <CircleDot size={14} /> },
-    { key: 'in_progress', labelKey: 'statusInProgress', icon: <PlayCircle size={14} /> },
-    { key: 'completed', labelKey: 'statusCompleted', icon: <CheckCircle2 size={14} /> },
-    { key: 'cancelled', labelKey: 'statusCancelled', icon: <XCircle size={14} /> },
-  ];
+  const statusOptions = STATUS_LIST.map((key) => ({
+    key,
+    label: getStatusLabel(key, language),
+    icon: <StatusIcon status={key} size={16} />,
+  }));
 
   const priorityOptions: { key: NotePriority; labelKey: string; icon?: React.ReactNode }[] = [
-    { key: 'none', labelKey: 'priorityNone', icon: <Flag size={14} className="opacity-40" /> },
-    { key: 'high', labelKey: 'priorityHigh', icon: <Flame size={14} className="text-rose-500" /> },
-    { key: 'medium', labelKey: 'priorityMedium', icon: <Flag size={14} className="text-amber-500" /> },
-    { key: 'low', labelKey: 'priorityLow', icon: <Flag size={14} className="text-sky-500" /> },
+    { key: 'none', labelKey: 'priorityNone', icon: <Flag size={16} className="opacity-40" /> },
+    { key: 'high', labelKey: 'priorityHigh', icon: <Flame size={16} className="text-rose-500" /> },
+    { key: 'medium', labelKey: 'priorityMedium', icon: <Flag size={16} className="text-amber-500" /> },
+    { key: 'low', labelKey: 'priorityLow', icon: <Flag size={16} className="text-sky-500" /> },
   ];
 
   const allAvailableLabels: string[] = [
@@ -232,32 +229,24 @@ export const NoteModal: React.FC<NoteModalProps> = ({
   ];
 
   const getStatusChipConfig = () => {
-    switch (status) {
-      case 'todo':
-        return { text: t('statusTodo'), icon: <CircleDot size={13} />, className: 'chip-status-todo' };
-      case 'in_progress':
-        return { text: t('statusInProgress'), icon: <PlayCircle size={13} />, className: 'chip-status-in-progress' };
-      case 'completed':
-        return { text: t('statusCompleted'), icon: <CheckCircle2 size={13} />, className: 'chip-status-completed' };
-      case 'cancelled':
-        return { text: t('statusCancelled'), icon: <XCircle size={13} />, className: 'chip-status-cancelled' };
-      case 'pending':
-      default:
-        return { text: t('statusPending'), icon: <Clock size={13} />, className: 'chip-status-pending' };
-    }
+    return {
+      text: getStatusLabel(status, language),
+      icon: <StatusIcon status={status} size={15} />,
+      className: `chip-status-${status}`,
+    };
   };
 
   const getPriorityChipConfig = () => {
     switch (priority) {
       case 'high':
-        return { text: t('priorityHigh'), icon: <Flame size={13} />, className: 'chip-priority-high' };
+        return { text: t('priorityHigh'), icon: <Flame size={15} />, className: 'chip-priority-high' };
       case 'medium':
-        return { text: t('priorityMedium'), icon: <Flag size={13} />, className: 'chip-priority-medium' };
+        return { text: t('priorityMedium'), icon: <Flag size={15} />, className: 'chip-priority-medium' };
       case 'low':
-        return { text: t('priorityLow'), icon: <Flag size={13} />, className: 'chip-priority-low' };
+        return { text: t('priorityLow'), icon: <Flag size={15} />, className: 'chip-priority-low' };
       case 'none':
       default:
-        return { text: t('notePriorityLabel'), icon: <Flag size={13} />, className: 'chip-priority-none' };
+        return { text: t('notePriorityLabel'), icon: <Flag size={15} />, className: 'chip-priority-none' };
     }
   };
 
@@ -265,13 +254,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
     if (!selectedLabels || selectedLabels.length === 0) {
       return t('noteLabelsLabel');
     }
-    if (selectedLabels.length === 1) {
-      return getLabelDisplayName(selectedLabels[0], language);
-    }
-    if (selectedLabels.length === 2) {
-      return `${getLabelDisplayName(selectedLabels[0], language)}, ${getLabelDisplayName(selectedLabels[1], language)}`;
-    }
-    return `${getLabelDisplayName(selectedLabels[0], language)} (+${selectedLabels.length - 1})`;
+    return getLabelDisplayName(selectedLabels[0], language);
   };
 
   // Calendar calculations
@@ -306,7 +289,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
             onClick={onClose}
             aria-label={t('cancel')}
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
@@ -338,7 +321,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
             >
               {statusChipInfo.icon}
               <span className="chip-text">{statusChipInfo.text}</span>
-              <ChevronDown size={13} className={`chip-chevron ${activeDropdown === 'status' ? 'rotated' : ''}`} />
+              <ChevronDown size={15} className={`chip-chevron ${activeDropdown === 'status' ? 'rotated' : ''}`} />
             </button>
 
             {/* CHIP 2: MỨC ƯU TIÊN */}
@@ -349,7 +332,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
             >
               {priorityChipInfo.icon}
               <span className="chip-text">{priorityChipInfo.text}</span>
-              <ChevronDown size={13} className={`chip-chevron ${activeDropdown === 'priority' ? 'rotated' : ''}`} />
+              <ChevronDown size={15} className={`chip-chevron ${activeDropdown === 'priority' ? 'rotated' : ''}`} />
             </button>
 
             {/* CHIP 3: HẠN CHÓT (SMART CHIP TEXT: Hôm nay, Ngày mai, 13 thg 10) */}
@@ -358,9 +341,9 @@ export const NoteModal: React.FC<NoteModalProps> = ({
               className={`note-meta-chip chip-due ${dueDate ? 'has-value' : ''} ${activeDropdown === 'due' ? 'is-active' : ''}`}
               onClick={() => toggleDropdown('due')}
             >
-              <Calendar size={13} />
+              <Calendar size={15} />
               <span className="chip-text">{formatSmartDueDate(dueDate, language)}</span>
-              <ChevronDown size={13} className={`chip-chevron ${activeDropdown === 'due' ? 'rotated' : ''}`} />
+              <ChevronDown size={15} className={`chip-chevron ${activeDropdown === 'due' ? 'rotated' : ''}`} />
             </button>
 
             {/* CHIP 4: NHÃN */}
@@ -369,9 +352,16 @@ export const NoteModal: React.FC<NoteModalProps> = ({
               className={`note-meta-chip chip-labels ${selectedLabels.length > 0 ? 'has-value' : ''} ${activeDropdown === 'labels' ? 'is-active' : ''}`}
               onClick={() => toggleDropdown('labels')}
             >
-              <Tag size={13} />
+              {selectedLabels.length > 0 ? (
+                <span
+                  className="chip-color-dot"
+                  style={{ backgroundColor: getLabelColor(selectedLabels[0]) }}
+                />
+              ) : (
+                <Tag size={15} />
+              )}
               <span className="chip-text">{getLabelsChipText()}</span>
-              <ChevronDown size={13} className={`chip-chevron ${activeDropdown === 'labels' ? 'rotated' : ''}`} />
+              <ChevronDown size={15} className={`chip-chevron ${activeDropdown === 'labels' ? 'rotated' : ''}`} />
             </button>
           </div>
 
@@ -384,7 +374,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                   <div className="tray-header">
                     <span>{t('noteStatusLabel')}</span>
                     <button type="button" className="tray-close-btn" onClick={() => setActiveDropdown(null)}>
-                      <X size={14} />
+                      <X size={16} />
                     </button>
                   </div>
                   <div className="tray-status-grid">
@@ -396,8 +386,8 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                         onClick={() => handleSelectStatus(opt.key)}
                       >
                         <span className="item-icon">{opt.icon}</span>
-                        <span className="item-label">{t(opt.labelKey)}</span>
-                        {status === opt.key && <Check size={14} className="ml-auto" />}
+                        <span className="item-label">{opt.label}</span>
+                        {status === opt.key && <Check size={16} className="ml-auto" />}
                       </button>
                     ))}
                   </div>
@@ -410,7 +400,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                   <div className="tray-header">
                     <span>{t('notePriorityLabel')}</span>
                     <button type="button" className="tray-close-btn" onClick={() => setActiveDropdown(null)}>
-                      <X size={14} />
+                      <X size={16} />
                     </button>
                   </div>
                   <div className="tray-priority-row">
@@ -423,7 +413,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                       >
                         <span className="item-icon">{opt.icon}</span>
                         <span className="item-label">{t(opt.labelKey)}</span>
-                        {priority === opt.key && <Check size={14} className="ml-1" />}
+                        {priority === opt.key && <Check size={16} className="ml-1" />}
                       </button>
                     ))}
                   </div>
@@ -436,7 +426,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                   <div className="tray-header">
                     <span>{t('noteDueDateLabel')}</span>
                     <button type="button" className="tray-close-btn" onClick={() => setActiveDropdown(null)}>
-                      <X size={14} />
+                      <X size={16} />
                     </button>
                   </div>
 
@@ -447,7 +437,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                       className={`quick-date-btn ${dueDate === todayStr ? 'active' : ''}`}
                       onClick={handleSelectToday}
                     >
-                      <Sparkles size={13} className="text-amber-400" />
+                      <Clock size={15} className="text-amber-500" />
                       <span>{t('today')}</span>
                     </button>
 
@@ -456,7 +446,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                       className={`quick-date-btn ${dueDate === tomorrowStr ? 'active' : ''}`}
                       onClick={handleSelectTomorrow}
                     >
-                      <Sun size={13} className="text-indigo-400" />
+                      <Sun size={15} className="text-indigo-400" />
                       <span>{t('tomorrow')}</span>
                     </button>
                   </div>
@@ -469,7 +459,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                       onClick={handlePrevMonth}
                       aria-label="Previous month"
                     >
-                      <ChevronLeft size={16} />
+                      <ChevronLeft size={18} />
                     </button>
                     <span className="cal-month-title">
                       {language === 'vi'
@@ -482,7 +472,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                       onClick={handleNextMonth}
                       aria-label="Next month"
                     >
-                      <ChevronRight size={16} />
+                      <ChevronRight size={18} />
                     </button>
                   </div>
 
@@ -533,7 +523,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                         className="cal-clear-btn"
                         onClick={handleClearDueDate}
                       >
-                        <Trash2 size={13} className="mr-1" />
+                        <Trash2 size={15} className="mr-1" />
                         <span>{t('clearDueDate')}</span>
                       </button>
                     </div>
@@ -545,15 +535,16 @@ export const NoteModal: React.FC<NoteModalProps> = ({
               {activeDropdown === 'labels' && (
                 <div className="tray-content tray-labels-content">
                   <div className="tray-header">
-                    <span>{t('noteLabelsLabel')} (Chọn nhiều nhãn)</span>
+                    <span>{t('noteLabelsLabel')}</span>
                     <button type="button" className="tray-close-btn" onClick={() => setActiveDropdown(null)}>
-                      <X size={14} />
+                      <X size={16} />
                     </button>
                   </div>
 
                   <div className="tray-labels-wrap">
                     {allAvailableLabels.map((lbl) => {
                       const isSelected = selectedLabels.includes(lbl);
+                      const color = getLabelColor(lbl);
                       return (
                         <button
                           key={lbl}
@@ -561,9 +552,9 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                           className={`tray-label-chip ${isSelected ? 'selected' : ''}`}
                           onClick={() => handleToggleLabel(lbl)}
                         >
-                          <Tag size={12} className="opacity-70" />
+                          <span className="label-color-dot" style={{ backgroundColor: color }} />
                           <span>{getLabelDisplayName(lbl, language)}</span>
-                          {isSelected && <Check size={12} className="ml-1 text-emerald-400" />}
+                          {isSelected && <Check size={14} className="ml-1 text-emerald-400" />}
                         </button>
                       );
                     })}
@@ -590,7 +581,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
                       disabled={!newLabelInput.trim()}
                       title={t('addCustomLabel')}
                     >
-                      <Plus size={14} />
+                      <Plus size={16} />
                       <span>{t('addCustomLabel')}</span>
                     </button>
                   </div>
@@ -627,7 +618,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({
               {t('cancel')}
             </button>
             <button type="submit" className="btn-primary">
-              <Check size={16} />
+              <Check size={18} />
               <span>
                 {language === 'vi'
                   ? initialNote

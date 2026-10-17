@@ -82,8 +82,8 @@ export const MOTIVATIONAL_QUOTES: QuoteItem[] = [
     id: 12,
     textVi: "Tắt xao nhãng, bật ước mơ, tiến về phía trước.",
     textEn: "Silence the noise, ignite your dreams, move forward.",
-    authorVi: "StudyPomodoro",
-    authorEn: "StudyPomodoro"
+    authorVi: "Study Pomodoro",
+    authorEn: "Study Pomodoro"
   }
 ];
 

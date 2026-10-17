@@ -6,9 +6,11 @@ import {
   IonToolbar,
   IonTitle,
   IonAlert,
+  useIonRouter,
 } from '@ionic/react';
-import { Flame, Clock, Coffee, Trash2, Calendar, Award, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Flame, Clock, Coffee, Trash2, Calendar, Award, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useHeaderScroll } from '../hooks/useHeaderScroll';
 import type { StudySession, TodayStats } from '../types';
 
 interface HistoryPageProps {
@@ -22,7 +24,9 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
   todayStats,
   onClearHistory,
 }) => {
+  const router = useIonRouter();
   const { t } = useLanguage();
+  const { isHeaderHidden, handleIonScroll } = useHeaderScroll();
   const [showClearAlert, setShowClearAlert] = useState(false);
 
   // Format focus minutes to hours & minutes display
@@ -37,12 +41,23 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
 
   return (
     <IonPage className="history-page-root">
-      <IonHeader className="ion-no-border app-header">
+      <IonHeader className={`ion-no-border app-header ${isHeaderHidden ? 'header-hidden' : ''}`}>
         <IonToolbar className="app-toolbar">
           <div className="header-title-row">
-            <div>
-              <IonTitle className="page-header-title">{t('historyTitle')}</IonTitle>
-              <p className="page-header-subtitle">{t('historySubtitle')}</p>
+            <div className="header-left-group">
+              <button
+                type="button"
+                className="header-back-button"
+                onClick={() => router.push('/timer', 'back')}
+                title="Quay lại Timer"
+                aria-label="Quay lại"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <div>
+                <IonTitle className="page-header-title">{t('historyTitle')}</IonTitle>
+                <p className="page-header-subtitle">{t('historySubtitle')}</p>
+              </div>
             </div>
             {sessions.length > 0 && (
               <button
@@ -58,7 +73,12 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen className="history-content-area">
+      <IonContent
+        fullscreen
+        scrollEvents={true}
+        onIonScroll={handleIonScroll}
+        className="history-content-area"
+      >
         <div className="history-page-wrapper">
           {/* Today Overview Header */}
           <div className="section-label-row">

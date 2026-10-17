@@ -5,19 +5,15 @@ import {
   Edit3,
   Copy,
   Check,
-  Clock,
-  CircleDot,
-  PlayCircle,
-  CheckCircle2,
-  XCircle,
   Flame,
   Flag,
   Calendar,
   AlertCircle,
   Tag,
 } from 'lucide-react';
-import { getLabelDisplayName } from '../hooks/useNotes';
+import { getLabelDisplayName, getLabelColor } from '../hooks/useNotes';
 import { formatSmartDueDate } from './NoteModal';
+import { getStatusConfig, getStatusLabel, StatusIcon } from '../constants/statusConfig';
 
 interface NoteItemProps {
   note: NoteItemType;
@@ -27,61 +23,25 @@ interface NoteItemProps {
   language?: 'vi' | 'en';
 }
 
-const getStatusConfig = (status: NoteStatus, t: (key: any) => string) => {
-  switch (status) {
-    case 'todo':
-      return {
-        label: t('statusTodo'),
-        className: 'status-todo',
-        icon: <CircleDot size={12} />,
-      };
-    case 'in_progress':
-      return {
-        label: t('statusInProgress'),
-        className: 'status-in-progress',
-        icon: <PlayCircle size={12} />,
-      };
-    case 'completed':
-      return {
-        label: t('statusCompleted'),
-        className: 'status-completed',
-        icon: <CheckCircle2 size={12} />,
-      };
-    case 'cancelled':
-      return {
-        label: t('statusCancelled'),
-        className: 'status-cancelled',
-        icon: <XCircle size={12} />,
-      };
-    case 'pending':
-    default:
-      return {
-        label: t('statusPending'),
-        className: 'status-pending',
-        icon: <Clock size={12} />,
-      };
-  }
-};
-
 const getPriorityConfig = (priority: NotePriority, t: (key: any) => string) => {
   switch (priority) {
     case 'high':
       return {
         label: t('priorityHigh'),
         className: 'priority-high',
-        icon: <Flame size={12} />,
+        icon: <Flame size={14} />,
       };
     case 'medium':
       return {
         label: t('priorityMedium'),
         className: 'priority-medium',
-        icon: <Flag size={12} />,
+        icon: <Flag size={14} />,
       };
     case 'low':
       return {
         label: t('priorityLow'),
         className: 'priority-low',
-        icon: <Flag size={12} />,
+        icon: <Flag size={14} />,
       };
     case 'none':
     default:
@@ -126,7 +86,8 @@ export const NoteItem: React.FC<NoteItemProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const statusConfig = getStatusConfig(note.status, t);
+  const statusCfg = getStatusConfig(note.status);
+  const statusLabel = getStatusLabel(note.status, language);
   const priorityConfig = getPriorityConfig(note.priority, t);
   const isOverdue = checkIsOverdue(note.dueDate, note.status);
 
@@ -157,9 +118,9 @@ export const NoteItem: React.FC<NoteItemProps> = ({
       {/* Top Meta Bar: Status & Priority Badges */}
       <div className="note-card-header">
         <div className="note-badges-left">
-          <span className={`note-status-pill ${statusConfig.className}`}>
-            {statusConfig.icon}
-            <span>{statusConfig.label}</span>
+          <span className={`note-status-pill ${statusCfg.className}`}>
+            <StatusIcon status={note.status} size={14} />
+            <span>{statusLabel}</span>
           </span>
 
           {priorityConfig && (
@@ -185,7 +146,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
           {/* Due date info */}
           {note.dueDate && (
             <div className={`note-due-date-pill ${isOverdue ? 'is-overdue' : ''}`}>
-              {isOverdue ? <AlertCircle size={12} /> : <Calendar size={12} />}
+              {isOverdue ? <AlertCircle size={14} /> : <Calendar size={14} />}
               <span>{formatSmartDueDate(note.dueDate, language)}</span>
               {isOverdue && <span className="overdue-text">({t('overdueBadge')})</span>}
             </div>
@@ -194,12 +155,23 @@ export const NoteItem: React.FC<NoteItemProps> = ({
           {/* Labels chips */}
           {note.labels && note.labels.length > 0 && (
             <div className="note-labels-list">
-              {note.labels.map((lbl, idx) => (
-                <span key={`${lbl}-${idx}`} className="note-label-chip">
-                  <Tag size={10} className="opacity-60" />
-                  <span>{getLabelDisplayName(lbl, language)}</span>
-                </span>
-              ))}
+              {note.labels.slice(0, 1).map((lbl, idx) => {
+                const color = getLabelColor(lbl);
+                return (
+                  <span
+                    key={`${lbl}-${idx}`}
+                    className="note-label-chip"
+                    style={{
+                      borderColor: `${color}40`,
+                      backgroundColor: `${color}15`,
+                      color: color,
+                    }}
+                  >
+                    <span className="label-color-dot-mini" style={{ backgroundColor: color }} />
+                    <span>{getLabelDisplayName(lbl, language)}</span>
+                  </span>
+                );
+              })}
             </div>
           )}
         </div>
@@ -213,7 +185,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
           className="note-action-btn btn-copy"
           title={copied ? t('copied') : 'Copy'}
         >
-          {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+          {copied ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
         </button>
 
         <button
@@ -222,7 +194,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
           className="note-action-btn btn-edit"
           title={t('editNote')}
         >
-          <Edit3 size={14} />
+          <Edit3 size={16} />
         </button>
 
         <button
@@ -231,7 +203,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
           className="note-action-btn btn-delete"
           title={t('delete')}
         >
-          <Trash2 size={14} />
+          <Trash2 size={16} />
         </button>
       </div>
     </div>

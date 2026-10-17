@@ -14,6 +14,12 @@ export type NoteStatus = 'pending' | 'todo' | 'in_progress' | 'completed' | 'can
 export type NotePriority = 'none' | 'high' | 'medium' | 'low';
 export type NoteTag = 'study' | 'urgent' | 'idea' | 'review';
 
+export interface AppLabel {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export interface NoteItemType {
   id: string;
   title: string;
@@ -26,12 +32,11 @@ export interface NoteItemType {
   updatedAt: string;
   tag?: NoteTag;
 }
-
 export type AppLanguage = 'vi' | 'en';
 
-export type BackgroundEffectType = 'none' | 'gradient' | 'particles' | 'wave' | 'rain' | 'blob';
+export type BackgroundEffectType = 'none' | 'gradient' | 'particles' | 'wave' | 'rain' | 'blob' | 'stars' | 'bubbles';
 
-export type NotificationSoundType = 'bell' | 'ping' | 'water' | 'wood' | 'piano' | 'soft';
+export type NotificationSoundType = 'chime' | 'bell' | 'digital' | 'soft' | 'wood' | 'digitalSoft' | 'ping' | 'water' | 'piano';
 
 export interface AccentColorItem {
   id: string;
@@ -57,6 +62,9 @@ export interface AppSettings {
   soundEnabled: boolean;
   notificationSound: NotificationSoundType;
   autoSwitchSession: boolean;
+  autoStartBreaks?: boolean;
+  autoStartFocus?: boolean;
+  alarmVolume?: number; // 0 to 100
   backgroundEffect: BackgroundEffectType;
   accentColor: string;
   backgroundImage: string; // 'none' | preset id | 'custom'

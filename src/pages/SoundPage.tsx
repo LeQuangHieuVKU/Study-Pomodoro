@@ -5,8 +5,10 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
+  useIonRouter,
 } from '@ionic/react';
 import {
+  ArrowLeft,
   Headphones,
   Play,
   Pause,
@@ -23,6 +25,7 @@ import { Preferences } from '@capacitor/preferences';
 import ReactPlayer from 'react-player';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSound } from '../hooks/useSound';
+import { useHeaderScroll } from '../hooks/useHeaderScroll';
 import { EXTERNAL_PLAYLISTS } from '../data/soundTracks';
 import type { LofiTrack } from '../types';
 
@@ -107,7 +110,9 @@ const fetchYouTubeTitle = async (url: string): Promise<string> => {
 };
 
 export const SoundPage: React.FC = () => {
+  const router = useIonRouter();
   const { t, language } = useLanguage();
+  const { isHeaderHidden, handleIonScroll } = useHeaderScroll();
   const {
     isEnabled,
     isPlaying,
@@ -242,12 +247,23 @@ export const SoundPage: React.FC = () => {
 
   return (
     <IonPage className="sound-page-root">
-      <IonHeader className="ion-no-border app-header">
+      <IonHeader className={`ion-no-border app-header ${isHeaderHidden ? 'header-hidden' : ''}`}>
         <IonToolbar className="app-toolbar">
           <div className="header-title-row">
-            <div>
-              <IonTitle className="page-header-title">{t('soundTitle')}</IonTitle>
-              <p className="page-header-subtitle">{t('soundSubtitle')}</p>
+            <div className="header-left-group">
+              <button
+                type="button"
+                className="header-back-button"
+                onClick={() => router.push('/timer', 'back')}
+                title="Quay lại Timer"
+                aria-label="Quay lại"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <div>
+                <IonTitle className="page-header-title">{t('soundTitle')}</IonTitle>
+                <p className="page-header-subtitle">{t('soundSubtitle')}</p>
+              </div>
             </div>
             {/* Quick mini play/pause indicator for Lofi */}
             {isEnabled && (
@@ -265,7 +281,12 @@ export const SoundPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen className="sound-content-area">
+      <IonContent
+        fullscreen
+        scrollEvents={true}
+        onIonScroll={handleIonScroll}
+        className="sound-content-area"
+      >
         <div className="sound-page-wrapper">
           {/* SECTION A: MASTER TOGGLE & VOLUME DECK */}
           <section className="sound-section">

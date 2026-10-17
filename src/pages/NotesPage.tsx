@@ -6,31 +6,34 @@ import {
   IonToolbar,
   IonTitle,
   IonSearchbar,
+  useIonRouter,
 } from '@ionic/react';
 import {
+  ArrowLeft,
   Plus,
   Layers,
   Filter,
   RotateCcw,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
   Flame,
   Flag,
-  Clock,
-  CircleDot,
-  PlayCircle,
-  XCircle,
+  Tag,
 } from 'lucide-react';
 import { NoteItem } from '../components/NoteItem';
 import { NoteModal } from '../components/NoteModal';
+import { ManageLabelsModal } from '../components/ManageLabelsModal';
 import { useNotes } from '../hooks/useNotes';
+import { useHeaderScroll } from '../hooks/useHeaderScroll';
 import { useLanguage } from '../i18n/LanguageContext';
+import { STATUS_LIST, getStatusLabel, StatusIcon } from '../constants/statusConfig';
 import type { NoteItemType, NoteStatus, NotePriority } from '../types';
 
 export const NotesPage: React.FC = () => {
+  const router = useIonRouter();
   const { notes, customLabels, addNote, updateNote, deleteNote, addCustomLabel } = useNotes();
   const { t, language } = useLanguage();
+  const { isHeaderHidden, handleIonScroll } = useHeaderScroll();
 
   const [searchQuery, setSearchQuery] = useState('');
   // A. Quick toggle filters
@@ -46,6 +49,7 @@ export const NotesPage: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<NoteItemType | null>(null);
+  const [isManageLabelsOpen, setIsManageLabelsOpen] = useState(false);
 
   // Helper to check if a note is overdue
   const checkIsOverdue = (dateStr?: string | null, status?: NoteStatus): boolean => {
@@ -163,41 +167,67 @@ export const NotesPage: React.FC = () => {
   };
 
   const priorityFilterList: { key: NotePriority; label: string; icon: React.ReactNode }[] = [
-    { key: 'high', label: t('priorityHigh'), icon: <Flame size={12} /> },
-    { key: 'medium', label: t('priorityMedium'), icon: <Flag size={12} /> },
-    { key: 'low', label: t('priorityLow'), icon: <Flag size={12} /> },
+    { key: 'high', label: t('priorityHigh'), icon: <Flame size={14} /> },
+    { key: 'medium', label: t('priorityMedium'), icon: <Flag size={14} /> },
+    { key: 'low', label: t('priorityLow'), icon: <Flag size={14} /> },
   ];
 
-  const statusFilterList: { key: NoteStatus; label: string; icon: React.ReactNode }[] = [
-    { key: 'pending', label: t('statusPending'), icon: <Clock size={12} /> },
-    { key: 'todo', label: t('statusTodo'), icon: <CircleDot size={12} /> },
-    { key: 'in_progress', label: t('statusInProgress'), icon: <PlayCircle size={12} /> },
-    { key: 'completed', label: t('statusCompleted'), icon: <CheckCircle2 size={12} /> },
-    { key: 'cancelled', label: t('statusCancelled'), icon: <XCircle size={12} /> },
-  ];
+  const statusFilterList: { key: NoteStatus; label: string; icon: React.ReactNode }[] =
+    STATUS_LIST.map((key) => ({
+      key,
+      label: getStatusLabel(key, language),
+      icon: <StatusIcon status={key} size={14} />,
+    }));
 
   return (
     <IonPage className="notes-page-root">
-      <IonHeader className="ion-no-border app-header">
+      <IonHeader className={`ion-no-border app-header ${isHeaderHidden ? 'header-hidden' : ''}`}>
         <IonToolbar className="app-toolbar">
           <div className="header-title-row">
-            <div>
-              <IonTitle className="page-header-title">{t('notesTitle')}</IonTitle>
-              <p className="page-header-subtitle">{t('notesSubtitle')}</p>
+            <div className="header-left-group">
+              <button
+                type="button"
+                className="header-back-button"
+                onClick={() => router.push('/timer', 'back')}
+                title="Quay lại Timer"
+                aria-label="Quay lại"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <div>
+                <IonTitle className="page-header-title">{t('notesTitle')}</IonTitle>
+                <p className="page-header-subtitle">{t('notesSubtitle')}</p>
+              </div>
             </div>
-            <button
-              type="button"
-              className="header-action-pill-btn"
-              onClick={handleOpenAdd}
-            >
-              <Plus size={16} />
-              <span>{t('addNote')}</span>
-            </button>
+            <div className="header-actions-right">
+              <button
+                type="button"
+                className="header-manage-labels-btn"
+                onClick={() => setIsManageLabelsOpen(true)}
+                title={language === 'vi' ? 'Quản lý nhãn' : 'Manage labels'}
+                aria-label={language === 'vi' ? 'Quản lý nhãn' : 'Manage labels'}
+              >
+                <Tag size={18} />
+              </button>
+              <button
+                type="button"
+                className="header-action-pill-btn"
+                onClick={handleOpenAdd}
+              >
+                <Plus size={18} />
+                <span>{t('addNote')}</span>
+              </button>
+            </div>
           </div>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen className="notes-content-area">
+      <IonContent
+        fullscreen
+        scrollEvents={true}
+        onIonScroll={handleIonScroll}
+        className="notes-content-area"
+      >
         <div className="notes-page-wrapper">
           {/* Search bar */}
           <div className="notes-filter-bar">
@@ -215,7 +245,7 @@ export const NotesPage: React.FC = () => {
             <div className="notes-filter-chips-card">
               <div className="filter-card-header">
                 <div className="filter-header-title">
-                  <Filter size={14} className="text-indigo-400" />
+                  <Filter size={16} className="text-indigo-400" />
                   <span>Bộ lọc</span>
                 </div>
                 {hasActiveFilters && (
@@ -225,7 +255,7 @@ export const NotesPage: React.FC = () => {
                     className="filter-reset-btn"
                     title={t('clearFilters')}
                   >
-                    <RotateCcw size={12} />
+                    <RotateCcw size={14} />
                     <span>{t('clearFilters')}</span>
                   </button>
                 )}
@@ -240,7 +270,7 @@ export const NotesPage: React.FC = () => {
                     className={`filter-toggle-chip chip-quick ${quickUnfinished ? 'active' : ''}`}
                     onClick={() => setQuickUnfinished(!quickUnfinished)}
                   >
-                    <CheckCircle2 size={13} />
+                    <CheckCircle2 size={15} />
                     <span>{t('filterQuickUnfinished')}</span>
                   </button>
 
@@ -249,7 +279,7 @@ export const NotesPage: React.FC = () => {
                     className={`filter-toggle-chip chip-quick chip-quick-overdue ${quickOverdue ? 'active' : ''}`}
                     onClick={() => setQuickOverdue(!quickOverdue)}
                   >
-                    <AlertCircle size={13} />
+                    <AlertCircle size={15} />
                     <span>{t('filterQuickOverdue')}</span>
                   </button>
 
@@ -258,7 +288,7 @@ export const NotesPage: React.FC = () => {
                     className={`filter-toggle-chip chip-quick chip-quick-high ${quickHighPriority ? 'active' : ''}`}
                     onClick={() => setQuickHighPriority(!quickHighPriority)}
                   >
-                    <Flame size={13} />
+                    <Flame size={15} />
                     <span>{t('filterQuickHighPriority')}</span>
                   </button>
                 </div>
@@ -309,7 +339,7 @@ export const NotesPage: React.FC = () => {
               {/* Active summary */}
               {hasActiveFilters && (
                 <div className="filter-active-summary">
-                  <Sparkles size={12} className="text-amber-400" />
+                  <Filter size={14} className="text-amber-500" />
                   <span>
                     {filteredNotes.length} {t('filterResultCount')}
                   </span>
@@ -349,7 +379,7 @@ export const NotesPage: React.FC = () => {
                   className="btn-secondary mt-4"
                   onClick={handleResetFilters}
                 >
-                  <RotateCcw size={14} className="mr-1" />
+                  <RotateCcw size={16} className="mr-1" />
                   <span>{t('clearFilters')}</span>
                 </button>
               ) : (
@@ -358,7 +388,7 @@ export const NotesPage: React.FC = () => {
                   className="btn-primary mt-4"
                   onClick={handleOpenAdd}
                 >
-                  <Plus size={16} />
+                  <Plus size={18} />
                   <span>{t('addNote')}</span>
                 </button>
               )}
@@ -376,6 +406,12 @@ export const NotesPage: React.FC = () => {
           onAddCustomLabel={addCustomLabel}
           t={t}
           language={language}
+        />
+
+        {/* Modal for managing labels */}
+        <ManageLabelsModal
+          isOpen={isManageLabelsOpen}
+          onClose={() => setIsManageLabelsOpen(false)}
         />
       </IonContent>
     </IonPage>

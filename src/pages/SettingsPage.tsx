@@ -10,6 +10,7 @@ import {
   useIonRouter,
 } from '@ionic/react';
 import {
+  ArrowLeft,
   Clock,
   Coffee,
   Vibrate,
@@ -18,7 +19,8 @@ import {
   RefreshCw,
   Globe,
   Trash2,
-  Sparkles,
+  BookOpen,
+  ShieldCheck,
   Palette,
   Image as ImageIcon,
   Check,
@@ -33,6 +35,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useHeaderScroll } from '../hooks/useHeaderScroll';
 import type { AppSettings, AppLanguage, BackgroundEffectType } from '../types';
 import { PRESET_ACCENT_COLORS, PRESET_BG_IMAGES } from '../data/themePresets';
 import { soundManager, NOTIFICATION_SOUNDS } from '../utils/audioChime';
@@ -54,6 +57,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 }) => {
   const { language, setLanguage, t } = useLanguage();
   const router = useIonRouter();
+  const { isHeaderHidden, handleIonScroll } = useHeaderScroll();
   const [showResetAlert, setShowResetAlert] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,7 +81,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
   const bgEffectOptions: { key: BackgroundEffectType; labelKey: any; icon: React.ReactNode }[] = [
     { key: 'none', labelKey: 'effectNone', icon: <Ban size={16} /> },
-    { key: 'gradient', labelKey: 'effectGradient', icon: <Sparkles size={16} /> },
+    { key: 'gradient', labelKey: 'effectGradient', icon: <Palette size={16} /> },
     { key: 'particles', labelKey: 'effectParticles', icon: <Eye size={16} /> },
     { key: 'wave', labelKey: 'effectWave', icon: <Waves size={16} /> },
     { key: 'rain', labelKey: 'effectRain', icon: <CloudRain size={16} /> },
@@ -85,18 +89,34 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
   return (
     <IonPage className="settings-page-root">
-      <IonHeader className="ion-no-border app-header">
+      <IonHeader className={`ion-no-border app-header ${isHeaderHidden ? 'header-hidden' : ''}`}>
         <IonToolbar className="app-toolbar">
           <div className="header-title-row">
-            <div>
-              <IonTitle className="page-header-title">{t('settingsTitle')}</IonTitle>
-              <p className="page-header-subtitle">{t('settingsSubtitle')}</p>
+            <div className="header-left-group">
+              <button
+                type="button"
+                className="header-back-button"
+                onClick={() => router.push('/timer', 'back')}
+                title="Quay lại Timer"
+                aria-label="Quay lại"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <div>
+                <IonTitle className="page-header-title">{t('settingsTitle')}</IonTitle>
+                <p className="page-header-subtitle">{t('settingsSubtitle')}</p>
+              </div>
             </div>
           </div>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen className="settings-content-area">
+      <IonContent
+        fullscreen
+        scrollEvents={true}
+        onIonScroll={handleIonScroll}
+        className="settings-content-area"
+      >
         <div className="settings-page-wrapper">
           {/* Section 1: Màu nhấn (Accent Color) */}
           <div className="settings-group">
@@ -119,10 +139,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   className="preview-test-btn"
                   style={{
                     backgroundColor: settings.accentColor,
-                    boxShadow: `0 4px 12px ${settings.accentColor}55`,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                   }}
                 >
-                  <Sparkles size={13} className="mr-1" />
                   <span>Nút mẫu</span>
                 </button>
               </div>
@@ -527,8 +546,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                   <Volume2 size={18} />
                 </div>
                 <div>
-                  <span className="setting-name">{t('soundLabel')}</span>
-                  <span className="setting-description">{t('soundDesc')}</span>
+                  <span className="setting-name">{language === 'vi' ? 'Bật âm báo' : 'Enable alarm'}</span>
                 </div>
               </div>
               <label className="toggle-switch">
@@ -550,51 +568,38 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                       <Bell size={18} />
                     </div>
                     <div>
-                      <span className="setting-name">{t('notificationSoundSection')}</span>
-                      <span className="setting-description">{t('notificationSoundDesc')}</span>
+                      <span className="setting-name">
+                        {language === 'vi' ? 'Loại âm thanh' : 'Sound type'}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="notification-sounds-list">
+                <div className="sound-options-row">
                   {NOTIFICATION_SOUNDS.map((snd) => {
                     const isSelected = (settings.notificationSound || 'bell') === snd.id;
                     const name = language === 'vi' ? snd.nameVi : snd.nameEn;
-                    const desc = language === 'vi' ? snd.descriptionVi : snd.descriptionEn;
 
                     return (
-                      <div
+                      <button
                         key={snd.id}
-                        className={`sound-option-row ${isSelected ? 'active' : ''}`}
+                        type="button"
+                        className={`sound-chip-btn ${isSelected ? 'selected' : ''}`}
                         onClick={() => {
                           onUpdateSetting('notificationSound', snd.id);
-                          soundManager.playNotification(snd.id);
+                          soundManager.playNotification(snd.id, (settings.alarmVolume ?? 80) / 100);
                         }}
                       >
-                        <div className="sound-option-left">
-                          <button
-                            type="button"
-                            className="sound-play-preview-btn"
-                            title={t('previewSound')}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              soundManager.playNotification(snd.id);
-                            }}
-                          >
-                            <Play size={13} fill="currentColor" />
-                          </button>
-                          <div className="sound-option-text">
-                            <span className="sound-option-name">{name}</span>
-                            <span className="sound-option-desc">{desc}</span>
-                          </div>
-                        </div>
-
+                        <span className="sound-chip-title">{name}</span>
                         {isSelected && (
-                          <div className="active-badge-indicator">
-                            <Check size={12} />
-                          </div>
+                          <span
+                            className="sound-chip-check"
+                            style={{ backgroundColor: settings.accentColor }}
+                          >
+                            <Check size={11} strokeWidth={3} />
+                          </span>
                         )}
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -647,7 +652,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             </div>
           </div>
 
-          {/* Section 8: Giới thiệu StudyPomodoro (About & Guide) */}
+          {/* Section 8: Giới thiệu Study Pomodoro (About & Guide) */}
           <div className="settings-group">
             <h3 className="settings-group-title">{t('aboutGroupTitle')}</h3>
 
@@ -659,7 +664,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             >
               <div className="setting-info">
                 <div className="setting-icon-box icon-indigo">
-                  <Sparkles size={18} />
+                  <BookOpen size={18} />
                 </div>
                 <div>
                   <span className="setting-name">{t('aboutNavTitle')}</span>
@@ -675,8 +680,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
           {/* App Info Footer */}
           <div className="app-info-card">
             <div className="app-info-header">
-              <Sparkles size={16} className="text-indigo-400" />
-              <span className="font-semibold text-sm">StudyPomodoro v1.1.0</span>
+              <ShieldCheck size={16} className="text-indigo-400" />
+              <span className="font-semibold text-sm">Study Pomodoro v1.1.0</span>
             </div>
             <p className="app-info-desc">
               Xây dựng với Ionic React, Capacitor, SCSS & Three.js. Hỗ trợ tùy chỉnh giao diện toàn diện.

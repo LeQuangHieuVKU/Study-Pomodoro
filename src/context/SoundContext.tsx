@@ -84,8 +84,10 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     if (nextState) {
       await audioService.play();
+      setIsPlaying(true);
     } else {
       audioService.pause();
+      setIsPlaying(false);
     }
 
     await persistSettings(nextState, currentTrack.id, volume);
@@ -96,25 +98,26 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!isEnabled) {
       setIsEnabled(true);
       await audioService.play();
+      setIsPlaying(true);
       await persistSettings(true, currentTrack.id, volume);
+    } else if (isPlaying) {
+      audioService.pause();
+      setIsPlaying(false);
     } else {
-      await audioService.toggle();
+      await audioService.play();
+      setIsPlaying(true);
     }
-  }, [isEnabled, currentTrack.id, volume, persistSettings]);
+  }, [isEnabled, isPlaying, currentTrack.id, volume, persistSettings]);
 
   // Select Track
   const selectTrack = useCallback(async (track: LofiTrack) => {
     if (track.isComingSoon) return;
     setCurrentTrack(track);
-    // If master sound is enabled, auto-play new track; otherwise just cue it
-    if (isEnabled) {
-      await audioService.setTrack(track, true);
-    } else {
-      setIsEnabled(true);
-      await audioService.setTrack(track, true);
-    }
+    setIsEnabled(true);
+    await audioService.setTrack(track, true);
+    setIsPlaying(true);
     await persistSettings(true, track.id, volume);
-  }, [isEnabled, volume, persistSettings]);
+  }, [volume, persistSettings]);
 
   // Volume slider
   const changeVolume = useCallback((val: number) => {

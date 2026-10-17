@@ -14,7 +14,17 @@ const PREF_LANG_KEY = 'study_pomodoro_language';
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<AppLanguage>('vi');
+  const [language, setLanguageState] = useState<AppLanguage>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const val =
+          localStorage.getItem(PREF_LANG_KEY) ||
+          localStorage.getItem('CapacitorStorage.' + PREF_LANG_KEY);
+        if (val === 'vi' || val === 'en') return val;
+      } catch {}
+    }
+    return 'vi';
+  });
 
   useEffect(() => {
     const loadLang = async () => {
@@ -22,6 +32,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const { value } = await Preferences.get({ key: PREF_LANG_KEY });
         if (value === 'vi' || value === 'en') {
           setLanguageState(value);
+          if (typeof document !== 'undefined') {
+            document.documentElement.lang = value;
+          }
         }
       } catch (e) {
         console.warn('Could not load language from preferences', e);
@@ -32,7 +45,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setLanguage = (newLang: AppLanguage) => {
     setLanguageState(newLang);
+    try {
+      localStorage.setItem(PREF_LANG_KEY, newLang);
+      localStorage.setItem('CapacitorStorage.' + PREF_LANG_KEY, newLang);
+    } catch {}
     Preferences.set({ key: PREF_LANG_KEY, value: newLang }).catch(console.error);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = newLang;
+    }
   };
 
   const t = (key: TranslationKey): string => {

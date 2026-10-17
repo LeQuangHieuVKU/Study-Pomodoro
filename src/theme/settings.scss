@@ -25,8 +25,8 @@
   margin: 0 0 2px 4px;
   font-size: 0.85rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--text-main);
 
   .has-bg-image & {
@@ -389,7 +389,7 @@
 
   &.selected {
     border-color: var(--color-indigo);
-    box-shadow: 0 0 0 2px var(--color-indigo-glow);
+    box-shadow: 0 0 0 2px var(--border-focus);
 
     .thumb-name {
       color: var(--text-main);
@@ -677,10 +677,55 @@
     margin-bottom: 12px;
   }
 
-  .notification-sounds-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  .sound-options-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sound-chip-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border-subtle);
+      background: var(--bg-card-subtle);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.18s ease;
+
+      &:hover {
+        border-color: var(--color-indigo);
+        background: rgba(99, 102, 241, 0.05);
+      }
+
+      &.selected {
+        border-color: var(--color-indigo);
+        background: rgba(99, 102, 241, 0.12);
+        color: var(--color-indigo);
+      }
+
+      .sound-chip-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .sound-chip-check {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: var(--color-indigo);
+        flex-shrink: 0;
+      }
+    }
   }
 
   .sound-option-row {
@@ -706,7 +751,7 @@
     &.active {
       border-color: var(--color-indigo);
       background: rgba(99, 102, 241, 0.08);
-      box-shadow: 0 0 0 1px var(--color-indigo-glow);
+      box-shadow: 0 0 0 1px var(--color-indigo);
     }
 
     .sound-option-left {

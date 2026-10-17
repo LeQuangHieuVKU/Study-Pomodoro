@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.studypomodoro',
-  appName: 'StudyPomodoro',
+  appName: 'Study Pomodoro',
   webDir: 'dist',
   server: {
     androidScheme: 'https'

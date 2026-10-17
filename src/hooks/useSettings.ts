@@ -14,6 +14,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   soundEnabled: true,
   notificationSound: 'bell',
   autoSwitchSession: true,
+  autoStartBreaks: false,
+  autoStartFocus: false,
+  alarmVolume: 80,
   backgroundEffect: 'gradient',
   accentColor: '#6366F1',
   backgroundImage: 'none',
@@ -132,6 +135,16 @@ export const useSettings = () => {
   const updateSetting = useCallback(async <K extends keyof AppSettings>(key: K, val: AppSettings[K]) => {
     setSettings((prev) => {
       const next = { ...prev, [key]: val };
+      if (key === 'language' && (val === 'vi' || val === 'en')) {
+        try {
+          localStorage.setItem('study_pomodoro_language', val);
+          localStorage.setItem('CapacitorStorage.study_pomodoro_language', val);
+        } catch {}
+        Preferences.set({ key: 'study_pomodoro_language', value: val }).catch(console.error);
+        if (typeof document !== 'undefined') {
+          document.documentElement.lang = val;
+        }
+      }
       if (key === 'darkMode') {
         applyTheme(Boolean(val));
         applyAccentColorToDOM(next.accentColor || DEFAULT_SETTINGS.accentColor);

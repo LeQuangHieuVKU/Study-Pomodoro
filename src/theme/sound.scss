@@ -26,8 +26,8 @@
   margin: 0 0 2px 4px;
   font-size: 0.85rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--text-main);
 }
 
@@ -87,7 +87,7 @@
   &.active-pulse {
     background: var(--color-indigo);
     color: #ffffff;
-    box-shadow: 0 4px 16px var(--color-indigo-glow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     animation: pulseAudio 2.4s infinite ease-in-out;
   }
 }
@@ -209,8 +209,8 @@
 .now-playing-tag {
   font-size: 0.68rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--color-indigo);
 }
 
@@ -239,7 +239,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px var(--color-indigo-glow);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease;
   flex-shrink: 0;
 
@@ -365,7 +365,7 @@
 
   &.track-playing {
     border-color: var(--color-indigo);
-    box-shadow: 0 4px 18px var(--color-indigo-glow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   &.track-coming-soon {
@@ -472,7 +472,7 @@
     background: var(--color-indigo);
     padding: 2px 4px;
     border-radius: 6px;
-    box-shadow: 0 2px 6px var(--color-indigo-glow);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 
     .mini-bar {
       width: 2.5px;
@@ -598,7 +598,7 @@
     background: var(--color-indigo);
     border-color: var(--color-indigo);
     color: #ffffff;
-    box-shadow: 0 4px 12px var(--color-indigo-glow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   &:active {
@@ -923,8 +923,8 @@
       font-size: 0.74rem;
       font-weight: 600;
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      text-transform: none;
+      letter-spacing: normal;
     }
 
     .yt-presets-chips {
@@ -969,11 +969,11 @@
 @keyframes pulseAudio {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 4px 16px var(--color-indigo-glow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
   50% {
     transform: scale(1.06);
-    box-shadow: 0 6px 22px var(--color-indigo-glow);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   }
 }
 

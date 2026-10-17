@@ -23,7 +23,7 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ settings
   // Handle Canvas effects: Particles & Rain
   useEffect(() => {
     const effect = settings.backgroundEffect;
-    if (effect !== 'particles' && effect !== 'rain') return;
+    if (effect !== 'particles' && effect !== 'rain' && effect !== 'stars' && effect !== 'bubbles') return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -42,7 +42,7 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ settings
     window.addEventListener('resize', onResize);
 
     if (effect === 'particles') {
-      // Subtle drifting glow particles
+      // Subtle drifting glow particles (Notes / Motes)
       const particleCount = 36;
       const particles = Array.from({ length: particleCount }).map(() => ({
         x: Math.random() * width,
@@ -81,6 +81,137 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ settings
       };
 
       renderParticles();
+    } else if (effect === 'stars') {
+      // Gentle twinkling starfield with occasional soft shooting star
+      const starCount = 60;
+      const stars = Array.from({ length: starCount }).map(() => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.5 + 0.6,
+        alpha: Math.random() * 0.8 + 0.2,
+        twinkleSpeed: Math.random() * 0.02 + 0.008,
+        twinkleDir: Math.random() > 0.5 ? 1 : -1,
+      }));
+
+      let shootingStar: { x: number; y: number; length: number; speed: number; opacity: number; angle: number } | null = null;
+      let lastShootingStarTime = Date.now();
+
+      const renderStars = () => {
+        if (document.hidden) {
+          animId = requestAnimationFrame(renderStars);
+          return;
+        }
+
+        ctx.clearRect(0, 0, width, height);
+
+        stars.forEach((s) => {
+          s.alpha += s.twinkleSpeed * s.twinkleDir;
+          if (s.alpha > 0.95) {
+            s.alpha = 0.95;
+            s.twinkleDir = -1;
+          } else if (s.alpha < 0.15) {
+            s.alpha = 0.15;
+            s.twinkleDir = 1;
+          }
+
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = '#FFFFFF';
+          ctx.fill();
+        });
+
+        const now = Date.now();
+        if (!shootingStar && now - lastShootingStarTime > 4500 && Math.random() < 0.03) {
+          shootingStar = {
+            x: Math.random() * (width * 0.7),
+            y: Math.random() * (height * 0.4),
+            length: Math.random() * 70 + 40,
+            speed: Math.random() * 8 + 10,
+            opacity: 0.9,
+            angle: Math.PI / 4 + (Math.random() - 0.5) * 0.2,
+          };
+          lastShootingStarTime = now;
+        }
+
+        if (shootingStar) {
+          shootingStar.x += Math.cos(shootingStar.angle) * shootingStar.speed;
+          shootingStar.y += Math.sin(shootingStar.angle) * shootingStar.speed;
+          shootingStar.opacity -= 0.025;
+
+          if (shootingStar.opacity <= 0 || shootingStar.x > width || shootingStar.y > height) {
+            shootingStar = null;
+          } else {
+            const tailX = shootingStar.x - Math.cos(shootingStar.angle) * shootingStar.length;
+            const tailY = shootingStar.y - Math.sin(shootingStar.angle) * shootingStar.length;
+
+            const grad = ctx.createLinearGradient(tailX, tailY, shootingStar.x, shootingStar.y);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            grad.addColorStop(1, `rgba(255, 255, 255, ${shootingStar.opacity})`);
+
+            ctx.beginPath();
+            ctx.moveTo(tailX, tailY);
+            ctx.lineTo(shootingStar.x, shootingStar.y);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+
+        animId = requestAnimationFrame(renderStars);
+      };
+
+      renderStars();
+    } else if (effect === 'bubbles') {
+      // Gentle rising translucent bubbles
+      const bubbleCount = 28;
+      const bubbles = Array.from({ length: bubbleCount }).map(() => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 12 + 6,
+        speedY: Math.random() * 0.8 + 0.4,
+        angle: Math.random() * Math.PI * 2,
+        opacity: Math.random() * 0.35 + 0.15,
+      }));
+
+      const renderBubbles = () => {
+        if (document.hidden) {
+          animId = requestAnimationFrame(renderBubbles);
+          return;
+        }
+
+        ctx.clearRect(0, 0, width, height);
+
+        bubbles.forEach((b) => {
+          b.y -= b.speedY;
+          b.angle += 0.02;
+          b.x += Math.sin(b.angle) * 0.5;
+
+          if (b.y < -b.radius * 2) {
+            b.y = height + b.radius;
+            b.x = Math.random() * width;
+          }
+
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${b.opacity * 0.15})`;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${b.opacity * 0.6})`;
+          ctx.lineWidth = 1.2;
+          ctx.fill();
+          ctx.stroke();
+
+          // Bubble glossy highlight
+          ctx.beginPath();
+          ctx.arc(b.x - b.radius * 0.35, b.y - b.radius * 0.35, b.radius * 0.25, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${b.opacity * 0.8})`;
+          ctx.fill();
+        });
+
+        animId = requestAnimationFrame(renderBubbles);
+      };
+
+      renderBubbles();
     } else if (effect === 'rain') {
       // Calming falling raindrops for deep focus
       const dropCount = 75;
@@ -156,7 +287,10 @@ export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ settings
         <ThreeWaveRipple accentColor={settings.accentColor} />
       )}
 
-      {(settings.backgroundEffect === 'particles' || settings.backgroundEffect === 'rain') && (
+      {(settings.backgroundEffect === 'particles' ||
+        settings.backgroundEffect === 'rain' ||
+        settings.backgroundEffect === 'stars' ||
+        settings.backgroundEffect === 'bubbles') && (
         <canvas ref={canvasRef} className="bg-layer-particles-canvas" />
       )}
     </div>

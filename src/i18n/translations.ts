@@ -68,6 +68,9 @@ export const TRANSLATIONS = {
     statusInProgress: "Đang làm",
     statusCompleted: "Đã xong",
     statusCancelled: "Đã hủy",
+    statusClosed: "Đã đóng",
+    deleteAllClosedTasks: "Xóa tất cả việc đã đóng",
+    confirmDeleteAllClosed: "Bạn có chắc muốn xóa tất cả {count} công việc đã đóng?",
 
     // Note Priority (New)
     notePriorityLabel: "Mức độ ưu tiên",
@@ -130,9 +133,9 @@ export const TRANSLATIONS = {
     durationSection: "Thời Gian Pomodoro",
     focusDurationLabel: "Thời gian tập trung",
     breakDurationLabel: "Thời gian nghỉ ngắn",
-    longBreakDurationLabel: "Thời gian nghỉ dài (4 phiên)",
+    longBreakDurationLabel: "Thời gian nghỉ dài",
     preferencesSection: "Tùy Chọn & Phản Hồi",
-    hapticsLabel: "Rung phản hồi (Haptics)",
+    hapticsLabel: "Rung phản hồi",
     hapticsDesc: "Rung nhẹ khi thao tác và báo rung khi hết giờ",
     soundLabel: "Âm thanh chuông báo",
     soundDesc: "Phát chuông êm dịu khi kết thúc phiên",
@@ -142,27 +145,27 @@ export const TRANSLATIONS = {
     autoSwitchDesc: "Tự động chuyển sang phiên nghỉ khi hết giờ học",
 
     // Appearance & Customization (New)
-    appearanceSection: "Giao Diện (Appearance)",
-    darkModeLabel: "Chế độ tối (Dark Mode)",
+    appearanceSection: "Giao diện",
+    darkModeLabel: "Chế độ tối",
     darkModeDesc: "Tối ưu cho mắt khi học buổi tối",
     languageLabel: "Ngôn ngữ",
     vietnameseOption: "Tiếng Việt",
     englishOption: "English",
 
     // Accent Color
-    accentColorSection: "Màu Nhấn (Accent Color)",
+    accentColorSection: "Màu nhấn",
     accentColorDesc: "Tùy biến màu nút bấm, vòng timer và biểu tượng active",
     previewPill: "Xem trước màu nhấn",
 
     // Background Effect
-    bgEffectSection: "Hiệu Ứng Nền (Background Effect)",
+    bgEffectSection: "Hiệu ứng nền",
     bgEffectDesc: "Chọn hiệu ứng chuyển động ambient nhẹ nhàng toàn app",
     effectNone: "Không có hiệu ứng",
     effectGradient: "Gradient nhẹ",
-    effectParticles: "Particles (hạt bay nhẹ)",
+    effectParticles: "Hạt bay nhẹ",
     effectWave: "Wave",
     effectBlob: "Wave",
-    effectRain: "Hạt mưa (Rain)",
+    effectRain: "Hạt mưa",
 
     // Notification Sound
     notificationSoundSection: "Tiếng Chuông Hết Giờ",
@@ -176,7 +179,7 @@ export const TRANSLATIONS = {
     soundSoft: "Thông báo mềm",
 
     // Background Image
-    bgImageSection: "Hình Nền (Background Image)",
+    bgImageSection: "Hình nền",
     bgImageDesc: "Chọn hình nền kèm lớp phủ kính mờ dịu mắt",
     noBgImage: "Không dùng hình nền",
     uploadCustomBg: "Tải ảnh từ máy",
@@ -224,13 +227,13 @@ export const TRANSLATIONS = {
     youtubePresetTitle: "Gợi ý nhạc học tập YouTube:",
     youtubeClearBtn: "Xóa link",
 
-    aboutSection: "Về StudyPomodoro",
+    aboutSection: "Về Study Pomodoro",
     versionLabel: "Phiên bản",
     developerLabel: "Phát triển với Ionic + Capacitor + Three.js",
 
     // About Page Full Suite
     aboutGroupTitle: "Thông Tin & Hướng Dẫn",
-    aboutNavTitle: "Giới thiệu StudyPomodoro",
+    aboutNavTitle: "Giới thiệu Study Pomodoro",
     aboutNavSubtitle: "Tính năng, phương pháp Pomodoro, hướng dẫn cài đặt & FAQ",
     backToSettings: "Quay lại Cài đặt",
     backBtn: "Quay lại",
@@ -250,12 +253,12 @@ export const TRANSLATIONS = {
     aboutFeat3Title: "Ghi Chú & Quản Lý Công Việc",
     aboutFeat3Desc: "Hệ thống To-Do mạnh mẽ: 5 trạng thái công việc, mức độ ưu tiên, lịch chọn hạn chót trực quan (Hôm nay/Ngày mai) và nhãn tùy biến với bộ lọc chip đa tiêu chí.",
     aboutFeat4Title: "Hiệu Ứng Thị Giác Thư Giãn",
-    aboutFeat4Desc: "Chuyển động sóng nước lan tỏa từ tâm (Ripple Wave), hạt mưa rơi (Rain), hạt bụi (Particles), Gradient và bộ sưu tập ảnh nền phong cảnh độ phân giải cao.",
+    aboutFeat4Desc: "Chuyển động sóng nước lan tỏa từ tâm, hạt mưa rơi, hạt bụi, Gradient và bộ sưu tập ảnh nền phong cảnh độ phân giải cao.",
     aboutFeat5Title: "Bảo Mật & Offline Tuyệt Đối",
     aboutFeat5Desc: "100% không quảng cáo, không thu thập dữ liệu, không cần tài khoản. Mọi ghi chú và lịch sử phiên học lưu trữ trực tiếp trên thiết bị của bạn.",
 
     aboutHowTitle: "Cách Hoạt Động",
-    aboutHowSubtitle: "Quy trình 4 bước đơn giản để thiết lập trạng thái dòng chảy (Flow State)",
+    aboutHowSubtitle: "Quy trình 4 bước đơn giản để thiết lập trạng thái dòng chảy",
     aboutStep1Title: "1. Xác định mục tiêu",
     aboutStep1Desc: "Tạo ghi chú công việc cần hoàn thành trong phiên học vào tab Ghi chú và gắn mức ưu tiên rõ ràng.",
     aboutStep2Title: "2. Chuẩn bị không gian",
@@ -270,25 +273,25 @@ export const TRANSLATIONS = {
     aboutPomoPrincipleTitle: "Nguyên Lý Hoạt Động Cốt Lõi",
     aboutPomoPrincipleDesc: "Bộ não con người chỉ có thể duy trì sự chú ý cao độ trong một khoảng thời gian hữu hạn trước khi hiệu suất suy giảm. Pomodoro chia nhỏ ngày làm việc thành các chặng chạy nước rút (sprints) 25 phút xen kẽ quãng nghỉ chủ động, giúp loại bỏ cảm giác trì hoãn và duy trì sự tỉnh táo suốt nhiều giờ liền.",
     aboutPomoFocus25: "25 Phút",
-    aboutPomoFocus25Title: "Tập Trung Sâu (Deep Focus)",
+    aboutPomoFocus25Title: "Tập trung sâu",
     aboutPomoFocus25Desc: "Toàn tâm toàn ý vào một nhiệm vụ duy nhất. Đặt đồng hồ và nói không với đa nhiệm.",
     aboutPomoBreak5: "5 Phút",
-    aboutPomoBreak5Title: "Nghỉ Giải Lao Ngắn (Short Break)",
+    aboutPomoBreak5Title: "Nghỉ giải lao ngắn",
     aboutPomoBreak5Desc: "Rời mắt khỏi màn hình máy tính, đứng dậy vươn vai, uống một ngụm nước và hít thở sâu.",
     aboutPomoLongBreakTitle: "15–30 Phút",
-    aboutPomoLongBreakSub: "Nghỉ Dài Sau 4 Phiên (Long Break)",
+    aboutPomoLongBreakSub: "Nghỉ dài sau 4 phiên",
     aboutPomoLongBreakDesc: "Sau 4 chu kỳ tập trung (tổng cộng 100 phút học tập), bạn xứng đáng có một quãng nghỉ dài để não bộ tổng hợp kiến thức và thư giãn trọn vẹn.",
 
-    aboutPlatformTitle: "Cài Đặt StudyPomodoro Lên Thiết Bị",
+    aboutPlatformTitle: "Cài Đặt Study Pomodoro Lên Thiết Bị",
     aboutPlatformSubtitle: "Sử dụng toàn màn hình không viền xao nhãng, lưu trữ 100% dữ liệu offline và mở tức thì từ màn hình chính.",
     aboutInstallNowBtn: "Cài Đặt Ngay",
-    aboutPlatformDesktopTab: "Máy Tính (Desktop Web)",
-    aboutPlatformMobileTab: "Điện Thoại (iOS & Android)",
+    aboutPlatformDesktopTab: "Máy tính",
+    aboutPlatformMobileTab: "Điện thoại",
 
     // Desktop 3 steps
     desktopStep1Num: "01",
     desktopStep1Title: "Mở trên trình duyệt",
-    desktopStep1Desc: "Truy cập StudyPomodoro trên trình duyệt máy tính của bạn (hỗ trợ Chrome, Edge, Brave, Safari).",
+    desktopStep1Desc: "Truy cập Study Pomodoro trên trình duyệt máy tính của bạn (hỗ trợ Chrome, Edge, Brave, Safari).",
     desktopStep2Num: "02",
     desktopStep2Title: "Bấm Cài đặt ứng dụng",
     desktopStep2Desc: "Nhấn vào biểu tượng Cài đặt trên thanh địa chỉ URL hoặc menu trình duyệt để tải xuống PWA.",
@@ -299,7 +302,7 @@ export const TRANSLATIONS = {
     // Mobile 3 steps
     mobileStep1Num: "01",
     mobileStep1Title: "Mở Safari hoặc Chrome",
-    mobileStep1Desc: "Mở link StudyPomodoro trên iPhone (trình duyệt Safari) hoặc điện thoại Android (Chrome).",
+    mobileStep1Desc: "Mở link Study Pomodoro trên iPhone (trình duyệt Safari) hoặc điện thoại Android (Chrome).",
     mobileStep2Num: "02",
     mobileStep2Title: "Thêm vào màn hình chính",
     mobileStep2Desc: "Trên iOS: Bấm nút Chia sẻ ➔ Thêm vào MH chính. Trên Android: Menu 3 chấm ➔ Cài đặt ứng dụng.",
@@ -309,9 +312,9 @@ export const TRANSLATIONS = {
 
     installGuideToast: "Để cài đặt: Bấm nút Chia sẻ (iOS) hoặc biểu tượng Cài đặt trên thanh địa chỉ trình duyệt.",
 
-    aboutFaqTitle: "Câu Hỏi Thường Gặp (FAQ)",
-    aboutFaqSubtitle: "Giải đáp những thắc mắc phổ biến khi sử dụng StudyPomodoro",
-    aboutFaqQ1: "StudyPomodoro có cần kết nối Internet để sử dụng không?",
+    aboutFaqTitle: "Câu hỏi thường gặp",
+    aboutFaqSubtitle: "Giải đáp những thắc mắc phổ biến khi sử dụng Study Pomodoro",
+    aboutFaqQ1: "Study Pomodoro có cần kết nối Internet để sử dụng không?",
     aboutFaqA1: "Hoạt động hoàn toàn Offline. Trừ tính năng phát audio từ link YouTube cần mạng để tải luồng âm thanh, tất cả tính năng khác (Đồng hồ, Ghi chú, Nhạc Lofi tích hợp, Hình nền, Hiệu ứng sóng 3D, Lịch sử) đều hoạt động trơn tru 100% không cần kết nối mạng.",
     aboutFaqQ2: "Dữ liệu ghi chú và lịch sử học tập của tôi được lưu ở đâu?",
     aboutFaqA2: "Toàn bộ dữ liệu của bạn được lưu trữ an toàn ngay trên bộ nhớ trình duyệt / thiết bị thông qua Capacitor Preferences và LocalStorage. Chúng tôi không sử dụng máy chủ trung gian và không bao giờ thu thập thông tin của bạn.",
@@ -322,7 +325,7 @@ export const TRANSLATIONS = {
     aboutFaqQ5: "Tại sao nên tập trung 25 phút mà không phải 60 phút liên tục?",
     aboutFaqA5: "Nhiều nghiên cứu khoa học chứng minh khả năng chú ý cao độ của não người đạt đỉnh trong khoảng 20–30 phút. Khoảng thời gian 25 phút vừa đủ để hoàn thành một khối lượng công việc có ý nghĩa mà không gây mỏi mắt hay kiệt sức thần kinh.",
     aboutFaqQ6: "Ứng dụng có thu phí hay chèn quảng cáo trong tương lai không?",
-    aboutFaqA6: "Không bao giờ. StudyPomodoro được xây dựng như một công cụ nguồn mở phi thương mại, hoàn toàn miễn phí và không bao giờ chèn quảng cáo làm phiền sự tập trung của bạn.",
+    aboutFaqA6: "Không bao giờ. Study Pomodoro được xây dựng như một công cụ nguồn mở phi thương mại, hoàn toàn miễn phí và không bao giờ chèn quảng cáo làm phiền sự tập trung của bạn.",
 
     aboutFooterHeading: "Sẵn Sàng Cho Một Phiên Học Đầy Cảm Hứng?",
     aboutFooterSubtitle: "Khởi động đồng hồ ngay bây giờ và biến mỗi phút giây học tập thành trải nghiệm sâu sắc.",
@@ -397,6 +400,9 @@ export const TRANSLATIONS = {
     statusInProgress: "In Progress",
     statusCompleted: "Completed",
     statusCancelled: "Cancelled",
+    statusClosed: "Closed",
+    deleteAllClosedTasks: "Delete all closed tasks",
+    confirmDeleteAllClosed: "Delete all {count} closed tasks?",
 
     // Note Priority (New)
     notePriorityLabel: "Priority",
@@ -459,7 +465,7 @@ export const TRANSLATIONS = {
     durationSection: "Pomodoro Durations",
     focusDurationLabel: "Focus Duration",
     breakDurationLabel: "Short Break Duration",
-    longBreakDurationLabel: "Long Break Duration (4 sessions)",
+    longBreakDurationLabel: "Long Break Duration",
     preferencesSection: "Preferences & Feedback",
     hapticsLabel: "Haptic Feedback",
     hapticsDesc: "Tactile buzz on interactions and timer completion",
@@ -486,12 +492,12 @@ export const TRANSLATIONS = {
     // Background Effect
     bgEffectSection: "Background Effect",
     bgEffectDesc: "Choose ambient atmospheric visuals applied across the app",
-    effectNone: "None (Solid)",
+    effectNone: "None",
     effectGradient: "Subtle Gradient",
     effectParticles: "Drifting Particles",
     effectWave: "Wave",
     effectBlob: "Wave",
-    effectRain: "Rain (Falling Drops)",
+    effectRain: "Rain",
 
     // Notification Sound
     notificationSoundSection: "Completion Chime",
@@ -553,13 +559,13 @@ export const TRANSLATIONS = {
     youtubePresetTitle: "Suggested YouTube study vibes:",
     youtubeClearBtn: "Clear",
 
-    aboutSection: "About StudyPomodoro",
+    aboutSection: "About Study Pomodoro",
     versionLabel: "Version",
     developerLabel: "Crafted with Ionic + Capacitor + Three.js",
 
     // About Page Full Suite
     aboutGroupTitle: "Information & Guide",
-    aboutNavTitle: "About StudyPomodoro",
+    aboutNavTitle: "About Study Pomodoro",
     aboutNavSubtitle: "Features, Pomodoro technique, setup guide & FAQ",
     backToSettings: "Back to Settings",
     backBtn: "Back",
@@ -608,16 +614,16 @@ export const TRANSLATIONS = {
     aboutPomoLongBreakSub: "Long Break After 4 Sessions",
     aboutPomoLongBreakDesc: "After completing a 4-cycle marathon (100 minutes of pure focus), grant your mind a generous break to consolidate learnings.",
 
-    aboutPlatformTitle: "Install StudyPomodoro on Your Device",
+    aboutPlatformTitle: "Install Study Pomodoro on Your Device",
     aboutPlatformSubtitle: "Distraction-free fullscreen window, 100% offline persistence, and one-tap launch from your home screen.",
     aboutInstallNowBtn: "Install App Now",
-    aboutPlatformDesktopTab: "Desktop (Web App)",
-    aboutPlatformMobileTab: "Mobile (iOS & Android)",
+    aboutPlatformDesktopTab: "Desktop",
+    aboutPlatformMobileTab: "Mobile",
 
     // Desktop 3 steps
     desktopStep1Num: "01",
     desktopStep1Title: "Open in browser",
-    desktopStep1Desc: "Visit StudyPomodoro on your computer browser (Chrome, Edge, Brave, Safari supported).",
+    desktopStep1Desc: "Visit Study Pomodoro on your computer browser (Chrome, Edge, Brave, Safari supported).",
     desktopStep2Num: "02",
     desktopStep2Title: "Click Install App",
     desktopStep2Desc: "Click the Install App icon on your browser URL address bar or through the browser menu.",
@@ -628,7 +634,7 @@ export const TRANSLATIONS = {
     // Mobile 3 steps
     mobileStep1Num: "01",
     mobileStep1Title: "Open Safari or Chrome",
-    mobileStep1Desc: "Open StudyPomodoro on your iPhone (Safari browser) or Android phone (Chrome browser).",
+    mobileStep1Desc: "Open Study Pomodoro on your iPhone (Safari browser) or Android phone (Chrome browser).",
     mobileStep2Num: "02",
     mobileStep2Title: "Add to Home Screen",
     mobileStep2Desc: "On iOS: Tap Share ➔ Add to Home Screen. On Android: Tap 3-dots menu ➔ Install app.",
@@ -638,9 +644,9 @@ export const TRANSLATIONS = {
 
     installGuideToast: "To install: Tap Share (iOS) or click the Install icon on your browser address bar.",
 
-    aboutFaqTitle: "Frequently Asked Questions (FAQ)",
-    aboutFaqSubtitle: "Clear answers to common questions about StudyPomodoro",
-    aboutFaqQ1: "Does StudyPomodoro require an active internet connection?",
+    aboutFaqTitle: "Frequently Asked Questions",
+    aboutFaqSubtitle: "Clear answers to common questions about Study Pomodoro",
+    aboutFaqQ1: "Does Study Pomodoro require an active internet connection?",
     aboutFaqA1: "It works 100% Offline. Except for streaming YouTube audio which requires internet access, all core features (Timer, Notes, Built-in Lofi tracks, Wallpapers, 3D Wave ripples, History) function completely offline.",
     aboutFaqQ2: "Where are my notes and study history stored?",
     aboutFaqA2: "All your data is saved locally on your device storage using Capacitor Preferences and LocalStorage. We operate zero intermediary servers and never harvest personal data.",
@@ -651,7 +657,7 @@ export const TRANSLATIONS = {
     aboutFaqQ5: "Why 25 minutes instead of 60 continuous minutes?",
     aboutFaqA5: "Cognitive science indicates human attentional peak typically lasts 20–30 minutes before degrading. 25 minutes strikes the sweet spot for meaningful progress without cognitive burnout.",
     aboutFaqQ6: "Will the app introduce paid tiers or display ads in the future?",
-    aboutFaqA6: "Never. StudyPomodoro is created as a clean non-commercial open-source gift for the learning community, completely free and forever ad-free.",
+    aboutFaqA6: "Never. Study Pomodoro is created as a clean non-commercial open-source gift for the learning community, completely free and forever ad-free.",
 
     aboutFooterHeading: "Ready for an Inspiring Focus Session?",
     aboutFooterSubtitle: "Start your timer now and turn every minute of study into meaningful progress.",

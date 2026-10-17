@@ -16,27 +16,17 @@
   visibility: hidden !important;
 }
 
-$about-mono-font: "JetBrains Mono", "JetBrains Mono Fallback: Courier New", "JetBrains Mono Fallback: Roboto Mono", "JetBrains Mono Fallback: Noto Sans Mono", monospace;
-
 ion-page.about-page-root,
 .about-page-root {
-  background: var(--bg-app);
-  font-family: $about-mono-font !important;
-  --ion-font-family: #{$about-mono-font} !important;
-
-  *,
-  *::before,
-  *::after,
-  button,
-  input,
-  h1, h2, h3, h4, h5, h6,
-  p, span, div {
-    font-family: $about-mono-font !important;
-  }
+  background: transparent !important;
+  font-family: var(--font-body);
+  --ion-font-family: var(--font-body);
 }
 
-.about-content-area {
-  --background: transparent;
+.about-content-area,
+ion-content.about-content-area {
+  --background: var(--bg-app);
+  background-color: var(--bg-app);
 }
 
 // Fixed Back Button pinned in top-left corner
@@ -70,6 +60,12 @@ ion-page.about-page-root,
 
   &:active {
     transform: scale(0.96);
+  }
+
+  &.is-leaving {
+    opacity: 0 !important;
+    transform: translateX(-14px) !important;
+    pointer-events: none !important;
   }
 }
 
@@ -258,13 +254,13 @@ ion-toolbar.about-toolbar {
   font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 18px var(--color-indigo-glow) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     background: var(--color-indigo-hover, var(--color-indigo)) !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 26px var(--color-indigo-glow) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
   }
 
   &:active {
@@ -333,10 +329,10 @@ ion-toolbar.about-toolbar {
 .about-3d-hint {
   font-size: 0.72rem;
   color: var(--text-subtle);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
   margin-top: -6px;
-  opacity: 0.75;
+  opacity: 0.85;
 }
 
 // -----------------------------------------------------------------------------
@@ -357,8 +353,8 @@ ion-toolbar.about-toolbar {
 .section-eyebrow {
   font-size: 0.75rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--color-indigo);
 }
 
@@ -412,7 +408,7 @@ ion-toolbar.about-toolbar {
   &:hover {
     transform: translateY(-3px);
     border-color: var(--color-indigo);
-    box-shadow: 0 10px 30px -4px var(--color-indigo-glow);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   }
 
   @media (min-width: 900px) {
@@ -651,7 +647,7 @@ ion-toolbar.about-toolbar {
   &:hover {
     transform: translateY(-2px);
     border-color: var(--color-indigo);
-    box-shadow: 0 8px 24px -4px var(--color-indigo-glow);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 
     .step-number-tag {
       color: var(--color-indigo);
@@ -767,7 +763,7 @@ ion-toolbar.about-toolbar {
     .phase-duration-badge {
       background: var(--color-indigo);
       color: #ffffff;
-      box-shadow: 0 4px 12px var(--color-indigo-glow);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
   }
 
@@ -1000,13 +996,13 @@ ion-toolbar.about-toolbar {
   font-weight: 800;
   letter-spacing: -0.01em;
   cursor: pointer;
-  box-shadow: 0 6px 20px var(--color-indigo-glow) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     background: var(--color-indigo-hover, var(--color-indigo)) !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px var(--color-indigo-glow) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
   }
 
   &:active {
@@ -1040,7 +1036,7 @@ ion-toolbar.about-toolbar {
   &:hover {
     transform: translateY(-3px);
     border-color: var(--color-indigo) !important;
-    box-shadow: 0 10px 28px -4px var(--color-indigo-glow);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 
     .step-giant-number {
       color: var(--color-indigo);
@@ -1208,15 +1204,7 @@ ion-toolbar.about-toolbar {
 }
 
 .final-cta-glow-bg {
-  position: absolute;
-  top: -50%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 380px;
-  height: 280px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
-  filter: blur(40px);
-  pointer-events: none;
+  display: none !important;
 }
 
 .final-cta-content {
@@ -1231,8 +1219,8 @@ ion-toolbar.about-toolbar {
 .final-cta-eyebrow {
   font-size: 0.76rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--color-indigo);
   margin-bottom: 2px;
 }
@@ -1302,13 +1290,13 @@ ion-toolbar.about-toolbar {
   font-size: 1.05rem;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 6px 24px var(--color-indigo-glow) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     background: var(--color-indigo-hover, var(--color-indigo)) !important;
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 10px 32px var(--color-indigo-glow) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
   }
 
   &:active {
@@ -1379,9 +1367,10 @@ ion-toolbar.about-toolbar {
 [color-scheme="dark"] {
   ion-page.about-page-root,
   .about-page-root {
-    background-color: #000000 !important;
-    --ion-background-color: #000000 !important;
-    --background: #000000 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    --ion-background-color: transparent !important;
+    --background: transparent !important;
     color: #f4f4f5;
 
     .about-content-area,
@@ -1446,17 +1435,17 @@ ion-toolbar.about-toolbar {
     }
 
     .about-hero-desc {
-      color: #a1a1aa;
+      color: #e4e4e7;
     }
 
     .about-primary-cta {
       background: var(--color-indigo) !important;
       color: #ffffff !important;
-      box-shadow: 0 4px 20px var(--color-indigo-glow) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 
       &:hover {
         background: var(--color-indigo-hover, var(--color-indigo)) !important;
-        box-shadow: 0 8px 28px var(--color-indigo-glow) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
       }
     }
 
@@ -1473,7 +1462,7 @@ ion-toolbar.about-toolbar {
     }
 
     .about-3d-hint {
-      color: #71717a;
+      color: #d4d4d8;
     }
 
     // SECTION B: Features Bento Cards
@@ -1484,7 +1473,7 @@ ion-toolbar.about-toolbar {
 
       &:hover {
         border-color: var(--color-indigo);
-        box-shadow: 0 10px 30px var(--color-indigo-glow);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
       }
     }
 
@@ -1493,13 +1482,13 @@ ion-toolbar.about-toolbar {
     }
 
     .feat-card-desc {
-      color: #a1a1aa;
+      color: #e4e4e7;
     }
 
     .feat-chip-badge {
       background: #121212;
       border-color: #262626;
-      color: #a1a1aa;
+      color: #e4e4e7;
     }
 
     .feat-visual-bar {
@@ -1509,7 +1498,7 @@ ion-toolbar.about-toolbar {
     .sound-mini-pill {
       background: #121212;
       border-color: #262626;
-      color: #a1a1aa;
+      color: #e4e4e7;
     }
 
     // SECTION C: How it works step cards
@@ -1520,7 +1509,7 @@ ion-toolbar.about-toolbar {
 
       &:hover {
         border-color: var(--color-indigo);
-        box-shadow: 0 8px 26px var(--color-indigo-glow);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 
         .step-number-tag {
           color: var(--color-indigo);
@@ -1544,7 +1533,7 @@ ion-toolbar.about-toolbar {
       }
 
       .step-desc {
-        color: #a1a1aa;
+        color: #e4e4e7;
       }
     }
 
@@ -1559,7 +1548,7 @@ ion-toolbar.about-toolbar {
       }
 
       .pomo-overview-desc {
-        color: #a1a1aa;
+        color: #e4e4e7;
       }
     }
 
@@ -1568,12 +1557,12 @@ ion-toolbar.about-toolbar {
       border-color: #222222;
 
       &.phase-focus {
-        border-color: var(--color-indigo-glow);
+        border-color: rgba(255, 255, 255, 0.15);
 
         .phase-duration-badge {
           background: var(--color-indigo) !important;
           color: #ffffff !important;
-          box-shadow: 0 4px 14px var(--color-indigo-glow) !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
         }
       }
 
@@ -1590,7 +1579,7 @@ ion-toolbar.about-toolbar {
       }
 
       .phase-text {
-        color: #a1a1aa;
+        color: #e4e4e7;
       }
     }
 
@@ -1625,17 +1614,17 @@ ion-toolbar.about-toolbar {
       }
 
       .install-subtitle {
-        color: #a1a1aa;
+        color: #e4e4e7;
       }
 
       .install-now-hero-btn {
         background: var(--color-indigo) !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 20px var(--color-indigo-glow) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 
         &:hover {
           background: var(--color-indigo-hover, var(--color-indigo)) !important;
-          box-shadow: 0 8px 28px var(--color-indigo-glow) !important;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
         }
       }
     }
@@ -1645,7 +1634,7 @@ ion-toolbar.about-toolbar {
       border-color: #222222;
 
       .platform-tab-btn {
-        color: #a1a1aa;
+        color: #d4d4d8;
 
         &:hover {
           color: #ffffff;
@@ -1667,7 +1656,7 @@ ion-toolbar.about-toolbar {
       &:hover {
         border-color: var(--color-indigo);
         transform: translateY(-4px);
-        box-shadow: 0 12px 32px var(--color-indigo-glow);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 
         .step-icon-wrap {
           transform: scale(1.06);
@@ -1689,7 +1678,7 @@ ion-toolbar.about-toolbar {
         }
         &.icon-indigo {
           color: var(--color-indigo);
-          border-color: var(--color-indigo-glow);
+          border-color: rgba(255, 255, 255, 0.15);
         }
         &.icon-emerald {
           color: #34d399;
@@ -1708,7 +1697,7 @@ ion-toolbar.about-toolbar {
       }
 
       .step-card-desc {
-        color: #a1a1aa;
+        color: #e4e4e7;
       }
     }
 
@@ -1722,7 +1711,7 @@ ion-toolbar.about-toolbar {
     }
 
     .section-sub-heading {
-      color: #a1a1aa;
+      color: #e4e4e7;
     }
 
     .faq-accordion-item {
@@ -1739,7 +1728,7 @@ ion-toolbar.about-toolbar {
       }
 
       .faq-chevron {
-        color: #71717a;
+        color: #d4d4d8;
 
         &.rotate-180 {
           color: var(--color-indigo);
@@ -1747,14 +1736,14 @@ ion-toolbar.about-toolbar {
       }
 
       .faq-answer-text {
-        color: #a1a1aa;
+        color: #e4e4e7;
       }
     }
 
-    // SECTION G: Final CTA Card - Clean Pure Black with Accent Border
+    // SECTION G: Final CTA Card - Clean Pure Black with Subtle Border
     .final-cta-card {
       background: #080808 !important;
-      border: 1px solid var(--color-indigo-glow) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
 
       .final-cta-glow-bg {
@@ -1793,23 +1782,23 @@ ion-toolbar.about-toolbar {
       }
 
       .final-cta-subtitle {
-        color: #a1a1aa;
+        color: #e4e4e7;
       }
 
       .final-cta-launch-btn {
         background: var(--color-indigo) !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 22px var(--color-indigo-glow) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 
         &:hover {
           background: var(--color-indigo-hover, var(--color-indigo)) !important;
-          box-shadow: 0 8px 30px var(--color-indigo-glow) !important;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
         }
       }
     }
 
     .footer-credits-text {
-      color: #52525b;
+      color: #d4d4d8;
     }
   }
 }

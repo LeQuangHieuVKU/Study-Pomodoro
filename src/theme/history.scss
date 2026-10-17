@@ -26,8 +26,8 @@
 .section-label-text {
   font-size: 0.82rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--text-muted);
 }
 
@@ -164,11 +164,11 @@
 
       &.dot-focus {
         background: var(--color-indigo);
-        box-shadow: 0 0 8px var(--color-indigo-glow);
+        box-shadow: none;
       }
       &.dot-break {
         background: var(--color-emerald);
-        box-shadow: 0 0 8px var(--color-emerald-glow);
+        box-shadow: none;
       }
     }
   }

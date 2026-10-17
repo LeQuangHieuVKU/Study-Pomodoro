@@ -11,52 +11,52 @@ export interface NotificationSoundOption {
 
 export const NOTIFICATION_SOUNDS: NotificationSoundOption[] = [
   {
+    id: 'chime',
+    nameVi: 'Chime',
+    nameEn: 'Chime',
+    descriptionVi: 'Chuông ngân trong trẻo, du dương',
+    descriptionEn: 'Bright melodic ascending chime',
+    iconName: 'Bell',
+  },
+  {
     id: 'bell',
-    nameVi: 'Chuông nhẹ',
-    nameEn: 'Zen Bell',
-    descriptionVi: 'Chuông thiền hòa âm êm dịu, lắng đọng',
+    nameVi: 'Bell',
+    nameEn: 'Bell',
+    descriptionVi: 'Chuông thiền hòa âm êm dịu',
     descriptionEn: 'Soothing harmonic singing bowl chime',
     iconName: 'Bell',
   },
   {
-    id: 'ping',
-    nameVi: 'Tiếng Ping',
-    nameEn: 'Digital Ping',
-    descriptionVi: 'Âm ping pha lê trong trẻo, hiện đại',
+    id: 'digital',
+    nameVi: 'Digital',
+    nameEn: 'Digital',
+    descriptionVi: 'Âm ping điện tử trong trẻo, sắc nét',
     descriptionEn: 'Clean crystal digital ping',
-    iconName: 'Sparkles',
+    iconName: 'Zap',
   },
   {
-    id: 'water',
-    nameVi: 'Tiếng nước',
-    nameEn: 'Water Drop',
-    descriptionVi: 'Giọt nước rơi thánh thót, mát lành',
-    descriptionEn: 'Natural resonant water droplet',
-    iconName: 'Droplets',
+    id: 'soft',
+    nameVi: 'Soft',
+    nameEn: 'Soft',
+    descriptionVi: 'Giai điệu harp ngân nga, thư giãn',
+    descriptionEn: 'Gentle ascending soft melody',
+    iconName: 'Volume2',
   },
   {
     id: 'wood',
-    nameVi: 'Tiếng gỗ',
-    nameEn: 'Wooden Block',
+    nameVi: 'Wood',
+    nameEn: 'Wood',
     descriptionVi: 'Gõ mõ / khối gỗ ấm áp, thư thái',
     descriptionEn: 'Warm acoustic wooden temple block',
     iconName: 'CircleDot',
   },
   {
-    id: 'piano',
-    nameVi: 'Piano ngắn',
-    nameEn: 'Piano Chord',
-    descriptionVi: 'Hợp âm piano du dương, ấm áp',
-    descriptionEn: 'Warm acoustic piano major chord',
-    iconName: 'Music',
-  },
-  {
-    id: 'soft',
-    nameVi: 'Thông báo mềm',
-    nameEn: 'Soft Melody',
-    descriptionVi: 'Giai điệu harp ngân nga, thư giãn',
-    descriptionEn: 'Gentle ascending harp melody',
-    iconName: 'Volume2',
+    id: 'digitalSoft',
+    nameVi: 'Digital Soft',
+    nameEn: 'Digital Soft',
+    descriptionVi: 'Âm điện tử dịu nhẹ, êm ái',
+    descriptionEn: 'Warm rounded digital synth tone',
+    iconName: 'Radio',
   },
 ];
 
@@ -77,13 +77,45 @@ class SoundManager {
     return this.ctx;
   }
 
-  // 1. Chuông nhẹ (Zen Bell)
-  playBell() {
+  // 1. Chime (Bright crystalline / wind chime arpeggio)
+  playChime(vol: number = 1) {
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const factor = Math.max(0.01, Math.min(1, vol));
+      const notes = [783.99, 1046.5, 1318.51, 1567.98]; // G5, C6, E6, G6
+
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+        gain.gain.setValueAtTime(0, now + idx * 0.08);
+        gain.gain.linearRampToValueAtTime((0.2 - idx * 0.03) * factor, now + idx * 0.08 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 1.4);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 1.45);
+      });
+    } catch (e) {
+      console.warn('Audio chime error:', e);
+    }
+  }
+
+  // 2. Chuông nhẹ (Zen Bell)
+  playBell(vol: number = 1) {
     try {
       const ctx = this.getContext();
       if (!ctx) return;
       const now = ctx.currentTime;
       const freqs = [528, 660, 792, 1056];
+      const factor = Math.max(0.01, Math.min(1, vol));
 
       freqs.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
@@ -93,7 +125,7 @@ class SoundManager {
         osc.frequency.setValueAtTime(freq, now + idx * 0.08);
 
         gain.gain.setValueAtTime(0, now + idx * 0.08);
-        gain.gain.linearRampToValueAtTime(0.24 - idx * 0.04, now + idx * 0.08 + 0.03);
+        gain.gain.linearRampToValueAtTime((0.24 - idx * 0.04) * factor, now + idx * 0.08 + 0.03);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 2.1);
 
         osc.connect(gain);
@@ -107,12 +139,13 @@ class SoundManager {
     }
   }
 
-  // 2. Tiếng Ping (Digital Ping)
-  playPing() {
+  // 3. Tiếng Ping (Digital Ping)
+  playPing(vol: number = 1) {
     try {
       const ctx = this.getContext();
       if (!ctx) return;
       const now = ctx.currentTime;
+      const factor = Math.max(0.01, Math.min(1, vol));
 
       [880, 1760].forEach((freq, idx) => {
         const osc = ctx.createOscillator();
@@ -122,7 +155,7 @@ class SoundManager {
         osc.frequency.setValueAtTime(freq, now + idx * 0.06);
 
         gain.gain.setValueAtTime(0, now + idx * 0.06);
-        gain.gain.linearRampToValueAtTime(0.26, now + idx * 0.06 + 0.015);
+        gain.gain.linearRampToValueAtTime(0.26 * factor, now + idx * 0.06 + 0.015);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.06 + 0.9);
 
         osc.connect(gain);
@@ -136,7 +169,7 @@ class SoundManager {
     }
   }
 
-  // 3. Tiếng nước (Water Drop)
+  // 4. Tiếng nước (Water Drop)
   playWater() {
     try {
       const ctx = this.getContext();
@@ -188,45 +221,50 @@ class SoundManager {
     }
   }
 
-  // 4. Tiếng gỗ (Wooden Block)
-  playWood() {
+  // 5. Tiếng gỗ (Wooden Block)
+  playWood(vol: number = 1) {
     try {
       const ctx = this.getContext();
       if (!ctx) return;
       const now = ctx.currentTime;
+      const factor = Math.max(0.01, Math.min(1, vol));
 
-      const osc = ctx.createOscillator();
-      const filter = ctx.createBiquadFilter();
-      const gain = ctx.createGain();
+      [0, 0.11].forEach((offset, idx) => {
+        const osc = ctx.createOscillator();
+        const filter = ctx.createBiquadFilter();
+        const gain = ctx.createGain();
 
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(460, now);
-      osc.frequency.exponentialRampToValueAtTime(260, now + 0.05);
+        const baseFreq = idx === 0 ? 520 : 680;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(baseFreq, now + offset);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.55, now + offset + 0.06);
 
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(520, now);
-      filter.Q.setValueAtTime(3.6, now);
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(baseFreq * 1.1, now + offset);
+        filter.Q.setValueAtTime(4.2, now + offset);
 
-      gain.gain.setValueAtTime(0.35, now);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+        gain.gain.setValueAtTime(0.36 * factor, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.18);
 
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
 
-      osc.start(now);
-      osc.stop(now + 0.18);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.2);
+      });
     } catch (e) {
       console.warn('Audio chime error:', e);
     }
   }
 
-  // 5. Piano ngắn (Piano Chord)
-  playPiano() {
+  // 6. Piano ngắn (Piano Chord)
+  playPiano(vol: number = 1) {
     try {
       const ctx = this.getContext();
       if (!ctx) return;
       const now = ctx.currentTime;
+      const factor = Math.max(0.01, Math.min(1, vol));
 
       const notes = [523.25, 659.25, 783.99, 1046.5];
       notes.forEach((freq, idx) => {
@@ -237,7 +275,7 @@ class SoundManager {
         osc.frequency.setValueAtTime(freq, now + idx * 0.03);
 
         gain.gain.setValueAtTime(0, now + idx * 0.03);
-        gain.gain.linearRampToValueAtTime(0.18, now + idx * 0.03 + 0.02);
+        gain.gain.linearRampToValueAtTime(0.18 * factor, now + idx * 0.03 + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.03 + 1.4);
 
         osc.connect(gain);
@@ -251,12 +289,13 @@ class SoundManager {
     }
   }
 
-  // 6. Thông báo mềm (Soft Melody)
-  playSoft() {
+  // 7. Thông báo mềm (Soft Melody)
+  playSoft(vol: number = 1) {
     try {
       const ctx = this.getContext();
       if (!ctx) return;
       const now = ctx.currentTime;
+      const factor = Math.max(0.01, Math.min(1, vol));
 
       const freqs = [698.46, 880.0, 1046.5];
       freqs.forEach((freq, idx) => {
@@ -271,7 +310,7 @@ class SoundManager {
         filter.frequency.setValueAtTime(1400, now);
 
         gain.gain.setValueAtTime(0, now + idx * 0.1);
-        gain.gain.linearRampToValueAtTime(0.2, now + idx * 0.1 + 0.03);
+        gain.gain.linearRampToValueAtTime(0.2 * factor, now + idx * 0.1 + 0.03);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.1 + 1.2);
 
         osc.connect(filter);
@@ -286,27 +325,72 @@ class SoundManager {
     }
   }
 
-  // Dispatch selected sound
-  playNotification(type: NotificationSoundType = 'bell') {
+  // 8. Digital Soft (Rounded electronic chime)
+  playDigitalSoft(vol: number = 1) {
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const factor = Math.max(0.01, Math.min(1, vol));
+
+      const notes = [659.25, 880];
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const filter = ctx.createBiquadFilter();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200, now + idx * 0.08);
+
+        gain.gain.setValueAtTime(0, now + idx * 0.08);
+        gain.gain.linearRampToValueAtTime(0.22 * factor, now + idx * 0.08 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.7);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.75);
+      });
+    } catch (e) {
+      console.warn('Audio chime error:', e);
+    }
+  }
+
+  // Dispatch selected sound with optional volume scaling
+  playNotification(type: NotificationSoundType = 'bell', vol: number = 1) {
     switch (type) {
+      case 'chime':
+        this.playChime(vol);
+        break;
+      case 'bell':
+        this.playBell(vol);
+        break;
+      case 'digital':
       case 'ping':
-        this.playPing();
+        this.playPing(vol);
+        break;
+      case 'soft':
+        this.playSoft(vol);
+        break;
+      case 'wood':
+        this.playWood(vol);
+        break;
+      case 'digitalSoft':
+        this.playDigitalSoft(vol);
         break;
       case 'water':
         this.playWater();
         break;
-      case 'wood':
-        this.playWood();
-        break;
       case 'piano':
-        this.playPiano();
+        this.playPiano(vol);
         break;
-      case 'soft':
-        this.playSoft();
-        break;
-      case 'bell':
       default:
-        this.playBell();
+        this.playBell(vol);
         break;
     }
   }

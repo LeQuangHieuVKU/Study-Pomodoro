@@ -1,6 +1,8 @@
 :root {
-  --app-font-family: "Space Grotesk", "Space Grotesk Fallback: BlinkMacSystemFont", "Space Grotesk Fallback: Segoe UI", "Space Grotesk Fallback: Helvetica Neue", "Space Grotesk Fallback: Arial", "Space Grotesk Fallback: Noto Sans", system-ui, sans-serif;
-  --quote-font-family: "Lora", "Lora Fallback: Times New Roman", "Lora Fallback: Georgia", "Lora Fallback: Noto Serif", Georgia, "Times New Roman", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: "General Sans", "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --app-font-family: var(--font-body);
+  --quote-font-family: "Lora", Georgia, "Times New Roman", serif;
 
   // Light Mode Colors (Calm & modern focus tones with high contrast)
   --bg-app: #F8FAFC;
@@ -13,13 +15,13 @@
   --text-muted: #334155;
   --text-subtle: #64748B;
 
-  // Accents
+  // Accents (Clean, non-glowing)
   --color-indigo: #6366F1;
   --color-indigo-hover: #4F46E5;
-  --color-indigo-glow: rgba(99, 102, 241, 0.25);
+  --color-indigo-glow: rgba(0, 0, 0, 0.08);
   --color-cyan: #06B6D4;
   --color-emerald: #10B981;
-  --color-emerald-glow: rgba(16, 185, 129, 0.25);
+  --color-emerald-glow: rgba(0, 0, 0, 0.08);
   --color-purple: #8B5CF6;
   --color-amber: #F59E0B;
   --color-rose: #F43F5E;
@@ -27,43 +29,44 @@
   --timer-track: rgba(148, 163, 184, 0.2);
   --tab-bar-bg: rgba(255, 255, 255, 0.88);
   --tab-bar-border: rgba(226, 232, 240, 0.8);
-  --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-  --glow-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --glow-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
   // Ionic Core Overrides
-  --ion-font-family: var(--app-font-family);
+  --ion-font-family: var(--font-body);
   --ion-background-color: var(--bg-app);
   --ion-text-color: var(--text-main);
   --ion-toolbar-background: transparent;
   --ion-tab-bar-background: var(--tab-bar-bg);
 }
 
-// Dark Mode Palette (Refined deep focus dark slate/indigo theme)
+// Dark Mode Palette (Refined deep focus dark slate/indigo theme with high contrast text)
 .dark,
 .ion-palette-dark,
 [color-scheme="dark"] {
   --bg-app: #0B0F19;
   --bg-card: #131A2A;
   --bg-card-subtle: #1E273D;
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.12);
   --border-focus: rgba(99, 102, 241, 0.4);
 
-  --text-main: #F8FAFC;
-  --text-muted: #94A3B8;
-  --text-subtle: #64748B;
+  // High contrast text on dark background (well above #d4d4d8)
+  --text-main: #FFFFFF;
+  --text-muted: #E4E4E7;
+  --text-subtle: #D4D4D8;
 
   --color-cyan: #22D3EE;
   --color-emerald: #34D399;
-  --color-emerald-glow: rgba(52, 211, 153, 0.35);
+  --color-emerald-glow: rgba(0, 0, 0, 0.2);
   --color-purple: #A78BFA;
   --color-amber: #FBBF24;
   --color-rose: #FB7185;
 
-  --timer-track: rgba(255, 255, 255, 0.07);
+  --timer-track: rgba(255, 255, 255, 0.1);
   --tab-bar-bg: rgba(19, 26, 42, 0.85);
-  --tab-bar-border: rgba(255, 255, 255, 0.07);
-  --card-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.45);
-  --glow-shadow: 0 0 32px rgba(99, 102, 241, 0.4);
+  --tab-bar-border: rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --glow-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 
   --ion-background-color: var(--bg-app);
   --ion-text-color: var(--text-main);

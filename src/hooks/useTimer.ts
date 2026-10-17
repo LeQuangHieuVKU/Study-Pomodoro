@@ -103,7 +103,7 @@ export const useTimer = ({ settings, onSessionComplete, t }: UseTimerProps) => {
 
     // 2. Audio & Haptics feedback
     if (settings.soundEnabled) {
-      soundManager.playNotification(settings.notificationSound || 'bell');
+      soundManager.playNotification(settings.notificationSound || 'bell', (settings.alarmVolume ?? 80) / 100);
     }
 
     if (settings.hapticsEnabled) {
@@ -191,8 +191,13 @@ export const useTimer = ({ settings, onSessionComplete, t }: UseTimerProps) => {
     setMode(nextMode);
     setTimeLeft(nextDuration * 60);
 
-    // Auto-switch: if enabled, start next session automatically
-    if (settings.autoSwitchSession) {
+    // Auto-start: check specific break or focus auto-start setting
+    const isNextBreak = nextMode === 'shortBreak' || nextMode === 'longBreak';
+    const shouldAutoStart = isNextBreak
+      ? (settings.autoStartBreaks ?? settings.autoSwitchSession)
+      : (settings.autoStartFocus ?? settings.autoSwitchSession);
+
+    if (shouldAutoStart) {
       setStatus('running');
       activateKeepAwake();
     } else {

@@ -314,7 +314,7 @@ export const AboutThreeScene: React.FC<AboutThreeSceneProps> = ({ className = ''
     <div
       ref={containerRef}
       className={`about-three-container ${className}`}
-      aria-label="StudyPomodoro 3D Tomato Timer"
+      aria-label="Study Pomodoro 3D Tomato Timer"
     >
       <canvas ref={canvasRef} className={`about-three-canvas ${isLoaded ? 'is-loaded' : ''}`} />
     </div>
