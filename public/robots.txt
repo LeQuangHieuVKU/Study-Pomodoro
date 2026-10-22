@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://study-pomodoro-mauve.vercel.app/sitemap.xml
