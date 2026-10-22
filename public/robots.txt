@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://study-pomodoro-mauve.vercel.app/sitemap.xml
+Sitemap: https://studypomodoro.id.vn/sitemap.xml
