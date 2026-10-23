@@ -1,33 +1,38 @@
 import React, { useState } from 'react';
 import {
-  IonPage,
-  IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonAlert,
-  useIonRouter,
-} from '@ionic/react';
-import { ArrowLeft, Flame, Clock, Coffee, Trash2, Calendar, Award, CheckCircle2 } from 'lucide-react';
+  X,
+  Flame,
+  Clock,
+  Coffee,
+  Trash2,
+  Calendar,
+  Award,
+  CheckCircle2,
+  BarChart2,
+} from 'lucide-react';
+import { IonAlert } from '@ionic/react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { useHeaderScroll } from '../hooks/useHeaderScroll';
 import type { StudySession, TodayStats } from '../types';
 
-interface HistoryPageProps {
+export interface HistoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
   sessions: StudySession[];
   todayStats: TodayStats;
   onClearHistory: () => void;
 }
 
-export const HistoryPage: React.FC<HistoryPageProps> = ({
+export const HistoryModal: React.FC<HistoryModalProps> = ({
+  isOpen,
+  onClose,
   sessions,
   todayStats,
   onClearHistory,
 }) => {
-  const router = useIonRouter();
-  const { t } = useLanguage();
-  const { isHeaderHidden, handleIonScroll } = useHeaderScroll();
+  const { language, t } = useLanguage();
   const [showClearAlert, setShowClearAlert] = useState(false);
+
+  if (!isOpen) return null;
 
   // Format focus minutes to hours & minutes display
   const formatFocusTime = (minutes: number) => {
@@ -40,46 +45,54 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
   };
 
   return (
-    <IonPage className="history-page-root">
-      <IonHeader className={`ion-no-border app-header ${isHeaderHidden ? 'header-hidden' : ''}`}>
-        <IonToolbar className="app-toolbar">
-          <div className="header-title-row">
-            <div className="header-left-group">
-              <button
-                type="button"
-                className="header-back-button"
-                onClick={() => router.push('/timer', 'back')}
-                title="Quay lại Timer"
-                aria-label="Quay lại"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <div>
-                <IonTitle className="page-header-title">{t('historyTitle')}</IonTitle>
-                <p className="page-header-subtitle">{t('historySubtitle')}</p>
-              </div>
+    <div className="theme-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="theme-modal-card history-modal-card" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="theme-modal-header">
+          <div className="theme-modal-title-group">
+            <div className="settings-header-badge">
+              <BarChart2 size={18} />
+              <h2 className="theme-modal-title">{t('historyTitle')}</h2>
             </div>
-            {sessions.length > 0 && (
+            <p className="theme-modal-subtitle">{t('historySubtitle')}</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {(sessions.length > 0 || todayStats.sessionsCount > 0 || todayStats.breakCount > 0) && (
               <button
                 type="button"
                 className="header-icon-btn btn-danger-subtle"
                 onClick={() => setShowClearAlert(true)}
                 title={t('clearHistoryBtn')}
+                aria-label={t('clearHistoryBtn')}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  cursor: 'pointer',
+                }}
               >
-                <Trash2 size={17} />
+                <Trash2 size={16} />
               </button>
             )}
+            <button
+              type="button"
+              className="theme-modal-close-btn"
+              onClick={onClose}
+              aria-label={language === 'vi' ? 'Đóng' : 'Close'}
+            >
+              <X size={19} />
+            </button>
           </div>
-        </IonToolbar>
-      </IonHeader>
+        </div>
 
-      <IonContent
-        fullscreen
-        scrollEvents={true}
-        onIonScroll={handleIonScroll}
-        className="history-content-area"
-      >
-        <div className="history-page-wrapper">
+        {/* Modal Body - Scrollable */}
+        <div className="theme-modal-body">
           {/* Today Overview Header */}
           <div className="section-label-row">
             <Calendar size={15} className="text-indigo-400" />
@@ -88,7 +101,6 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
 
           {/* Metric KPI Cards */}
           <div className="stats-kpi-grid">
-            {/* Sessions count */}
             <div className="kpi-card card-sessions">
               <div className="kpi-icon-wrap icon-indigo">
                 <Flame size={20} />
@@ -97,7 +109,6 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
               <div className="kpi-title">{t('sessionsCompleted')}</div>
             </div>
 
-            {/* Total focus time */}
             <div className="kpi-card card-time">
               <div className="kpi-icon-wrap icon-cyan">
                 <Clock size={20} />
@@ -106,7 +117,6 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
               <div className="kpi-title">{t('totalFocusTime')}</div>
             </div>
 
-            {/* Breaks count */}
             <div className="kpi-card card-break">
               <div className="kpi-icon-wrap icon-emerald">
                 <Coffee size={20} />
@@ -121,8 +131,14 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
             <div className="milestone-banner">
               <Award size={20} className="milestone-icon" />
               <div className="milestone-text">
-                <span className="milestone-title">Đạt mốc 4 phiên tập trung!</span>
-                <span className="milestone-sub">Bạn đang duy trì nhịp độ học tập xuất sắc hôm nay.</span>
+                <span className="milestone-title">
+                  {language === 'vi' ? 'Đạt mốc 4 phiên tập trung!' : 'Reached 4 focus sessions milestone!'}
+                </span>
+                <span className="milestone-sub">
+                  {language === 'vi'
+                    ? 'Bạn đang duy trì nhịp độ học tập xuất sắc hôm nay.'
+                    : 'You are keeping up great study momentum today.'}
+                </span>
               </div>
             </div>
           )}
@@ -151,7 +167,6 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
                   <div key={sess.id} className={`timeline-session-card ${isFocus ? 'type-focus' : 'type-break'}`}>
                     <div className="timeline-indicator">
                       <div className={`indicator-dot ${isFocus ? 'dot-focus' : 'dot-break'}`} />
-                      <div className="indicator-line" />
                     </div>
 
                     <div className="session-info-body">
@@ -174,12 +189,16 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
               })}
             </div>
           ) : (
-            <div className="empty-state-card">
-              <div className="empty-icon-circle">
+            <div className="empty-state-card" style={{ padding: '36px 16px', textAlign: 'center' }}>
+              <div className="empty-icon-circle" style={{ margin: '0 auto 12px auto' }}>
                 <Clock size={36} className="text-indigo-400" />
               </div>
-              <h3 className="empty-state-title">{t('noHistory')}</h3>
-              <p className="empty-state-desc">{t('noHistorySub')}</p>
+              <h3 className="empty-state-title" style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', margin: '0 0 6px 0' }}>
+                {t('noHistory')}
+              </h3>
+              <p className="empty-state-desc" style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
+                {t('noHistorySub')}
+              </p>
             </div>
           )}
         </div>
@@ -204,7 +223,8 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({
             },
           ]}
         />
-      </IonContent>
-    </IonPage>
+      </div>
+    </div>
   );
 };
+export default HistoryModal;

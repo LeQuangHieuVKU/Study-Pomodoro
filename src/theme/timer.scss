@@ -5822,7 +5822,8 @@ body:not(.dark):not(.ion-palette-dark) {
 
 // Light mode synchronization for popover
 html:not(.dark):not(.ion-palette-dark),
-body:not(.dark):not(.ion-palette-dark) {
+body:not(.dark):not(.ion-palette-dark),
+:root:not(.dark) {
   .music-popover-backdrop {
     background: transparent;
     backdrop-filter: none;
@@ -5830,22 +5831,27 @@ body:not(.dark):not(.ion-palette-dark) {
   }
 
   .music-popover-card {
-    background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.12);
     box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12), 0 2px 10px rgba(15, 23, 42, 0.05);
     color: #0F172A;
 
     .music-popover-header {
-      border-bottom-color: rgba(0, 0, 0, 0.06);
+      border-bottom-color: rgba(0, 0, 0, 0.08);
+
+      .music-popover-tag {
+        color: #475569;
+        font-weight: 700;
+      }
 
       .music-popover-close-btn {
-        background: rgba(0, 0, 0, 0.04);
-        color: #64748B;
+        background: rgba(0, 0, 0, 0.05);
+        color: #475569;
 
         &:hover {
-          background: rgba(0, 0, 0, 0.08);
+          background: rgba(0, 0, 0, 0.1);
           color: #0F172A;
         }
       }
@@ -5855,19 +5861,30 @@ body:not(.dark):not(.ion-palette-dark) {
     .music-now-playing-title,
     .service-title {
       color: #0F172A;
+      font-weight: 600;
     }
 
     .music-now-playing-row,
     .music-service-row,
     .music-youtube-accordion {
       background: rgba(0, 0, 0, 0.04);
-      border-color: rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+
+    .music-volume-row {
+      .music-volume-icon {
+        color: #475569;
+      }
+      .music-volume-val {
+        color: #334155;
+        font-weight: 600;
+      }
     }
 
     .music-mini-controls-group {
       .music-mini-control-btn.next-btn {
         background: rgba(0, 0, 0, 0.06);
-        color: #475569;
+        color: #334155;
 
         &:hover {
           background: rgba(0, 0, 0, 0.12);
@@ -5876,16 +5893,66 @@ body:not(.dark):not(.ion-palette-dark) {
       }
     }
 
-    .music-track-name {
-      color: #334155;
+    // Tiêu đề BẢN LOFI & DỊCH VỤ - Đậm, contrast cao
+    .music-subheading {
+      color: #1E293B;
+      font-weight: 700;
+      letter-spacing: 0.06em;
     }
 
-    .music-track-row.is-active {
-      background: rgba(99, 102, 241, 0.12);
-      border-color: rgba(99, 102, 241, 0.35);
+    .music-tracks-compact-list::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.18);
+    }
 
+    // Từng dòng bài hát trong list
+    .music-track-row {
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      .track-index {
+        color: #64748B;
+        font-weight: 600;
+      }
+
+      // Tên bài hát: xám đậm / gần đen, contrast cao, cực kỳ rõ nét
       .track-name {
-        color: #4F46E5;
+        color: #0F172A;
+        font-weight: 600;
+      }
+
+      // Bài đang chọn: highlight rõ với nền accent nhẹ + chữ đậm
+      &.is-active {
+        background: rgba(99, 102, 241, 0.14);
+        border-color: rgba(99, 102, 241, 0.4);
+
+        .track-name {
+          color: #3730A3;
+          font-weight: 700;
+        }
+
+        .track-index {
+          color: #4338CA;
+          font-weight: 700;
+        }
+
+        .track-active-dot {
+          background: #4F46E5;
+        }
+      }
+
+      // Bài "Sắp có": mờ hơn một chút nhưng vẫn đọc được rất rõ
+      &.is-disabled {
+        opacity: 0.8;
+
+        .track-name {
+          color: #475569;
+          font-weight: 500;
+        }
+
+        .track-index {
+          color: #94A3B8;
+        }
       }
     }
 
@@ -5901,13 +5968,14 @@ body:not(.dark):not(.ion-palette-dark) {
 
     .yt-title-compact {
       background: rgba(0, 0, 0, 0.04);
-      color: #334155;
+      color: #1E293B;
     }
 
     .track-badge-soon {
-      background: rgba(0, 0, 0, 0.05);
-      border-color: rgba(0, 0, 0, 0.08);
-      color: #64748B;
+      background: rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.1);
+      color: #475569;
+      font-weight: 600;
     }
   }
 }

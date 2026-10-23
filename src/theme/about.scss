@@ -49,22 +49,25 @@ ion-content.about-content-area {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, color 0.2s;
   flex-shrink: 0;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 
   &:hover {
     border-color: var(--color-indigo);
     color: var(--color-indigo);
-    transform: translateX(-2px);
+    transform: translateY(0) scale(1.02);
   }
 
   &:active {
     transform: scale(0.96);
   }
 
-  &.is-leaving {
+  &.is-hidden {
     opacity: 0 !important;
-    transform: translateX(-14px) !important;
+    transform: translateY(-10px) !important;
     pointer-events: none !important;
   }
 }
@@ -618,6 +621,97 @@ ion-toolbar.about-toolbar {
 }
 
 // -----------------------------------------------------------------------------
+// SECTION: DÀNH CHO AI (TARGET AUDIENCE)
+// -----------------------------------------------------------------------------
+.about-audience-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.about-audience-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-indigo);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+
+    .audience-card-icon {
+      transform: scale(1.08);
+    }
+  }
+
+  .audience-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+
+    &.icon-indigo {
+      background: rgba(99, 102, 241, 0.12);
+      color: var(--color-indigo);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+
+    &.icon-cyan {
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--color-cyan, #06B6D4);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+    }
+
+    &.icon-rose {
+      background: rgba(244, 63, 94, 0.12);
+      color: var(--color-rose, #F43F5E);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+    }
+
+    &.icon-emerald {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--color-emerald, #10B981);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+  }
+
+  .audience-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .audience-card-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.01em;
+  }
+
+  .audience-card-desc {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+}
+
+// -----------------------------------------------------------------------------
 // SECTION C: 4 STEPS HOW IT WORKS
 // -----------------------------------------------------------------------------
 .about-steps-grid {
@@ -847,6 +941,46 @@ ion-toolbar.about-toolbar {
       border-radius: 50%;
       background: var(--color-indigo);
     }
+  }
+}
+
+.pomo-wiki-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 18px;
+  border-top: 1px dashed var(--border-subtle);
+  margin-top: 4px;
+}
+
+.pomo-wiki-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-subtle);
+  color: var(--color-indigo);
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: var(--color-indigo);
+    color: var(--color-indigo);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+
+    .wiki-ext-icon {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  .wiki-ext-icon {
+    opacity: 0.75;
+    transition: transform 0.2s ease;
   }
 }
 
@@ -1183,6 +1317,181 @@ ion-toolbar.about-toolbar {
 }
 
 // -----------------------------------------------------------------------------
+// SECTION: DEVELOPER SHOWCASE
+// -----------------------------------------------------------------------------
+.about-developer-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  padding: 24px 28px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &:hover {
+    border-color: var(--color-indigo);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+  }
+
+  .developer-profile-wrap {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .developer-avatar-badge {
+    position: relative;
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--color-indigo), #06B6D4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+
+    .avatar-status-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #10B981;
+      border: 2px solid var(--bg-card);
+    }
+  }
+
+  .developer-bio-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .developer-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .developer-name {
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+  }
+
+  .developer-badge-chip {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--color-indigo);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    padding: 2px 8px;
+    border-radius: 9999px;
+  }
+
+  .developer-role-tag {
+    margin: 0;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--color-indigo);
+  }
+
+  .developer-motto {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+    max-width: 440px;
+  }
+
+  .developer-social-links {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+
+    @media (max-width: 639px) {
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+      width: 100%;
+    }
+  }
+
+  .dev-social-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+    @media (max-width: 639px) {
+      flex: 1;
+      justify-content: center;
+    }
+
+    &.btn-github {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+
+      &:hover {
+        background: #24292e;
+        color: #ffffff;
+        border-color: #24292e;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+
+    &.btn-facebook {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+
+      &:hover {
+        background: #1877f2;
+        color: #ffffff;
+        border-color: #1877f2;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(24, 119, 242, 0.25);
+      }
+    }
+
+    .dev-link-arrow {
+      opacity: 0.6;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover .dev-link-arrow {
+      opacity: 1;
+      transform: translate(2px, -2px);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
 // SECTION G: BOTTOM CALL-TO-ACTION CARD
 // -----------------------------------------------------------------------------
 .about-final-cta-section {
@@ -1501,6 +1810,26 @@ ion-toolbar.about-toolbar {
       color: #e4e4e7;
     }
 
+    // SECTION: Dành cho ai (Target Audience)
+    .about-audience-card {
+      background: #080808;
+      border-color: #1c1c1c;
+      box-shadow: none;
+
+      &:hover {
+        border-color: var(--color-indigo);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      }
+
+      .audience-card-title {
+        color: #ffffff;
+      }
+
+      .audience-card-desc {
+        color: #e4e4e7;
+      }
+    }
+
     // SECTION C: How it works step cards
     .about-step-card {
       background: #080808;
@@ -1588,6 +1917,22 @@ ion-toolbar.about-toolbar {
 
       .connector-dot {
         background: var(--color-indigo);
+      }
+    }
+
+    .pomo-wiki-footer {
+      border-top-color: #1c1c1c;
+    }
+
+    .pomo-wiki-link-btn {
+      background: #121212;
+      border-color: #262626;
+      color: var(--color-indigo);
+
+      &:hover {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: var(--color-indigo);
+        color: #ffffff;
       }
     }
 
@@ -1737,6 +2082,48 @@ ion-toolbar.about-toolbar {
 
       .faq-answer-text {
         color: #e4e4e7;
+      }
+    }
+
+    // SECTION: DEVELOPER SHOWCASE
+    .about-developer-card {
+      background: #080808;
+      border-color: #1c1c1c;
+      box-shadow: none;
+
+      &:hover {
+        border-color: var(--color-indigo);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      }
+
+      .developer-name {
+        color: #ffffff;
+      }
+
+      .developer-motto {
+        color: #e4e4e7;
+      }
+
+      .developer-social-links {
+        border-top-color: #1c1c1c;
+      }
+
+      .dev-social-btn {
+        background: #121212;
+        border-color: #262626;
+        color: #e4e4e7;
+
+        &.btn-github:hover {
+          background: #24292e;
+          border-color: #383e47;
+          color: #ffffff;
+        }
+
+        &.btn-facebook:hover {
+          background: #1877f2;
+          border-color: #1877f2;
+          color: #ffffff;
+        }
       }
     }
 

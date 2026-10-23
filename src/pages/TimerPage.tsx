@@ -25,12 +25,13 @@ import { TimerDisplay } from '../components/TimerDisplay';
 import { MotivationalQuote } from '../components/MotivationalQuote';
 import { ThemeModal } from '../components/ThemeModal';
 import { SettingsModal } from '../components/SettingsModal';
+import { HistoryModal } from '../components/HistoryModal';
 import { TasksSlideover } from '../components/TasksSlideover';
 import { MusicPanel } from '../components/MusicPanel';
 import { FloatingTimer } from '../components/FloatingTimer';
 import { useTimer } from '../hooks/useTimer';
 import { useLanguage } from '../i18n/LanguageContext';
-import type { AppSettings, SessionMode } from '../types';
+import type { AppSettings, SessionMode, StudySession, TodayStats } from '../types';
 
 interface TimerPageProps {
   settings: AppSettings;
@@ -38,6 +39,9 @@ interface TimerPageProps {
   onUpdateSetting?: <K extends keyof AppSettings>(key: K, val: AppSettings[K]) => void;
   onUploadCustomBg?: (file: File) => Promise<void>;
   onRemoveCustomBg?: () => Promise<void>;
+  sessions?: StudySession[];
+  todayStats?: TodayStats;
+  onClearHistory?: () => void;
 }
 
 export const TimerPage: React.FC<TimerPageProps> = ({
@@ -46,12 +50,16 @@ export const TimerPage: React.FC<TimerPageProps> = ({
   onUpdateSetting,
   onUploadCustomBg,
   onRemoveCustomBg,
+  sessions = [],
+  todayStats = { sessionsCount: 0, totalFocusMinutes: 0, breakCount: 0 },
+  onClearHistory = () => {},
 }) => {
   const { language, t } = useLanguage();
   const router = useIonRouter();
 
   const [isThemeOpen, setIsThemeOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isTasksOpen, setIsTasksOpen] = useState(false);
   const [isMusicOpen, setIsMusicOpen] = useState(false);
   const [isYtPlaying, setIsYtPlaying] = useState(false);
@@ -228,8 +236,8 @@ export const TimerPage: React.FC<TimerPageProps> = ({
           <div className="sidebar-item">
             <button
               type="button"
-              className="sidebar-icon-btn"
-              onClick={() => router.push('/history', 'forward')}
+              className={`sidebar-icon-btn ${isHistoryOpen ? 'active' : ''}`}
+              onClick={() => setIsHistoryOpen(true)}
               title={t('tabHistory')}
               aria-label={t('tabHistory')}
             >
@@ -408,6 +416,13 @@ export const TimerPage: React.FC<TimerPageProps> = ({
         cycleCount={cycleCount}
         onResetCycle={resetCycle}
         onResetTimer={resetTimer}
+      />
+      <HistoryModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        sessions={sessions}
+        todayStats={todayStats}
+        onClearHistory={onClearHistory}
       />
       <TasksSlideover
         isOpen={isTasksOpen}

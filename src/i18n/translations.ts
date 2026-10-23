@@ -257,6 +257,19 @@ export const TRANSLATIONS = {
     aboutFeat5Title: "Bảo Mật & Offline Tuyệt Đối",
     aboutFeat5Desc: "100% không quảng cáo, không thu thập dữ liệu, không cần tài khoản. Mọi ghi chú và lịch sử phiên học lưu trữ trực tiếp trên thiết bị của bạn.",
 
+    // Who is it for (Dành Cho Ai)
+    aboutAudienceEyebrow: "Đối tượng phù hợp",
+    aboutAudienceTitle: "Dành Cho Ai?",
+    aboutAudienceSubtitle: "StudyPomodoro được thiết kế tinh gọn, trực quan và phù hợp với:",
+    aboutAudienceItem1Title: "Học sinh & Sinh viên",
+    aboutAudienceItem1Desc: "Cần tập trung ôn thi, hoàn thành bài tập và quản lý thời gian học tập hiệu quả.",
+    aboutAudienceItem2Title: "Người tự học & Học online",
+    aboutAudienceItem2Desc: "Học trực tuyến, trau dồi kỹ năng mới và muốn giảm thiểu xao nhãng tối đa.",
+    aboutAudienceItem3Title: "Làm việc ngắt quãng & Nhạc Lofi",
+    aboutAudienceItem3Desc: "Thích làm việc theo phiên ngắn 25 phút, có nhạc nền êm dịu và ghi chú kèm theo.",
+    aboutAudienceItem4Title: "Miễn phí & Không quảng cáo",
+    aboutAudienceItem4Desc: "Người muốn công cụ 100% miễn phí, không quảng cáo quấy rầy và không cần đăng nhập.",
+
     aboutHowTitle: "Cách Hoạt Động",
     aboutHowSubtitle: "Quy trình 4 bước đơn giản để thiết lập trạng thái dòng chảy",
     aboutStep1Title: "1. Xác định mục tiêu",
@@ -281,6 +294,7 @@ export const TRANSLATIONS = {
     aboutPomoLongBreakTitle: "15–30 Phút",
     aboutPomoLongBreakSub: "Nghỉ dài sau 4 phiên",
     aboutPomoLongBreakDesc: "Sau 4 chu kỳ tập trung (tổng cộng 100 phút học tập), bạn xứng đáng có một quãng nghỉ dài để não bộ tổng hợp kiến thức và thư giãn trọn vẹn.",
+    aboutPomoWikiLink: "Tìm hiểu thêm trên Wikipedia",
 
     aboutPlatformTitle: "Cài Đặt Study Pomodoro Lên Thiết Bị",
     aboutPlatformSubtitle: "Sử dụng toàn màn hình không viền xao nhãng, lưu trữ 100% dữ liệu offline và mở tức thì từ màn hình chính.",
@@ -326,6 +340,15 @@ export const TRANSLATIONS = {
     aboutFaqA5: "Nhiều nghiên cứu khoa học chứng minh khả năng chú ý cao độ của não người đạt đỉnh trong khoảng 20–30 phút. Khoảng thời gian 25 phút vừa đủ để hoàn thành một khối lượng công việc có ý nghĩa mà không gây mỏi mắt hay kiệt sức thần kinh.",
     aboutFaqQ6: "Ứng dụng có thu phí hay chèn quảng cáo trong tương lai không?",
     aboutFaqA6: "Không bao giờ. Study Pomodoro được xây dựng như một công cụ nguồn mở phi thương mại, hoàn toàn miễn phí và không bao giờ chèn quảng cáo làm phiền sự tập trung của bạn.",
+
+    // Developer Section
+    aboutDevEyebrow: "Tác giả & Đóng góp",
+    aboutDevTitle: "Người Phát Triển",
+    aboutDevSubtitle: "Dự án được xây dựng với tinh thần phi thương mại, mang lại không gian học tập và làm việc hiệu quả cho mọi người.",
+    aboutDevName: "Lê Quang Hiếu",
+    aboutDevRole: "Tác giả StudyPomodoro • Sinh viên VKU",
+    aboutDevGithub: "GitHub",
+    aboutDevFacebook: "Facebook",
 
     aboutFooterHeading: "Sẵn Sàng Cho Một Phiên Học Đầy Cảm Hứng?",
     aboutFooterSubtitle: "Khởi động đồng hồ ngay bây giờ và biến mỗi phút giây học tập thành trải nghiệm sâu sắc.",
@@ -589,6 +612,19 @@ export const TRANSLATIONS = {
     aboutFeat5Title: "Zero-Tracking & 100% Offline",
     aboutFeat5Desc: "No ads, no data telemetry, no accounts required. All notes, session logs, and personal preferences remain exclusively on your device.",
 
+    // Who is it for (Dành Cho Ai)
+    aboutAudienceEyebrow: "Designed For You",
+    aboutAudienceTitle: "Who Is It For?",
+    aboutAudienceSubtitle: "StudyPomodoro is designed to be minimal, distraction-free, and ideal for:",
+    aboutAudienceItem1Title: "Students & Academics",
+    aboutAudienceItem1Desc: "Focusing on exam prep, finishing assignments, and building consistent study habits.",
+    aboutAudienceItem2Title: "Self-Learners & Online Students",
+    aboutAudienceItem2Desc: "Taking online courses or self-studying with fewer digital distractions.",
+    aboutAudienceItem3Title: "Interval Workers & Lofi Fans",
+    aboutAudienceItem3Desc: "Working in 25-minute sprints paired with calming ambient audio and quick notes.",
+    aboutAudienceItem4Title: "100% Free & Ad-Free",
+    aboutAudienceItem4Desc: "Anyone looking for a completely free tool with zero ads and no login required.",
+
     aboutHowTitle: "How It Works",
     aboutHowSubtitle: "A 4-step mindful framework to enter and sustain your Flow State",
     aboutStep1Title: "1. Define Your Target",
@@ -613,6 +649,7 @@ export const TRANSLATIONS = {
     aboutPomoLongBreakTitle: "15–30 Min",
     aboutPomoLongBreakSub: "Long Break After 4 Sessions",
     aboutPomoLongBreakDesc: "After completing a 4-cycle marathon (100 minutes of pure focus), grant your mind a generous break to consolidate learnings.",
+    aboutPomoWikiLink: "Learn more on Wikipedia",
 
     aboutPlatformTitle: "Install Study Pomodoro on Your Device",
     aboutPlatformSubtitle: "Distraction-free fullscreen window, 100% offline persistence, and one-tap launch from your home screen.",
@@ -658,6 +695,15 @@ export const TRANSLATIONS = {
     aboutFaqA5: "Cognitive science indicates human attentional peak typically lasts 20–30 minutes before degrading. 25 minutes strikes the sweet spot for meaningful progress without cognitive burnout.",
     aboutFaqQ6: "Will the app introduce paid tiers or display ads in the future?",
     aboutFaqA6: "Never. Study Pomodoro is created as a clean non-commercial open-source gift for the learning community, completely free and forever ad-free.",
+
+    // Developer Section
+    aboutDevEyebrow: "Creator & Maintainer",
+    aboutDevTitle: "Developed By",
+    aboutDevSubtitle: "An open-source non-commercial project created to inspire focused learning for everyone.",
+    aboutDevName: "Lê Quang Hiếu",
+    aboutDevRole: "Creator of StudyPomodoro • VKU Student",
+    aboutDevGithub: "GitHub",
+    aboutDevFacebook: "Facebook",
 
     aboutFooterHeading: "Ready for an Inspiring Focus Session?",
     aboutFooterSubtitle: "Start your timer now and turn every minute of study into meaningful progress.",

@@ -7,6 +7,7 @@ import {
   IonTitle,
   IonToast,
   useIonRouter,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import {
   ArrowLeft,
@@ -28,9 +29,18 @@ import {
   Share2,
   Maximize2,
   Globe,
+  GraduationCap,
+  BookOpen,
+  ExternalLink,
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { AboutThreeScene } from '../components/AboutThreeScene';
+import {
+  getDeferredPrompt,
+  isStandaloneMode,
+  isIOSDevice,
+  triggerPwaInstall,
+} from '../utils/pwa';
 import {
   DesktopBrowserClockIcon,
   DesktopInstallBarIcon,
@@ -39,6 +49,18 @@ import {
   MobileShareActionIcon,
   MobileAppGridGlowIcon,
 } from '../components/InstallStepIcons';
+
+const GithubIcon: React.FC<{ size?: number }> = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+  </svg>
+);
+
+const FacebookIcon: React.FC<{ size?: number }> = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+  </svg>
+);
 
 const CTA_ROTATING_PHRASES_VI = [
   'cho một phiên học hiệu quả?',
@@ -77,11 +99,21 @@ export const AboutPage: React.FC = () => {
     return isMobileUA || isSmallScreen ? 'mobile' : 'desktop';
   });
   const [showInstallToast, setShowInstallToast] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [installToastMessage, setInstallToastMessage] = useState('');
+  const [isStandalone, setIsStandalone] = useState(() => isStandaloneMode());
 
-  // Scroll detection for header title visibility
+  // Scroll & Back button visibility state
+  const [showBackBtn, setShowBackBtn] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
   const contentRef = useRef<HTMLIonContentElement>(null);
+
+  // Ionic view lifecycle: always ensure back button and top state are mounted and visible on view enter
+  useIonViewWillEnter(() => {
+    setShowBackBtn(true);
+    setIsScrolled(false);
+    setIsLeaving(false);
+  });
 
   // 1. Typing animation for "Study Pomodoro" in Hero section
   const [typedTitle, setTypedTitle] = useState('');
@@ -187,62 +219,21 @@ export const AboutPage: React.FC = () => {
     return () => clearTimeout(timeout);
   }, [typedOsText, isOsDeleting, osWordIdx, osWords]);
 
-  // Listen for PWA beforeinstallprompt event
+  // Listen for PWA prompt readiness and install completion
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
+    const handleInstalled = () => {
+      setIsStandalone(true);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  // Listen to content scroll to toggle header title visibility (hide on scroll down, show on scroll up)
-  useEffect(() => {
-    let isMounted = true;
-    let scrollEl: HTMLElement | null = null;
-    let lastTop = 0;
-
-    const handleScrollEvent = () => {
-      if (!scrollEl || !isMounted) return;
-      const current = scrollEl.scrollTop;
-      if (current > lastTop + 6 && current > 20) {
-        setIsScrolled(true);
-      } else if (current < lastTop - 6 || current <= 15) {
-        setIsScrolled(false);
-      }
-      lastTop = current;
-    };
-
-    const setupScroll = async () => {
-      if (contentRef.current) {
-        try {
-          scrollEl = await contentRef.current.getScrollElement();
-          if (scrollEl && isMounted) {
-            scrollEl.addEventListener('scroll', handleScrollEvent, { passive: true });
-          }
-        } catch {
-          window.addEventListener('scroll', handleScrollEvent, { passive: true });
-        }
-      }
-    };
-
-    setupScroll();
-
+    window.addEventListener('pwa-installed', handleInstalled);
     return () => {
-      isMounted = false;
-      if (scrollEl) {
-        scrollEl.removeEventListener('scroll', handleScrollEvent);
-      }
-      window.removeEventListener('scroll', handleScrollEvent);
+      window.removeEventListener('pwa-installed', handleInstalled);
     };
   }, []);
 
   // 4. Trigger sweep animation on Pomodoro visual bar with 5-second interval loop when scrolled into Features section
   const [featuresVisible, setFeaturesVisible] = useState(false);
   const [sweepState, setSweepState] = useState<'idle' | 'sweep' | 'reset'>('idle');
-  const [isLeaving, setIsLeaving] = useState(false);
   const featuresRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -320,15 +311,56 @@ export const AboutPage: React.FC = () => {
   }, [featuresVisible]);
 
   const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
-      if (choiceResult.outcome === 'accepted') {
-        setDeferredPrompt(null);
-      }
-    } else {
+    // 1. If app is already installed and running in standalone window
+    if (isStandaloneMode()) {
+      setInstallToastMessage(
+        language === 'vi'
+          ? 'StudyPomodoro đã được cài đặt và đang chạy ở chế độ ứng dụng độc lập!'
+          : 'StudyPomodoro is already installed and running as a standalone app!'
+      );
       setShowInstallToast(true);
+      return;
     }
+
+    // 2. Trigger native PWA install prompt if supported by browser (Chrome / Edge / Android)
+    if (getDeferredPrompt()) {
+      try {
+        const outcome = await triggerPwaInstall();
+        if (outcome === 'accepted') {
+          setInstallToastMessage(
+            language === 'vi'
+              ? 'Tuyệt vời! StudyPomodoro đang được thêm vào thiết bị của bạn.'
+              : 'Great! StudyPomodoro is being added to your device.'
+          );
+          setShowInstallToast(true);
+        }
+        return;
+      } catch (err) {
+        console.warn('Install prompt error:', err);
+      }
+    }
+
+    // 3. Fallback guide tailored to device/browser so button is never unresponsive
+    if (isIOSDevice()) {
+      setInstallToastMessage(
+        language === 'vi'
+          ? 'Trên iPhone/iPad: Nhấn nút Chia sẻ (biểu tượng mũi tên lên) ở dưới trình duyệt → Chọn "Thêm vào Màn hình chính".'
+          : 'On iOS: Tap the Share button (square with arrow) at bottom → Select "Add to Home Screen".'
+      );
+    } else if (activePlatform === 'mobile' || /Android/i.test(navigator.userAgent)) {
+      setInstallToastMessage(
+        language === 'vi'
+          ? 'Trên Android: Nhấn Menu (⋮) ở góc trên trình duyệt → Chọn "Cài đặt ứng dụng" hoặc "Thêm vào màn hình chính".'
+          : 'On Android: Tap browser Menu (⋮) → Select "Install app" or "Add to Home screen".'
+      );
+    } else {
+      setInstallToastMessage(
+        language === 'vi'
+          ? 'Trên máy tính: Nhấn biểu tượng Cài đặt (⊕) trên thanh địa chỉ hoặc Menu (⋮) → Chọn "Cài đặt StudyPomodoro".'
+          : 'On Desktop: Click the Install icon (⊕) on the address bar or Menu (⋮) → "Install StudyPomodoro".'
+      );
+    }
+    setShowInstallToast(true);
   };
 
   const toggleFaq = (index: number) => {
@@ -339,12 +371,20 @@ export const AboutPage: React.FC = () => {
     router.push('/timer', 'root', 'replace');
   };
 
-  const handleBackToSettings = () => {
-    setIsLeaving(true);
-    if (router.canGoBack()) {
-      router.goBack();
+  const handleBack = () => {
+    // Navigate reliably to Timer page with back animation
+    router.push('/timer', 'back', 'replace');
+  };
+
+  const handleContentScroll = (e: CustomEvent) => {
+    const top = e.detail?.scrollTop ?? 0;
+    // Hide when scrolling down, show immediately when back near top
+    if (top > 50) {
+      setShowBackBtn(false);
+      setIsScrolled(true);
     } else {
-      router.push('/settings', 'back', 'replace');
+      setShowBackBtn(true);
+      setIsScrolled(false);
     }
   };
 
@@ -367,12 +407,12 @@ export const AboutPage: React.FC = () => {
 
   return (
     <IonPage className="about-page-root">
-      {/* Fixed Back Button - Always pinned at top-left (position: fixed) */}
+      {/* Fixed Back Button - Always pinned at top-left (position: fixed), hides on scroll down, reappears near top */}
       <button
         type="button"
-        className={`about-back-btn ${isLeaving ? 'is-leaving' : ''}`}
-        onClick={handleBackToSettings}
-        aria-label={t('backToSettings')}
+        className={`about-back-btn ${!showBackBtn ? 'is-hidden' : ''}`}
+        onClick={handleBack}
+        aria-label={t('backBtn')}
       >
         <ArrowLeft size={19} />
         <span className="about-back-text">{t('backBtn')}</span>
@@ -394,10 +434,7 @@ export const AboutPage: React.FC = () => {
         fullscreen
         className="about-content-area"
         scrollEvents={true}
-        onIonScroll={(e) => {
-          const top = e.detail?.scrollTop ?? 0;
-          setIsScrolled(top > 20);
-        }}
+        onIonScroll={handleContentScroll}
       >
         <div className="about-page-wrapper">
           {/* SECTION A: HERO HEADER WITH 3D TOMATO TIMER & TYPING ANIMATION */}
@@ -529,6 +566,61 @@ export const AboutPage: React.FC = () => {
             </div>
           </section>
 
+          {/* SECTION: WHO IS IT FOR / DÀNH CHO AI */}
+          <section className="about-section about-audience-section">
+            <div className="section-title-block">
+              <span className="section-eyebrow">{t('aboutAudienceEyebrow')}</span>
+              <h3 className="section-main-heading">{t('aboutAudienceTitle')}</h3>
+              <p className="section-sub-heading">{t('aboutAudienceSubtitle')}</p>
+            </div>
+
+            <div className="about-audience-grid">
+              {/* Item 1: Học sinh, sinh viên */}
+              <div className="about-audience-card">
+                <div className="audience-card-icon icon-indigo">
+                  <GraduationCap size={22} />
+                </div>
+                <div className="audience-card-content">
+                  <h4 className="audience-card-title">{t('aboutAudienceItem1Title')}</h4>
+                  <p className="audience-card-desc">{t('aboutAudienceItem1Desc')}</p>
+                </div>
+              </div>
+
+              {/* Item 2: Người tự học, học online */}
+              <div className="about-audience-card">
+                <div className="audience-card-icon icon-cyan">
+                  <Laptop size={22} />
+                </div>
+                <div className="audience-card-content">
+                  <h4 className="audience-card-title">{t('aboutAudienceItem2Title')}</h4>
+                  <p className="audience-card-desc">{t('aboutAudienceItem2Desc')}</p>
+                </div>
+              </div>
+
+              {/* Item 3: Thích làm việc phiên ngắn kèm nhạc & ghi chú */}
+              <div className="about-audience-card">
+                <div className="audience-card-icon icon-rose">
+                  <Headphones size={22} />
+                </div>
+                <div className="audience-card-content">
+                  <h4 className="audience-card-title">{t('aboutAudienceItem3Title')}</h4>
+                  <p className="audience-card-desc">{t('aboutAudienceItem3Desc')}</p>
+                </div>
+              </div>
+
+              {/* Item 4: Muốn công cụ miễn phí, không quảng cáo, không đăng nhập */}
+              <div className="about-audience-card">
+                <div className="audience-card-icon icon-emerald">
+                  <ShieldCheck size={22} />
+                </div>
+                <div className="audience-card-content">
+                  <h4 className="audience-card-title">{t('aboutAudienceItem4Title')}</h4>
+                  <p className="audience-card-desc">{t('aboutAudienceItem4Desc')}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* SECTION C: HOW IT WORKS (4 STEPS) */}
           <section className="about-section">
             <div className="section-title-block">
@@ -641,6 +733,24 @@ export const AboutPage: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Wikipedia External Link */}
+              <div className="pomo-wiki-footer">
+                <a
+                  href={
+                    language === 'vi'
+                      ? 'https://vi.wikipedia.org/wiki/Phương_pháp_quả_cà_chua'
+                      : 'https://en.wikipedia.org/wiki/Pomodoro_Technique'
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pomo-wiki-link-btn"
+                >
+                  <BookOpen size={16} />
+                  <span>{t('aboutPomoWikiLink')}</span>
+                  <ExternalLink size={14} className="wiki-ext-icon" />
+                </a>
+              </div>
             </div>
           </section>
 
@@ -699,8 +809,12 @@ export const AboutPage: React.FC = () => {
                   className="install-now-hero-btn"
                   onClick={handleInstallClick}
                 >
-                  <Download size={18} />
-                  <span>{language === 'vi' ? 'Cài đặt ngay' : 'Install Now'}</span>
+                  {isStandalone ? <CheckCircle2 size={18} /> : <Download size={18} />}
+                  <span>
+                    {isStandalone
+                      ? (language === 'vi' ? 'Đã cài đặt' : 'Installed')
+                      : (language === 'vi' ? 'Cài đặt ngay' : 'Install Now')}
+                  </span>
                 </button>
               </div>
             </div>
@@ -862,6 +976,62 @@ export const AboutPage: React.FC = () => {
             </div>
           </section>
 
+          {/* SECTION: DEVELOPER SHOWCASE / NGƯỜI PHÁT TRIỂN */}
+          <section className="about-section about-developer-section">
+            <div className="section-title-block">
+              <span className="section-eyebrow">{t('aboutDevEyebrow')}</span>
+              <h3 className="section-main-heading">{t('aboutDevTitle')}</h3>
+              <p className="section-sub-heading">{t('aboutDevSubtitle')}</p>
+            </div>
+
+            <div className="about-developer-card">
+              <div className="developer-profile-wrap">
+                <div className="developer-avatar-badge">
+                  <span className="avatar-initials">LQH</span>
+                  <span className="avatar-status-dot" title="Active Developer" />
+                </div>
+                <div className="developer-bio-text">
+                  <div className="developer-name-row">
+                    <h4 className="developer-name">{t('aboutDevName')}</h4>
+                    <span className="developer-badge-chip">Author</span>
+                  </div>
+                  <p className="developer-role-tag">{t('aboutDevRole')}</p>
+                  <p className="developer-motto">
+                    {language === 'vi'
+                      ? 'Đam mê phát triển các ứng dụng web tối giản, hữu ích và mang lại giá trị thiết thực cho cộng đồng học tập.'
+                      : 'Dedicated to crafting minimal, intuitive, and high-impact web apps for the learning community.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="developer-social-links">
+                <a
+                  href="https://github.com/LeQuangHieuVKU"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="dev-social-btn btn-github"
+                  aria-label="GitHub Profile"
+                >
+                  <GithubIcon size={18} />
+                  <span>{t('aboutDevGithub')}</span>
+                  <ExternalLink size={13} className="dev-link-arrow" />
+                </a>
+
+                <a
+                  href="https://www.facebook.com/quanghieu.le.3994885/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="dev-social-btn btn-facebook"
+                  aria-label="Facebook Profile"
+                >
+                  <FacebookIcon size={18} />
+                  <span>{t('aboutDevFacebook')}</span>
+                  <ExternalLink size={13} className="dev-link-arrow" />
+                </a>
+              </div>
+            </div>
+          </section>
+
           {/* SECTION G: BOTTOM CALL-TO-ACTION CARD WITH DYNAMIC ROTATING TYPING EFFECT */}
           <section className="about-final-cta-section">
             <div className="final-cta-card">
@@ -902,10 +1072,16 @@ export const AboutPage: React.FC = () => {
         <IonToast
           isOpen={showInstallToast}
           onDidDismiss={() => setShowInstallToast(false)}
-          message={t('installGuideToast')}
-          duration={3500}
+          message={installToastMessage || t('installGuideToast')}
+          duration={5000}
           position="bottom"
           color="dark"
+          buttons={[
+            {
+              text: language === 'vi' ? 'Đã hiểu' : 'Got it',
+              role: 'cancel',
+            },
+          ]}
         />
       </IonContent>
     </IonPage>

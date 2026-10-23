@@ -51,6 +51,7 @@ export const useTimer = ({ settings, onSessionComplete, t }: UseTimerProps) => {
   const { scheduleNotification } = useNotifications();
 
   const timerRef = useRef<number | null>(null);
+  const handleTimerCompleteRef = useRef<() => void>(() => {});
 
   // Sync timeLeft when duration setting changes while idle
   useEffect(() => {
@@ -65,9 +66,14 @@ export const useTimer = ({ settings, onSessionComplete, t }: UseTimerProps) => {
       timerRef.current = window.setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            clearInterval(timerRef.current!);
-            timerRef.current = null;
-            handleTimerComplete();
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+            // Defer completion execution outside setState updater to avoid React dispatch collisions
+            setTimeout(() => {
+              handleTimerCompleteRef.current?.();
+            }, 0);
             return 0;
           }
           return prev - 1;
@@ -86,7 +92,7 @@ export const useTimer = ({ settings, onSessionComplete, t }: UseTimerProps) => {
         timerRef.current = null;
       }
     };
-  }, [status, mode]);
+  }, [status]);
 
   // When timer hits zero
   const handleTimerComplete = useCallback(async () => {
@@ -216,6 +222,11 @@ export const useTimer = ({ settings, onSessionComplete, t }: UseTimerProps) => {
     activateKeepAwake,
     deactivateKeepAwake,
   ]);
+
+  // Keep ref up to date so interval timer always invokes the latest complete handler
+  useEffect(() => {
+    handleTimerCompleteRef.current = handleTimerComplete;
+  }, [handleTimerComplete]);
 
   const startTimer = useCallback(async () => {
     triggerImpact();
