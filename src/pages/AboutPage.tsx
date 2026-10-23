@@ -34,6 +34,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useSEO } from '../hooks/useSEO';
 import { AboutThreeScene } from '../components/AboutThreeScene';
 import {
   getDeferredPrompt,
@@ -89,6 +90,7 @@ const CTA_ROTATING_PHRASES_EN = [
 export const AboutPage: React.FC = () => {
   const { t, language } = useLanguage();
   const router = useIonRouter();
+  useSEO({ page: 'about' });
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   // Auto-detect device (Desktop vs Mobile)
   const [activePlatform, setActivePlatform] = useState<'desktop' | 'mobile'>(() => {

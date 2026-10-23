@@ -13,24 +13,37 @@
 
     <link rel="manifest" href="/manifest.webmanifest" />
 
-    <title>StudyPomodoro – Đồng hồ Pomodoro học tập miễn phí</title>
-    <meta name="description" content="Đồng hồ Pomodoro online miễn phí kèm nhạc Lofi, ghi chú học tập và tùy chỉnh giao diện. Giúp tập trung học hiệu quả hơn." />
-    <meta name="keywords" content="pomodoro, đồng hồ pomodoro, study timer, học tập, lofi, pomodoro online" />
-    <meta name="author" content="StudyPomodoro" />
-    <link rel="canonical" href="https://studypomodoro.id.vn/" />
+    <!-- Bilingual Title & Description (SEO Google Tiếng Việt & English) -->
+    <title>StudyPomodoro – Đồng Hồ Pomodoro Học Tập & Free Online Study Timer</title>
+    <meta name="description" content="Đồng hồ Pomodoro học tập online miễn phí kèm nhạc Lofi, ghi chú học tập và thống kê. Free online aesthetic Pomodoro study timer with lofi music, focus tracking & custom themes." />
+    <meta name="keywords" content="pomodoro, đồng hồ pomodoro, study pomodoro, study timer, online pomodoro timer, lofi pomodoro, pomodoro online, đồng hồ học tập, focus timer, aesthetic study timer, pomodoro technique, phương pháp pomodoro, study timer free, lofi study, học bài pomodoro, tập trung học tập, study with me, pomodoro tracker" />
+    <meta name="author" content="Lê Quang Hiếu - StudyPomodoro" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
 
-    <!-- Open Graph (khi share Facebook/Zalo) -->
-    <meta property="og:title" content="StudyPomodoro – Đồng hồ Pomodoro học tập miễn phí" />
-    <meta property="og:description" content="Đồng hồ Pomodoro online miễn phí, nhạc Lofi, ghi chú học tập. Tập trung hơn mỗi ngày." />
+    <!-- Canonical & Multilingual Alternate Hreflang for Google Search -->
+    <link rel="canonical" href="https://studypomodoro.id.vn/" />
+    <link rel="alternate" hreflang="vi" href="https://studypomodoro.id.vn/" />
+    <link rel="alternate" hreflang="en" href="https://studypomodoro.id.vn/" />
+    <link rel="alternate" hreflang="x-default" href="https://studypomodoro.id.vn/" />
+
+    <!-- Open Graph (Facebook, Zalo, LinkedIn, Discord) -->
+    <meta property="og:title" content="StudyPomodoro – Đồng Hồ Pomodoro Học Tập & Online Study Timer" />
+    <meta property="og:description" content="Đồng hồ Pomodoro học tập miễn phí kèm nhạc Lofi, ghi chú thông minh. Free aesthetic Pomodoro study timer with ambient lofi music & focus tracker." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://studypomodoro.id.vn/" />
     <meta property="og:image" content="https://studypomodoro.id.vn/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="StudyPomodoro - Pomodoro Timer & Lofi Music for Studying" />
     <meta property="og:site_name" content="StudyPomodoro" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:locale:alternate" content="en_US" />
 
-    <!-- Twitter -->
+    <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="StudyPomodoro – Đồng hồ Pomodoro học tập miễn phí" />
-    <meta name="twitter:description" content="Đồng hồ Pomodoro online miễn phí, nhạc Lofi, ghi chú học tập." />
+    <meta name="twitter:title" content="StudyPomodoro – Đồng Hồ Pomodoro Học Tập & Online Study Timer" />
+    <meta name="twitter:description" content="Đồng hồ Pomodoro online miễn phí, nhạc Lofi, ghi chú học tập. Free aesthetic Pomodoro study timer." />
     <meta name="twitter:image" content="https://studypomodoro.id.vn/og-image.png" />
 
     <!-- Favicon chuẩn Google Search (Google yêu cầu bội số 48px) -->
@@ -41,14 +54,21 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <!-- Google Structured Data / Schema.org (Hiển thị tên thương hiệu & Rich Snippets) -->
+    <!-- Google Structured Data / Schema.org (WebSite, WebApplication, FAQPage Rich Snippets) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "StudyPomodoro",
-      "alternateName": ["Study Pomodoro", "StudyPomodoro Online"],
-      "url": "https://studypomodoro.id.vn/"
+      "alternateName": [
+        "Study Pomodoro",
+        "StudyPomodoro Online",
+        "Đồng hồ Pomodoro học tập",
+        "Online Study Timer"
+      ],
+      "url": "https://studypomodoro.id.vn/",
+      "inLanguage": ["vi", "en"],
+      "description": "Đồng hồ Pomodoro học tập online miễn phí và aesthetic study timer kèm nhạc Lofi."
     }
     </script>
     <script type="application/ld+json">
@@ -56,16 +76,66 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "StudyPomodoro",
+      "alternateName": "StudyPomodoro Focus Timer",
       "url": "https://studypomodoro.id.vn/",
-      "applicationCategory": "EducationalApplication",
+      "applicationCategory": "EducationalApplication, ProductivityApplication",
       "operatingSystem": "All",
       "browserRequirements": "Requires JavaScript. Requires HTML5.",
-      "description": "Đồng hồ Pomodoro online miễn phí kèm nhạc Lofi, ghi chú học tập và tùy chỉnh giao diện.",
+      "inLanguage": ["vi", "en"],
+      "description": "Đồng hồ Pomodoro online miễn phí kèm nhạc Lofi, ghi chú học tập và thống kê. Free online aesthetic Pomodoro study timer with ambient lofi music, tasks & focus analytics.",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "VND"
-      }
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Đồng hồ Pomodoro chu kỳ chuẩn 25/5/15 phút (Pomodoro Timer cycles)",
+        "Kho nhạc Lofi chất lượng cao & phát YouTube tích hợp (Lofi Audio & YouTube Player)",
+        "Quản lý ghi chú công việc theo nhãn và mức độ ưu tiên (Task & Notes list)",
+        "Thống kê phiên học tập và chuỗi ngày tập trung (Daily study stats & streak)",
+        "Hiệu ứng hình ảnh 3D chuyển động & đổi hình nền (3D visuals & custom themes)",
+        "Cài đặt PWA chạy ngoại tuyến không cần mạng (Offline PWA support)"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "StudyPomodoro là gì? / What is StudyPomodoro?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "StudyPomodoro là ứng dụng đồng hồ Pomodoro học tập trực tuyến miễn phí, tích hợp nhạc Lofi, quản lý ghi chú và thống kê rèn luyện tập trung. StudyPomodoro is a free online aesthetic Pomodoro timer app combining ambient lofi music, task management, and focus tracking."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kỹ thuật Pomodoro hoạt động như thế nào? / How does the Pomodoro technique work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kỹ thuật Pomodoro chia thời gian làm việc thành các phiên 25 phút tập trung cao độ, xen kẽ với 5 phút nghỉ ngắn. Sau 4 phiên, bạn sẽ có một phiên nghỉ dài 15-30 phút để nạp lại năng lượng. The Pomodoro technique divides work into 25-minute high-focus intervals separated by 5-minute short breaks, followed by a 15-30 minute long break every 4 cycles."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "StudyPomodoro có miễn phí không? / Is StudyPomodoro free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "StudyPomodoro hoàn toàn miễn phí 100%, không quảng cáo làm phiền và không yêu cầu đăng nhập. 100% free with no ads and no sign-in required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Ứng dụng có thể cài đặt và dùng offline không? / Can StudyPomodoro be installed and work offline?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Có, StudyPomodoro hỗ trợ chuẩn Progressive Web App (PWA). Bạn có thể cài đặt trực tiếp lên iPhone, Android, Windows và macOS để sử dụng ngay cả khi không có kết nối Internet."
+          }
+        }
+      ]
     }
     </script>
     
@@ -75,7 +145,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Semantic SEO crawler content pre-rendered for search bots (Googlebot, Bingbot). Instantly replaced when React mounts -->
+      <div style="opacity: 0; position: absolute; pointer-events: none; height: 0; overflow: hidden;" aria-hidden="true">
+        <h1>StudyPomodoro – Đồng Hồ Pomodoro Học Tập & Free Online Study Timer with Lofi</h1>
+        <p>Ứng dụng đồng hồ Pomodoro online miễn phí kèm nhạc Lofi, ghi chú học tập và thống kê tập trung rèn luyện tính kỷ luật.</p>
+        <p>Free online aesthetic Pomodoro study timer with ambient lofi music, task notes, and study discipline tracking.</p>
+        <nav>
+          <a href="/timer">Đồng hồ Pomodoro (Study Timer)</a>
+          <a href="/about">Giới thiệu ứng dụng (About StudyPomodoro)</a>
+        </nav>
+      </div>
+      <noscript>
+        <div style="padding: 2.5rem 1.5rem; font-family: 'Be Vietnam Pro', system-ui, sans-serif; text-align: center; max-width: 600px; margin: 40px auto; color: #0F172A; background: #FFFFFF; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+          <h1 style="font-size: 1.5rem; margin-bottom: 0.75rem;">StudyPomodoro – Đồng Hồ Pomodoro Học Tập & Online Study Timer</h1>
+          <p style="color: #475569; line-height: 1.6; margin-bottom: 1rem;">Vui lòng bật JavaScript trên trình duyệt của bạn để sử dụng đầy đủ các tính năng đồng hồ đếm ngược, kho nhạc Lofi và ghi chú thông minh.</p>
+          <p style="color: #64748B; font-size: 0.9rem; line-height: 1.5;">Please enable JavaScript in your browser to experience StudyPomodoro's full timer, ambient lofi music, and task notes features.</p>
+        </div>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

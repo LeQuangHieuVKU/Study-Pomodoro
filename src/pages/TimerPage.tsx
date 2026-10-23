@@ -30,6 +30,7 @@ import { TasksSlideover } from '../components/TasksSlideover';
 import { MusicPanel } from '../components/MusicPanel';
 import { FloatingTimer } from '../components/FloatingTimer';
 import { useTimer } from '../hooks/useTimer';
+import { useSEO } from '../hooks/useSEO';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { AppSettings, SessionMode, StudySession, TodayStats } from '../types';
 
@@ -56,6 +57,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({
 }) => {
   const { language, t } = useLanguage();
   const router = useIonRouter();
+  useSEO({ page: 'timer' });
 
   const [isThemeOpen, setIsThemeOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
