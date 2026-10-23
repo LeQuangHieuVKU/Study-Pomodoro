@@ -51,8 +51,6 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
       {/* SVG Circular Progress Ring */}
       <svg
         className="timer-svg-ring"
-        width={size}
-        height={size}
         viewBox={`0 0 ${size} ${size}`}
       >
         <defs>

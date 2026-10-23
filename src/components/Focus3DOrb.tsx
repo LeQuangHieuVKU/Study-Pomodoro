@@ -163,10 +163,22 @@ export const Focus3DOrb: React.FC<Focus3DOrbProps> = ({
 
     window.addEventListener('resize', handleResize);
 
+    // Dynamic resize observer for fluid responsive container
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        handleResize();
+      });
+      resizeObserver.observe(container);
+    }
+
     // 5. Cleanup
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       if (renderer) {
         renderer.dispose();
         if (renderer.domElement && container.contains(renderer.domElement)) {
