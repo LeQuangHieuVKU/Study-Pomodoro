@@ -1,5 +1,6 @@
 import React from 'react';
 import type { QuoteItem, AppLanguage } from '../types';
+
 interface MotivationalQuoteProps {
   quote: QuoteItem;
   language: AppLanguage;
@@ -12,15 +13,23 @@ export const MotivationalQuote: React.FC<MotivationalQuoteProps> = ({
   language,
   accentColor = '#6366F1',
 }) => {
-  const text = language === 'vi' ? quote.textVi : quote.textEn;
-  const author = language === 'vi' ? quote.authorVi : quote.authorEn;
+  const rawText = language === 'vi' ? quote.textVi : quote.textEn;
+  const rawAuthor = language === 'vi' ? quote.authorVi : quote.authorEn;
+
+  // Unicode NFC normalization guarantees pre-composed Vietnamese glyphs with no split diacritics
+  const text = (rawText || '').normalize('NFC');
+  const author = (rawAuthor || '').normalize('NFC');
 
   return (
     <div className="motivational-quote-card" key={quote.id}>
-      <p className="quote-text">
-        <span className="quote-accent-mark" style={{ color: accentColor }}>“</span>
+      <p className="quote-text" lang={language}>
+        <span className="quote-accent-mark" style={{ color: accentColor }} aria-hidden="true">
+          “
+        </span>
         {text}
-        <span className="quote-accent-mark" style={{ color: accentColor }}>”</span>
+        <span className="quote-accent-mark" style={{ color: accentColor }} aria-hidden="true">
+          ”
+        </span>
       </p>
       {author && <div className="quote-author">— {author}</div>}
     </div>
