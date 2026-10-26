@@ -53,6 +53,21 @@ const AppNavigation: React.FC<AppNavigationProps> = ({
   return (
     <IonRouterOutlet>
       <Route
+        path="/"
+        element={
+          <TimerPage
+            settings={settings}
+            onRecordSession={handleRecordSession}
+            onUpdateSetting={updateSetting}
+            onUploadCustomBg={uploadCustomBg}
+            onRemoveCustomBg={removeCustomBg}
+            sessions={sessions}
+            todayStats={todayStats}
+            onClearHistory={clearHistory}
+          />
+        }
+      />
+      <Route
         path="/timer"
         element={
           <TimerPage
@@ -91,8 +106,7 @@ const AppNavigation: React.FC<AppNavigationProps> = ({
           </React.Suspense>
         }
       />
-      <Route path="/" element={<Navigate to="/timer" replace />} />
-      <Route path="*" element={<Navigate to="/timer" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </IonRouterOutlet>
   );
 };
