@@ -5551,7 +5551,7 @@ body:not(.dark):not(.ion-palette-dark) {
     .track-name {
       font-size: 0.9rem;
       font-weight: 500;
-      color: #F1F5F9;
+      color: var(--text-main, #0F172A);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -5916,8 +5916,9 @@ body:not(.dark):not(.ion-palette-dark),
       }
 
       // Tên bài hát: xám đậm / gần đen, contrast cao, cực kỳ rõ nét
-      .track-name {
-        color: #0F172A;
+      .track-name,
+      .track-left .track-name {
+        color: #0F172A !important;
         font-weight: 600;
       }
 
@@ -5926,13 +5927,14 @@ body:not(.dark):not(.ion-palette-dark),
         background: rgba(99, 102, 241, 0.14);
         border-color: rgba(99, 102, 241, 0.4);
 
-        .track-name {
-          color: #3730A3;
+        .track-name,
+        .track-left .track-name {
+          color: #312E81 !important;
           font-weight: 700;
         }
 
         .track-index {
-          color: #4338CA;
+          color: #4338CA !important;
           font-weight: 700;
         }
 
@@ -5945,8 +5947,9 @@ body:not(.dark):not(.ion-palette-dark),
       &.is-disabled {
         opacity: 0.8;
 
-        .track-name {
-          color: #475569;
+        .track-name,
+        .track-left .track-name {
+          color: #475569 !important;
           font-weight: 500;
         }
 
