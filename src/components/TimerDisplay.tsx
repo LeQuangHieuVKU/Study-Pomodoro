@@ -1,7 +1,9 @@
 import React from 'react';
 import type { SessionMode, TimerStatus } from '../types';
-import { Focus3DOrb } from './Focus3DOrb';
 import { Flame, Coffee, Eye } from 'lucide-react';
+
+// Defer 3D Three.js particle orb so initial SVG timer ring paints instantly without WebGL overhead
+const Focus3DOrb = React.lazy(() => import('./Focus3DOrb').then(m => ({ default: m.Focus3DOrb })));
 
 interface TimerDisplayProps {
   mode: SessionMode;
@@ -38,14 +40,16 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
 
   return (
     <div className={`timer-display-container ${isFocus ? 'mode-focus' : isLongBreak ? 'mode-long-break' : 'mode-break'} status-${status}`}>
-      {/* 3D Ambient Orb layer with dynamic accent color */}
+      {/* 3D Ambient Orb layer with dynamic accent color (async lazy loaded) */}
       <div className="orb-backdrop">
-        <Focus3DOrb
-          mode={mode}
-          status={status}
-          progress={progress}
-          accentColor={isLongBreak ? '#F59E0B' : accentColor}
-        />
+        <React.Suspense fallback={null}>
+          <Focus3DOrb
+            mode={mode}
+            status={status}
+            progress={progress}
+            accentColor={isLongBreak ? '#F59E0B' : accentColor}
+          />
+        </React.Suspense>
       </div>
 
       {/* SVG Circular Progress Ring */}

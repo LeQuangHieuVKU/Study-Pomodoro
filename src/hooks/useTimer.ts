@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Preferences } from '@capacitor/preferences';
-import confetti from 'canvas-confetti';
 import type { SessionMode, TimerStatus, QuoteItem, AppSettings } from '../types';
 import { getRandomQuote } from '../data/quotes';
 import { soundManager } from '../utils/audioChime';
@@ -117,18 +116,20 @@ export const useTimer = ({ settings, onSessionComplete, t }: UseTimerProps) => {
       await triggerVibrate(600);
     }
 
-    // 3. Confetti burst for focus session!
+    // 3. Confetti burst for focus session (dynamically imported to keep initial bundle ultra-light)
     if (finishedMode === 'focus') {
-      try {
-        confetti({
-          particleCount: 90,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#6366F1', '#06B6D4', '#10B981', '#F59E0B'],
+      import('canvas-confetti')
+        .then(({ default: confetti }) => {
+          confetti({
+            particleCount: 90,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#6366F1', '#06B6D4', '#10B981', '#F59E0B'],
+          });
+        })
+        .catch(() => {
+          // Ignored if failed or offline
         });
-      } catch {
-        // Ignored
-      }
     }
 
     // 4. Calculate next mode & cycle

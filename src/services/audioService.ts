@@ -24,7 +24,7 @@ class AudioService {
     this.audio = new Audio();
     this.audio.loop = true;
     this.audio.volume = this.volume;
-    this.audio.preload = 'metadata';
+    this.audio.preload = 'none'; // Never download audio bytes until user actively plays sound
 
     this.audio.addEventListener('play', () => {
       this.isPlaying = true;
@@ -83,8 +83,9 @@ class AudioService {
     const isDifferentTrack = !this.currentTrack || this.currentTrack.id !== track.id;
     this.currentTrack = track;
 
-    if (this.audio && isDifferentTrack) {
+    if (this.audio && isDifferentTrack && autoPlay) {
       this.audio.src = track.url;
+      this.audio.preload = 'auto';
       this.audio.load();
     }
 
@@ -107,6 +108,7 @@ class AudioService {
         this.audio.src = this.currentTrack.url;
       }
       this.audio.volume = this.volume;
+      this.audio.preload = 'auto';
 
       try {
         await this.audio.play();

@@ -1,7 +1,4 @@
 import type { AccentColorItem, BgImagePreset } from '../types';
-import lofiBg from '../assets/backgrounds/lofi.png';
-import cyberpunkBg from '../assets/backgrounds/cyberpunk.jpg';
-import cafeBg from '../assets/backgrounds/cafe.png';
 
 export const PRESET_ACCENT_COLORS: AccentColorItem[] = [
   { id: 'indigo', hex: '#6366F1', nameVi: 'Xanh Tím', nameEn: 'Modern Indigo' },
@@ -31,19 +28,19 @@ export const PRESET_BG_IMAGES: BgImagePreset[] = [
     id: 'lofi',
     nameVi: 'Không Gian Lofi',
     nameEn: 'Lofi Study Aesthetic',
-    url: lofiBg,
+    url: '/backgrounds/lofi.png',
   },
   {
     id: 'cyberpunk',
     nameVi: 'Cyberpunk Neon',
     nameEn: 'Cyberpunk Neon',
-    url: cyberpunkBg,
+    url: '/backgrounds/cyberpunk.jpg',
   },
   {
     id: 'cafe',
     nameVi: 'Quán Cafe Ấm Áp',
     nameEn: 'Cozy Cafe',
-    url: cafeBg,
+    url: '/backgrounds/cafe.png',
   },
   {
     id: 'forest',

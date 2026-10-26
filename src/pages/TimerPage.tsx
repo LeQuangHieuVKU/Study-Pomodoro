@@ -23,16 +23,18 @@ import {
 } from 'lucide-react';
 import { TimerDisplay } from '../components/TimerDisplay';
 import { MotivationalQuote } from '../components/MotivationalQuote';
-import { ThemeModal } from '../components/ThemeModal';
-import { SettingsModal } from '../components/SettingsModal';
-import { HistoryModal } from '../components/HistoryModal';
-import { TasksSlideover } from '../components/TasksSlideover';
-import { MusicPanel } from '../components/MusicPanel';
-import { FloatingTimer } from '../components/FloatingTimer';
 import { useTimer } from '../hooks/useTimer';
 import { useSEO } from '../hooks/useSEO';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { AppSettings, SessionMode, StudySession, TodayStats } from '../types';
+
+// Code-split all modals and slideover panels - loaded on demand only
+const ThemeModal = React.lazy(() => import('../components/ThemeModal').then(m => ({ default: m.ThemeModal })));
+const SettingsModal = React.lazy(() => import('../components/SettingsModal').then(m => ({ default: m.SettingsModal })));
+const HistoryModal = React.lazy(() => import('../components/HistoryModal').then(m => ({ default: m.HistoryModal })));
+const TasksSlideover = React.lazy(() => import('../components/TasksSlideover').then(m => ({ default: m.TasksSlideover })));
+const MusicPanel = React.lazy(() => import('../components/MusicPanel').then(m => ({ default: m.MusicPanel })));
+const FloatingTimer = React.lazy(() => import('../components/FloatingTimer').then(m => ({ default: m.FloatingTimer })));
 
 interface TimerPageProps {
   settings: AppSettings;
@@ -402,60 +404,89 @@ export const TimerPage: React.FC<TimerPageProps> = ({
       </IonContent>
 
       {/* Modals & Slideovers rendered at IonPage level to ensure they sit above IonHeader and all content */}
-      <ThemeModal
-        isOpen={isThemeOpen}
-        onClose={() => setIsThemeOpen(false)}
-        settings={settings}
-        onUpdateSetting={(key, val) => onUpdateSetting?.(key, val)}
-        onUploadCustomBg={onUploadCustomBg}
-        onRemoveCustomBg={onRemoveCustomBg}
-      />
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        settings={settings}
-        onUpdateSetting={(key, val) => onUpdateSetting?.(key, val)}
-        cycleCount={cycleCount}
-        onResetCycle={resetCycle}
-        onResetTimer={resetTimer}
-      />
-      <HistoryModal
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        sessions={sessions}
-        todayStats={todayStats}
-        onClearHistory={onClearHistory}
-      />
-      <TasksSlideover
-        isOpen={isTasksOpen}
-        onClose={() => setIsTasksOpen(false)}
-        accentColor={settings.accentColor}
-      />
-      <MusicPanel
-        isOpen={isMusicOpen}
-        onClose={() => setIsMusicOpen(false)}
-        onYtPlayingChange={setIsYtPlaying}
-        stopYtRef={stopYtRef}
-      />
-      <FloatingTimer
-        pipWindow={pipWindow}
-        isInPageFloating={isInPageFloating}
-        onClose={() => {
-          if (pipWindow) {
-            pipWindow.close();
-            setPipWindow(null);
-          }
-          setIsInPageFloating(false);
-        }}
-        mode={mode}
-        formattedTime={formattedTime}
-        progress={progress}
-        status={status}
-        accentColor={settings.accentColor}
-        language={language}
-        onTogglePlay={status === 'running' ? pauseTimer : startTimer}
-        onStop={resetTimer}
-      />
+      {isThemeOpen && (
+        <React.Suspense fallback={null}>
+          <ThemeModal
+            isOpen={isThemeOpen}
+            onClose={() => setIsThemeOpen(false)}
+            settings={settings}
+            onUpdateSetting={(key, val) => onUpdateSetting?.(key, val)}
+            onUploadCustomBg={onUploadCustomBg}
+            onRemoveCustomBg={onRemoveCustomBg}
+          />
+        </React.Suspense>
+      )}
+
+      {isSettingsOpen && (
+        <React.Suspense fallback={null}>
+          <SettingsModal
+            isOpen={isSettingsOpen}
+            onClose={() => setIsSettingsOpen(false)}
+            settings={settings}
+            onUpdateSetting={(key, val) => onUpdateSetting?.(key, val)}
+            cycleCount={cycleCount}
+            onResetCycle={resetCycle}
+            onResetTimer={resetTimer}
+          />
+        </React.Suspense>
+      )}
+
+      {isHistoryOpen && (
+        <React.Suspense fallback={null}>
+          <HistoryModal
+            isOpen={isHistoryOpen}
+            onClose={() => setIsHistoryOpen(false)}
+            sessions={sessions}
+            todayStats={todayStats}
+            onClearHistory={onClearHistory}
+          />
+        </React.Suspense>
+      )}
+
+      {isTasksOpen && (
+        <React.Suspense fallback={null}>
+          <TasksSlideover
+            isOpen={isTasksOpen}
+            onClose={() => setIsTasksOpen(false)}
+            accentColor={settings.accentColor}
+          />
+        </React.Suspense>
+      )}
+
+      {(isMusicOpen || isYtPlaying) && (
+        <React.Suspense fallback={null}>
+          <MusicPanel
+            isOpen={isMusicOpen}
+            onClose={() => setIsMusicOpen(false)}
+            onYtPlayingChange={setIsYtPlaying}
+            stopYtRef={stopYtRef}
+          />
+        </React.Suspense>
+      )}
+
+      {(pipWindow || isInPageFloating) && (
+        <React.Suspense fallback={null}>
+          <FloatingTimer
+            pipWindow={pipWindow}
+            isInPageFloating={isInPageFloating}
+            onClose={() => {
+              if (pipWindow) {
+                pipWindow.close();
+                setPipWindow(null);
+              }
+              setIsInPageFloating(false);
+            }}
+            mode={mode}
+            formattedTime={formattedTime}
+            progress={progress}
+            status={status}
+            accentColor={settings.accentColor}
+            language={language}
+            onTogglePlay={status === 'running' ? pauseTimer : startTimer}
+            onStop={resetTimer}
+          />
+        </React.Suspense>
+      )}
     </IonPage>
   );
 };

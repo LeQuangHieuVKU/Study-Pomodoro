@@ -12,10 +12,12 @@ import {
   ChevronDown,
   AlertCircle,
 } from 'lucide-react';
-import ReactPlayer from 'react-player';
 import { Preferences } from '@capacitor/preferences';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSound } from '../context/SoundContext';
+
+// Dynamically import react-player so heavy media engines (dash, hls) are never in the critical path
+const ReactPlayer = React.lazy(() => import('react-player'));
 import {
   fetchYouTubeTitle,
   isValidYouTubeUrl,
@@ -251,28 +253,30 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
       {/* Hidden ReactPlayer to stream YouTube audio in-app continuously */}
       {ytActiveUrl && (
         <div style={{ display: 'none' }} aria-hidden="true">
-          <ReactPlayer
-            src={ytActiveUrl}
-            playing={isYtPlaying}
-            volume={volume}
-            width="100%"
-            height="100%"
-            controls={false}
-            playsInline
-            onReady={() => setYtError(null)}
-            onPlay={() => setIsYtPlaying(true)}
-            onPause={() => setIsYtPlaying(false)}
-            onError={(err) => {
-              console.warn('ReactPlayer error:', err);
-              setIsYtPlaying(false);
-              setYtError(
-                language === 'vi'
-                  ? 'Không thể phát video này'
-                  : 'Cannot play this video'
-              );
-            }}
-            onEnded={() => setIsYtPlaying(false)}
-          />
+          <React.Suspense fallback={null}>
+            <ReactPlayer
+              src={ytActiveUrl}
+              playing={isYtPlaying}
+              volume={volume}
+              width="100%"
+              height="100%"
+              controls={false}
+              playsInline
+              onReady={() => setYtError(null)}
+              onPlay={() => setIsYtPlaying(true)}
+              onPause={() => setIsYtPlaying(false)}
+              onError={(err) => {
+                console.warn('ReactPlayer error:', err);
+                setIsYtPlaying(false);
+                setYtError(
+                  language === 'vi'
+                    ? 'Không thể phát video này'
+                    : 'Cannot play this video'
+                );
+              }}
+              onEnded={() => setIsYtPlaying(false)}
+            />
+          </React.Suspense>
         </div>
       )}
 

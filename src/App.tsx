@@ -8,10 +8,12 @@ import {
 import { IonReactRouter } from '@ionic/react-router';
 
 import { TimerPage } from './pages/TimerPage';
-import { AboutPage } from './pages/AboutPage';
-import { ContactPage } from './pages/ContactPage';
-import { PrivacyPage } from './pages/PrivacyPage';
 import { BackgroundRenderer } from './components/BackgroundRenderer';
+
+// Code-split auxiliary routes - loaded on demand only
+const AboutPage = React.lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
+const ContactPage = React.lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 
 import { LanguageProvider } from './i18n/LanguageContext';
 import { SoundProvider } from './context/SoundContext';
@@ -67,15 +69,27 @@ const AppNavigation: React.FC<AppNavigationProps> = ({
       />
       <Route
         path="/about"
-        element={<AboutPage />}
+        element={
+          <React.Suspense fallback={null}>
+            <AboutPage />
+          </React.Suspense>
+        }
       />
       <Route
         path="/contact"
-        element={<ContactPage />}
+        element={
+          <React.Suspense fallback={null}>
+            <ContactPage />
+          </React.Suspense>
+        }
       />
       <Route
         path="/privacy"
-        element={<PrivacyPage />}
+        element={
+          <React.Suspense fallback={null}>
+            <PrivacyPage />
+          </React.Suspense>
+        }
       />
       <Route path="/" element={<Navigate to="/timer" replace />} />
       <Route path="*" element={<Navigate to="/timer" replace />} />

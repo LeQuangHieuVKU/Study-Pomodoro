@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSEO } from '../hooks/useSEO';
+import '../theme/about.scss';
 
 const GithubIcon: React.FC<{ size?: number }> = ({ size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

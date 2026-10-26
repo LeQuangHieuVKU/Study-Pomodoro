@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSEO } from '../hooks/useSEO';
+import '../theme/about.scss';
 import { AboutThreeScene } from '../components/AboutThreeScene';
 import {
   getDeferredPrompt,

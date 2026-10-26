@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSEO } from '../hooks/useSEO';
+import '../theme/about.scss';
 
 export const PrivacyPage: React.FC = () => {
   const { language } = useLanguage();
