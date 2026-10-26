@@ -16,15 +16,17 @@
   visibility: hidden !important;
 }
 
-// Hide global background container strictly in Light Mode when viewing About / Editorial pages
-// to completely prevent dark stars, canvas motes, or wallpapers from showing behind in light theme.
-// In Dark Mode, the atmospheric dark background remains intact.
-body.in-about-view:not(.dark):not(.ion-palette-dark):not([color-scheme="dark"]) .app-global-background-container,
-html:not(.dark):not(.ion-palette-dark):not([color-scheme="dark"]):has(.about-page-root) .app-global-background-container {
+// Hide global background container when viewing About / Editorial pages
+// to prevent canvas motes, wallpapers or dark space from showing behind
+body.in-about-view .app-global-background-container,
+body:has(.about-page-root) .app-global-background-container,
+html:has(.about-page-root) .app-global-background-container {
   display: none !important;
 }
 
 // Light Mode base styling for About Page (#FAFAFA pure clean background)
+html:not(.dark):not(.ion-palette-dark) ion-page.about-page-root,
+body:not(.dark):not(.ion-palette-dark) ion-page.about-page-root,
 ion-page.about-page-root,
 .about-page-root {
   background: #FAFAFA !important;
@@ -36,9 +38,12 @@ ion-page.about-page-root,
   --ion-font-family: var(--font-body);
 }
 
+html:not(.dark):not(.ion-palette-dark) ion-content.about-content-area,
+body:not(.dark):not(.ion-palette-dark) ion-content.about-content-area,
 .about-content-area,
 ion-content.about-content-area {
   --background: #FAFAFA !important;
+  background: #FAFAFA !important;
   background-color: #FAFAFA !important;
   --ion-background-color: #FAFAFA !important;
   --color: var(--text-main);
@@ -1699,21 +1704,24 @@ ion-toolbar.about-toolbar {
 [color-scheme="dark"] {
   ion-page.about-page-root,
   .about-page-root {
-    background: transparent !important;
-    background-color: transparent !important;
-    --ion-background-color: transparent !important;
-    --background: transparent !important;
+    background: #000000 !important;
+    background-color: #000000 !important;
+    --ion-background-color: #000000 !important;
+    --background: #000000 !important;
     color: #f4f4f5;
 
     .about-content-area,
     ion-content.about-content-area {
-      --background: transparent !important;
-      background-color: transparent !important;
-      --ion-background-color: transparent !important;
+      --background: #000000 !important;
+      background: #000000 !important;
+      background-color: #000000 !important;
+      --ion-background-color: #000000 !important;
+      --color: #f4f4f5;
+      color: #f4f4f5;
 
       &::part(background) {
-        background: transparent !important;
-        background-color: transparent !important;
+        background: #000000 !important;
+        background-color: #000000 !important;
       }
     }
 
