@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   IonPage,
   IonContent,
@@ -24,6 +24,13 @@ export const PrivacyPage: React.FC = () => {
   const { language } = useLanguage();
   const router = useIonRouter();
   useSEO({ page: 'privacy' });
+
+  useEffect(() => {
+    document.body.classList.add('in-about-view');
+    return () => {
+      document.body.classList.remove('in-about-view');
+    };
+  }, []);
 
   const handleBack = () => {
     router.push('/timer', 'back', 'replace');

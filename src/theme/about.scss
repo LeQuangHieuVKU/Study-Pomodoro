@@ -16,17 +16,41 @@
   visibility: hidden !important;
 }
 
+// Hide global background container when viewing About / Editorial pages
+// to completely prevent dark stars, canvas motes, or wallpapers from showing behind
+body.in-about-view .app-global-background-container,
+body:has(.about-page-root) .app-global-background-container,
+html:has(.about-page-root) .app-global-background-container {
+  display: none !important;
+}
+
+// Light Mode base styling for About Page (#FAFAFA pure clean background)
 ion-page.about-page-root,
 .about-page-root {
-  background: transparent !important;
+  background: #FAFAFA !important;
+  background-color: #FAFAFA !important;
+  --ion-background-color: #FAFAFA !important;
+  --background: #FAFAFA !important;
+  color: var(--text-main);
   font-family: var(--font-body);
   --ion-font-family: var(--font-body);
+  position: relative;
+  z-index: 10;
 }
 
 .about-content-area,
 ion-content.about-content-area {
-  --background: var(--bg-app);
-  background-color: var(--bg-app);
+  --background: #FAFAFA !important;
+  background: #FAFAFA !important;
+  background-color: #FAFAFA !important;
+  --ion-background-color: #FAFAFA !important;
+
+  &::part(background),
+  &::part(scroll) {
+    background: #FAFAFA !important;
+    background-color: #FAFAFA !important;
+    --background: #FAFAFA !important;
+  }
 }
 
 // Fixed Back Button pinned in top-left corner
@@ -1676,10 +1700,10 @@ ion-toolbar.about-toolbar {
 [color-scheme="dark"] {
   ion-page.about-page-root,
   .about-page-root {
-    background: transparent !important;
-    background-color: transparent !important;
-    --ion-background-color: transparent !important;
-    --background: transparent !important;
+    background: #000000 !important;
+    background-color: #000000 !important;
+    --ion-background-color: #000000 !important;
+    --background: #000000 !important;
     color: #f4f4f5;
 
     .about-content-area,

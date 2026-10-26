@@ -118,6 +118,14 @@ export const AboutPage: React.FC = () => {
     setIsLeaving(false);
   });
 
+  // Attach in-about-view class to hide global background effects (stars, wallpapers)
+  useEffect(() => {
+    document.body.classList.add('in-about-view');
+    return () => {
+      document.body.classList.remove('in-about-view');
+    };
+  }, []);
+
   // 1. Typing animation for "Study Pomodoro" in Hero section
   const [typedTitle, setTypedTitle] = useState('');
   const [isTypingDone, setIsTypingDone] = useState(false);

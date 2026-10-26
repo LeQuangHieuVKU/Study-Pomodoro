@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonPage,
   IonContent,
@@ -37,6 +37,13 @@ export const ContactPage: React.FC = () => {
   const { language } = useLanguage();
   const router = useIonRouter();
   useSEO({ page: 'contact' });
+
+  useEffect(() => {
+    document.body.classList.add('in-about-view');
+    return () => {
+      document.body.classList.remove('in-about-view');
+    };
+  }, []);
 
   const [formSent, setFormSent] = useState(false);
   const [name, setName] = useState('');
