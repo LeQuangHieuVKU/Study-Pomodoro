@@ -1062,8 +1062,25 @@ export const AboutPage: React.FC = () => {
             </div>
           </section>
 
-          {/* Minimalist Tech Footer */}
+          {/* Minimalist Tech Footer with Trust Anchors */}
           <footer className="about-app-footer">
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginBottom: 12, fontSize: '0.85rem' }}>
+              <a href="/timer" onClick={(e) => { e.preventDefault(); router.push('/timer', 'root'); }} style={{ color: 'var(--text-muted, #94a3b8)', textDecoration: 'none' }}>
+                {language === 'vi' ? 'Đồng hồ Pomodoro' : 'Pomodoro Timer'}
+              </a>
+              <span>•</span>
+              <a href="/contact" onClick={(e) => { e.preventDefault(); router.push('/contact', 'forward'); }} style={{ color: 'var(--text-muted, #94a3b8)', textDecoration: 'none' }}>
+                {language === 'vi' ? 'Liên hệ & Hỗ trợ' : 'Contact & Support'}
+              </a>
+              <span>•</span>
+              <a href="/privacy" onClick={(e) => { e.preventDefault(); router.push('/privacy', 'forward'); }} style={{ color: 'var(--text-muted, #94a3b8)', textDecoration: 'none' }}>
+                {language === 'vi' ? 'Chính sách bảo mật' : 'Privacy Policy'}
+              </a>
+              <span>•</span>
+              <a href="/llms.txt" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted, #94a3b8)', textDecoration: 'none' }}>
+                llms.txt
+              </a>
+            </div>
             <p className="footer-credits-text">
               Study Pomodoro v1.2.0 • React + TypeScript + Capacitor + Three.js
             </p>

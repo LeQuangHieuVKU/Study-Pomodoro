@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export interface SEOProps {
-  page: 'timer' | 'about';
+  page: 'timer' | 'about' | 'contact' | 'privacy';
 }
 
 export const useSEO = ({ page }: SEOProps) => {
@@ -27,6 +27,22 @@ export const useSEO = ({ page }: SEOProps) => {
       } else {
         title = 'About StudyPomodoro – Smart Aesthetic Focus Timer & PWA Guide';
         description = 'Learn about the Pomodoro Technique, StudyPomodoro features, how to install as a PWA on iOS/Android/Desktop, and developer info.';
+      }
+    } else if (page === 'contact') {
+      if (language === 'vi') {
+        title = 'Liên Hệ & Hỗ Trợ – StudyPomodoro';
+        description = 'Thông tin liên hệ chính thức của StudyPomodoro, email hỗ trợ kỹ thuật, kênh phản hồi và đóng góp phát triển ứng dụng.';
+      } else {
+        title = 'Contact & Support – StudyPomodoro';
+        description = 'Official contact details for StudyPomodoro support, developer inquiries, feedback, and collaboration opportunities.';
+      }
+    } else if (page === 'privacy') {
+      if (language === 'vi') {
+        title = 'Chính Sách Bảo Mật – StudyPomodoro';
+        description = 'Chính sách bảo mật quyền riêng tư của StudyPomodoro. Cam kết 100% không thu thập dữ liệu cá nhân, lưu trữ an toàn trên thiết bị.';
+      } else {
+        title = 'Privacy Policy – StudyPomodoro';
+        description = 'StudyPomodoro privacy policy. Zero personal data collection, local-first storage, and full user data rights.';
       }
     }
 

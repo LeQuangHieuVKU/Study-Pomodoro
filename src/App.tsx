@@ -9,6 +9,8 @@ import { IonReactRouter } from '@ionic/react-router';
 
 import { TimerPage } from './pages/TimerPage';
 import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
+import { PrivacyPage } from './pages/PrivacyPage';
 import { BackgroundRenderer } from './components/BackgroundRenderer';
 
 import { LanguageProvider } from './i18n/LanguageContext';
@@ -66,6 +68,14 @@ const AppNavigation: React.FC<AppNavigationProps> = ({
       <Route
         path="/about"
         element={<AboutPage />}
+      />
+      <Route
+        path="/contact"
+        element={<ContactPage />}
+      />
+      <Route
+        path="/privacy"
+        element={<PrivacyPage />}
       />
       <Route path="/" element={<Navigate to="/timer" replace />} />
       <Route path="*" element={<Navigate to="/timer" replace />} />
