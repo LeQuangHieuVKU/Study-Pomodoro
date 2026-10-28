@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.studypomodoro.id.vn/sitemap.xml
 Sitemap: https://studypomodoro.id.vn/sitemap.xml
+
