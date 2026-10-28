@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
-  Music,
   Disc,
   Play,
   Pause,
@@ -10,10 +9,14 @@ import {
   VolumeX,
   Plus,
   Trash2,
-  ExternalLink,
+  PictureInPicture2,
   Link as LinkIcon,
   AlertCircle,
   Radio,
+  ArrowDownRight,
+  ArrowUpRight,
+  ArrowUpLeft,
+  ArrowDownLeft,
 } from 'lucide-react';
 import { Preferences } from '@capacitor/preferences';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -46,6 +49,15 @@ export interface MusicPanelProps {
   stopYtRef?: React.MutableRefObject<(() => void) | null>;
 }
 
+type Corner = 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
+
+const CORNER_ORDER: Corner[] = [
+  'bottom-left',
+  'bottom-right',
+  'top-right',
+  'top-left',
+];
+
 // Crisp SVGs for Providers
 const YouTubeIcon: React.FC<{ size?: number }> = ({ size = 15 }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill="#FF0000" aria-hidden="true" style={{ flexShrink: 0 }}>
@@ -74,12 +86,10 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
 }) => {
   const { language } = useLanguage();
   const {
-    isEnabled,
     isPlaying,
     currentTrack,
     volume,
     tracks,
-    toggleMasterSound,
     togglePlayPause,
     selectTrack,
     changeVolume,
@@ -91,13 +101,34 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
   const [isYtPlaying, setIsYtPlaying] = useState(false);
   const [ytError, setYtError] = useState<string | null>(null);
 
-  // Active Embed Player State (Spotify or Apple Music)
-  const [activeEmbed, setActiveEmbed] = useState<{
+  // Active Popup Player State (Spotify, Apple Music, or YouTube)
+  const [activePopup, setActivePopup] = useState<{
     url: string;
     title: string;
     provider: MediaProvider;
     embedUrl: string;
   } | null>(null);
+
+  // Drag and 4-Corner Snap State
+  const [currentCorner, setCurrentCorner] = useState<Corner>('bottom-right');
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const popupRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef<{
+    isDown: boolean;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+    hasMoved: boolean;
+  }>({
+    isDown: false,
+    startX: 0,
+    startY: 0,
+    originX: 0,
+    originY: 0,
+    hasMoved: false,
+  });
 
   // User Saved Links state (YouTube, Spotify, Apple Music)
   const [userLinks, setUserLinks] = useState<UserSavedLink[]>([]);
@@ -111,10 +142,10 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     onYtPlayingChange?.(isYtPlaying);
   }, [isYtPlaying, onYtPlayingChange]);
 
-  // Notify parent of Embed active state
+  // Notify parent of Popup/Embed active state
   useEffect(() => {
-    onEmbedActiveChange?.(Boolean(activeEmbed));
-  }, [activeEmbed, onEmbedActiveChange]);
+    onEmbedActiveChange?.(Boolean(activePopup));
+  }, [activePopup, onEmbedActiveChange]);
 
   // Expose stop function to parent via ref
   useEffect(() => {
@@ -130,6 +161,144 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     };
   }, [stopYtRef]);
 
+  // Calculate coordinates for a corner
+  const calculateCornerPos = (corner: Corner): { x: number; y: number } => {
+    if (typeof window === 'undefined') return { x: 20, y: 100 };
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const cardW = popupRef.current?.offsetWidth || Math.min(360, W - 24);
+    const cardH = popupRef.current?.offsetHeight || 220;
+
+    const marginX = W <= 640 ? 12 : 20;
+    const marginTop = W <= 640 ? 64 : 72;
+    const marginBottom = W <= 640 ? 80 : 86;
+
+    switch (corner) {
+      case 'bottom-left':
+        return {
+          x: marginX,
+          y: Math.max(marginTop, H - cardH - marginBottom),
+        };
+      case 'bottom-right':
+        return {
+          x: Math.max(marginX, W - cardW - marginX),
+          y: Math.max(marginTop, H - cardH - marginBottom),
+        };
+      case 'top-right':
+        return {
+          x: Math.max(marginX, W - cardW - marginX),
+          y: marginTop,
+        };
+      case 'top-left':
+        return {
+          x: marginX,
+          y: marginTop,
+        };
+    }
+  };
+
+  // Initialize position when popup opens
+  useEffect(() => {
+    if (activePopup && !pos) {
+      const initial = calculateCornerPos(currentCorner);
+      setPos(initial);
+    }
+  }, [activePopup]);
+
+  // Handle window resize to prevent popup from going out of bounds
+  useEffect(() => {
+    const handleResize = () => {
+      if (activePopup) {
+        setPos((prev) => {
+          if (!prev) return calculateCornerPos(currentCorner);
+          const W = window.innerWidth;
+          const H = window.innerHeight;
+          const cardW = popupRef.current?.offsetWidth || Math.min(360, W - 24);
+          const cardH = popupRef.current?.offsetHeight || 220;
+          return {
+            x: Math.min(Math.max(8, prev.x), Math.max(8, W - cardW - 8)),
+            y: Math.min(Math.max(8, prev.y), Math.max(8, H - cardH - 8)),
+          };
+        });
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [activePopup, currentCorner]);
+
+  // Global mouse / touch drag listener for popup player
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragRef.current.isDown) return;
+      const dx = e.clientX - dragRef.current.startX;
+      const dy = e.clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        dragRef.current.hasMoved = true;
+      }
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const cardW = popupRef.current?.offsetWidth || Math.min(360, W - 24);
+      const cardH = popupRef.current?.offsetHeight || 220;
+
+      const clampedX = Math.min(Math.max(8, dragRef.current.originX + dx), W - cardW - 8);
+      const clampedY = Math.min(Math.max(8, dragRef.current.originY + dy), H - cardH - 8);
+
+      setPos({ x: clampedX, y: clampedY });
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!dragRef.current.isDown) return;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const dx = touch.clientX - dragRef.current.startX;
+      const dy = touch.clientY - dragRef.current.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        dragRef.current.hasMoved = true;
+      }
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const cardW = popupRef.current?.offsetWidth || Math.min(360, W - 24);
+      const cardH = popupRef.current?.offsetHeight || 220;
+
+      const clampedX = Math.min(Math.max(8, dragRef.current.originX + dx), W - cardW - 8);
+      const clampedY = Math.min(Math.max(8, dragRef.current.originY + dy), H - cardH - 8);
+
+      setPos({ x: clampedX, y: clampedY });
+    };
+
+    const onEnd = () => {
+      if (!dragRef.current.isDown) return;
+      dragRef.current.isDown = false;
+      setIsDragging(false);
+
+      if (pos && dragRef.current.hasMoved) {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        const midX = W / 2;
+        const midY = H / 2;
+        let detected: Corner = 'bottom-right';
+        if (pos.x < midX && pos.y < midY) detected = 'top-left';
+        else if (pos.x >= midX && pos.y < midY) detected = 'top-right';
+        else if (pos.x < midX && pos.y >= midY) detected = 'bottom-left';
+        else detected = 'bottom-right';
+
+        setCurrentCorner(detected);
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onEnd);
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchend', onEnd);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onEnd);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onEnd);
+    };
+  }, [pos]);
+
   // Load saved links and migrate legacy single-URL storage
   useEffect(() => {
     const initializeLinks = async () => {
@@ -142,7 +311,6 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
 
         let combined = [...loaded];
 
-        // Migrate legacy saved YouTube URL if not already present
         if (savedYtUrl && !combined.some((l) => l.url === savedYtUrl)) {
           const migrated: UserSavedLink = {
             id: `link_${Date.now()}_legacy`,
@@ -158,7 +326,6 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
 
         setUserLinks(combined);
 
-        // Restore active playback URL
         if (savedYtUrl) {
           setYtActiveUrl(savedYtUrl);
           setYtTitle(savedYtTitle || 'YouTube Audio');
@@ -230,39 +397,68 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     return `${providerName} · ${typeName}`;
   };
 
-  // Play / Toggle a User Saved Link
-  const handlePlayUserLink = async (link: UserSavedLink) => {
-    if (link.provider === 'youtube') {
-      // 1. YouTube handling: Close active embed & toggle or start in-app audio
-      if (activeEmbed) {
-        setActiveEmbed(null);
-      }
+  // 1-Button Corner Cycling with direction-hint icon
+  const handleCycleCorner = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const curIdx = CORNER_ORDER.indexOf(currentCorner);
+    const nextCorner = CORNER_ORDER[(curIdx + 1) % CORNER_ORDER.length];
+    setCurrentCorner(nextCorner);
+    const nextPos = calculateCornerPos(nextCorner);
+    setPos(nextPos);
+  };
 
-      if (ytActiveUrl === link.url) {
-        const nextState = !isYtPlaying;
-        setIsYtPlaying(nextState);
-        if (nextState && isPlaying) {
-          await togglePlayPause(); // pause Lofi
-        }
-      } else {
-        setYtActiveUrl(link.url);
-        setYtTitle(link.title);
-        setIsYtPlaying(true);
-        setYtError(null);
-        if (isPlaying) {
-          await togglePlayPause(); // pause Lofi
-        }
-        Preferences.set({ key: YOUTUBE_URL_STORAGE_KEY, value: link.url }).catch(console.error);
-        Preferences.set({ key: YOUTUBE_TITLE_STORAGE_KEY, value: link.title }).catch(console.error);
-      }
+  const renderCornerCycleIcon = (cur: Corner) => {
+    switch (cur) {
+      case 'bottom-left':
+        // Next is bottom-right -> hint bottom-right
+        return <ArrowDownRight size={13} />;
+      case 'bottom-right':
+        // Next is top-right -> hint top-right
+        return <ArrowUpRight size={13} />;
+      case 'top-right':
+        // Next is top-left -> hint top-left
+        return <ArrowUpLeft size={13} />;
+      case 'top-left':
+        // Next is bottom-left -> hint bottom-left
+        return <ArrowDownLeft size={13} />;
+    }
+  };
+
+  const getCornerCycleTooltip = (cur: Corner) => {
+    switch (cur) {
+      case 'bottom-left':
+        return language === 'vi' ? 'Chuyển sang góc Dưới Phải' : 'Move to bottom-right';
+      case 'bottom-right':
+        return language === 'vi' ? 'Chuyển sang góc Trên Phải' : 'Move to top-right';
+      case 'top-right':
+        return language === 'vi' ? 'Chuyển sang góc Trên Trái' : 'Move to top-left';
+      case 'top-left':
+        return language === 'vi' ? 'Chuyển sang góc Dưới Trái' : 'Move to bottom-left';
+    }
+  };
+
+  // Open Popup Player for any link (YouTube, Spotify, Apple Music)
+  const handleOpenPopup = async (link: UserSavedLink) => {
+    if (link.provider === 'youtube') {
+      if (isPlaying) await togglePlayPause();
+      setYtActiveUrl(link.url);
+      setYtTitle(link.title);
+      setIsYtPlaying(true);
+      setActivePopup({
+        url: link.url,
+        title: link.title,
+        provider: 'youtube',
+        embedUrl: link.url,
+      });
+      Preferences.set({ key: YOUTUBE_URL_STORAGE_KEY, value: link.url }).catch(console.error);
+      Preferences.set({ key: YOUTUBE_TITLE_STORAGE_KEY, value: link.title }).catch(console.error);
     } else if (link.provider === 'spotify') {
-      // 2. Spotify handling: Stop Lofi & YouTube, launch iframe embed or external fallback
       if (isYtPlaying) setIsYtPlaying(false);
       if (isPlaying) await togglePlayPause();
 
       const embedUrl = getSpotifyEmbedUrl(link.url);
       if (embedUrl) {
-        setActiveEmbed({
+        setActivePopup({
           url: link.url,
           title: link.title,
           provider: 'spotify',
@@ -272,13 +468,12 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
         window.open(link.url, '_blank', 'noopener,noreferrer');
       }
     } else if (link.provider === 'appleMusic') {
-      // 3. Apple Music handling: Stop Lofi & YouTube, launch iframe embed or external fallback
       if (isYtPlaying) setIsYtPlaying(false);
       if (isPlaying) await togglePlayPause();
 
       const embedUrl = getAppleMusicEmbedUrl(link.url);
       if (embedUrl) {
-        setActiveEmbed({
+        setActivePopup({
           url: link.url,
           title: link.title,
           provider: 'appleMusic',
@@ -290,6 +485,32 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     }
   };
 
+  // Play / Toggle a User Saved Link
+  const handlePlayUserLink = async (link: UserSavedLink) => {
+    if (link.provider === 'youtube') {
+      if (ytActiveUrl === link.url) {
+        const nextState = !isYtPlaying;
+        setIsYtPlaying(nextState);
+        if (nextState && isPlaying) {
+          await togglePlayPause();
+        }
+      } else {
+        setYtActiveUrl(link.url);
+        setYtTitle(link.title);
+        setIsYtPlaying(true);
+        setYtError(null);
+        if (isPlaying) {
+          await togglePlayPause();
+        }
+        Preferences.set({ key: YOUTUBE_URL_STORAGE_KEY, value: link.url }).catch(console.error);
+        Preferences.set({ key: YOUTUBE_TITLE_STORAGE_KEY, value: link.title }).catch(console.error);
+      }
+    } else {
+      // For Spotify & Apple Music, play via popup embed player
+      await handleOpenPopup(link);
+    }
+  };
+
   // Delete a saved link
   const handleDeleteUserLink = async (id: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -298,7 +519,6 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     setUserLinks(updated);
     await saveUserSavedLinks(updated);
 
-    // If currently active YouTube video was deleted
     if (target && target.provider === 'youtube' && ytActiveUrl === target.url) {
       setIsYtPlaying(false);
       setYtActiveUrl('');
@@ -307,9 +527,8 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
       Preferences.remove({ key: YOUTUBE_TITLE_STORAGE_KEY }).catch(console.error);
     }
 
-    // If currently active embed was deleted
-    if (target && activeEmbed && activeEmbed.url === target.url) {
-      setActiveEmbed(null);
+    if (target && activePopup && activePopup.url === target.url) {
+      setActivePopup(null);
     }
   };
 
@@ -365,9 +584,8 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
       await saveUserSavedLinks(updated);
       setLinkInput('');
 
-      // Auto-start playback / embed according to provider
+      // Auto-start or open popup
       if (parsed.provider === 'youtube') {
-        if (activeEmbed) setActiveEmbed(null);
         setYtActiveUrl(newLink.url);
         setYtTitle(newLink.title);
         setIsYtPlaying(true);
@@ -376,30 +594,8 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
         }
         Preferences.set({ key: YOUTUBE_URL_STORAGE_KEY, value: newLink.url }).catch(console.error);
         Preferences.set({ key: YOUTUBE_TITLE_STORAGE_KEY, value: newLink.title }).catch(console.error);
-      } else if (parsed.provider === 'spotify') {
-        if (isYtPlaying) setIsYtPlaying(false);
-        if (isPlaying) await togglePlayPause();
-        const embedUrl = getSpotifyEmbedUrl(newLink.url);
-        if (embedUrl) {
-          setActiveEmbed({
-            url: newLink.url,
-            title: newLink.title,
-            provider: 'spotify',
-            embedUrl,
-          });
-        }
-      } else if (parsed.provider === 'appleMusic') {
-        if (isYtPlaying) setIsYtPlaying(false);
-        if (isPlaying) await togglePlayPause();
-        const embedUrl = getAppleMusicEmbedUrl(newLink.url);
-        if (embedUrl) {
-          setActiveEmbed({
-            url: newLink.url,
-            title: newLink.title,
-            provider: 'appleMusic',
-            embedUrl,
-          });
-        }
+      } else {
+        await handleOpenPopup(newLink);
       }
     } catch (err) {
       console.warn('Error adding media link:', err);
@@ -414,7 +610,7 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     }
   };
 
-  // Next Track Handler (supports cycling Lofi and saved YouTube links)
+  // Next Track Handler
   const handleNextTrack = async () => {
     const playable = tracks.filter((t) => !t.isComingSoon && t.url);
     if (playable.length === 0) return;
@@ -429,13 +625,11 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
         setIsYtPlaying(true);
         return;
       }
-      // If at end of YouTube links, switch back to first Lofi track
       setIsYtPlaying(false);
       await selectTrack(playable[0]);
       return;
     }
 
-    // Currently playing Lofi
     const curIdx = playable.findIndex((t) => t.id === currentTrack.id);
     const isLastLofiTrack = curIdx >= playable.length - 1;
 
@@ -462,24 +656,15 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     if (isYtPlaying) {
       setIsYtPlaying(false);
     }
-    if (activeEmbed) {
-      setActiveEmbed(null);
+    if (activePopup) {
+      setActivePopup(null);
     }
     await selectTrack(track);
   };
 
-  // Toggle Master Sound
-  const handleToggleMasterSound = async () => {
-    if (!isEnabled) {
-      if (isYtPlaying) setIsYtPlaying(false);
-      if (activeEmbed) setActiveEmbed(null);
-    }
-    await toggleMasterSound();
-  };
-
   // Audio source active status
   const isYouTubeActive = isYtPlaying;
-  const isLofiActive = isEnabled && !isYtPlaying && !activeEmbed;
+  const isLofiActive = isPlaying && !isYtPlaying && !activePopup;
   const isAnyAudioActive = isYouTubeActive || isLofiActive;
   const isCurrentAudioPlaying = isYouTubeActive ? isYtPlaying : isPlaying;
 
@@ -493,8 +678,8 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
 
   return (
     <>
-      {/* Hidden ReactPlayer to stream YouTube audio in-app continuously */}
-      {ytActiveUrl && (
+      {/* Hidden ReactPlayer to stream YouTube audio when popup is NOT showing YouTube */}
+      {ytActiveUrl && (!activePopup || activePopup.provider !== 'youtube') && (
         <div style={{ display: 'none' }} aria-hidden="true">
           <React.Suspense fallback={null}>
             <ReactPlayer
@@ -525,39 +710,79 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
         </div>
       )}
 
-      {/* Floating Embed Player (Spotify / Apple Music) */}
-      {activeEmbed && (
+      {/* Draggable + 4-Corner Floating Popup Player (Spotify / YouTube / Apple Music) */}
+      {activePopup && (
         <div
-          className="music-embed-player-card"
+          ref={popupRef}
+          className={`music-embed-player-card ${isDragging ? 'is-dragging' : ''}`}
           role="region"
-          aria-label={`${activeEmbed.provider === 'spotify' ? 'Spotify' : 'Apple Music'} Player`}
+          aria-label="Media Popup Player"
+          style={{
+            left: pos ? `${pos.x}px` : undefined,
+            top: pos ? `${pos.y}px` : undefined,
+            bottom: pos ? 'auto' : undefined,
+            right: pos ? 'auto' : undefined,
+          }}
         >
-          <div className="music-embed-header">
+          {/* Draggable Header */}
+          <div
+            className="music-embed-header is-draggable-handle"
+            onMouseDown={(e) => {
+              if ((e.target as HTMLElement).closest('button, a, input')) return;
+              dragRef.current = {
+                isDown: true,
+                startX: e.clientX,
+                startY: e.clientY,
+                originX: pos ? pos.x : calculateCornerPos(currentCorner).x,
+                originY: pos ? pos.y : calculateCornerPos(currentCorner).y,
+                hasMoved: false,
+              };
+              setIsDragging(true);
+            }}
+            onTouchStart={(e) => {
+              if ((e.target as HTMLElement).closest('button, a, input')) return;
+              const touch = e.touches[0];
+              if (!touch) return;
+              dragRef.current = {
+                isDown: true,
+                startX: touch.clientX,
+                startY: touch.clientY,
+                originX: pos ? pos.x : calculateCornerPos(currentCorner).x,
+                originY: pos ? pos.y : calculateCornerPos(currentCorner).y,
+                hasMoved: false,
+              };
+              setIsDragging(true);
+            }}
+          >
             <div className="music-embed-info">
-              {activeEmbed.provider === 'spotify' ? (
-                <SpotifyIcon size={16} />
-              ) : (
-                <AppleMusicIcon size={16} />
-              )}
-              <span className="music-embed-title" title={activeEmbed.title}>
-                {activeEmbed.title}
+              {activePopup.provider === 'youtube' && <YouTubeIcon size={16} />}
+              {activePopup.provider === 'spotify' && <SpotifyIcon size={16} />}
+              {activePopup.provider === 'appleMusic' && <AppleMusicIcon size={16} />}
+              <span className="music-embed-title" title={activePopup.title}>
+                {activePopup.title}
               </span>
             </div>
+
             <div className="music-embed-actions">
-              <a
-                href={activeEmbed.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="music-embed-btn"
-                title={language === 'vi' ? 'Mở ngoài' : 'Open external'}
-                aria-label="Open in new tab"
+              {/* Single Corner-Cycle Button with direction hint */}
+              <button
+                type="button"
+                className="music-embed-btn corner-cycle-btn"
+                onClick={handleCycleCorner}
+                title={getCornerCycleTooltip(currentCorner)}
+                aria-label="Cycle corner"
               >
-                <ExternalLink size={12} />
-              </a>
+                {renderCornerCycleIcon(currentCorner)}
+              </button>
+
+              {/* Close Button */}
               <button
                 type="button"
                 className="music-embed-btn close"
-                onClick={() => setActiveEmbed(null)}
+                onClick={() => {
+                  setActivePopup(null);
+                  onEmbedActiveChange?.(false);
+                }}
                 title={language === 'vi' ? 'Đóng player' : 'Close player'}
                 aria-label="Close player"
               >
@@ -565,16 +790,52 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Popup Body */}
           <div className="music-embed-body">
-            <iframe
-              src={activeEmbed.embedUrl}
-              title={activeEmbed.title}
-              width="100%"
-              height={activeEmbed.provider === 'spotify' ? '152' : '175'}
-              frameBorder="0"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-            />
+            {activePopup.provider === 'youtube' ? (
+              <div className="music-popup-yt-player">
+                <React.Suspense fallback={<div className="music-popup-loading">Loading...</div>}>
+                  <ReactPlayer
+                    src={activePopup.url}
+                    playing={isYtPlaying}
+                    volume={volume}
+                    width="100%"
+                    height="180px"
+                    controls={true}
+                    playsInline
+                    onPlay={() => setIsYtPlaying(true)}
+                    onPause={() => setIsYtPlaying(false)}
+                    onError={() =>
+                      setYtError(
+                        language === 'vi' ? 'Không thể phát video này' : 'Cannot play this video'
+                      )
+                    }
+                    style={{
+                      borderRadius: 12,
+                      overflow: 'hidden',
+                      pointerEvents: isDragging ? 'none' : 'auto',
+                    }}
+                  />
+                </React.Suspense>
+              </div>
+            ) : (
+              <iframe
+                src={activePopup.embedUrl}
+                title={activePopup.title}
+                width="100%"
+                height={activePopup.provider === 'spotify' ? '152' : '175'}
+                frameBorder="0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+                style={{
+                  borderRadius: 12,
+                  border: 0,
+                  display: 'block',
+                  pointerEvents: isDragging ? 'none' : 'auto',
+                }}
+              />
+            )}
           </div>
         </div>
       )}
@@ -621,100 +882,58 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
             </div>
 
             <div className="music-popover-body">
-              {/* 1. Toggle Âm thanh nền */}
-              <div className="music-master-toggle-row">
-                <div className="music-row-left">
-                  <Music size={16} className="music-row-icon" />
-                  <span className="music-row-title">
-                    {language === 'vi' ? 'Âm thanh nền' : 'Background sound'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className={`settings-switch ${isEnabled ? 'active' : ''}`}
-                  onClick={handleToggleMasterSound}
-                  role="switch"
-                  aria-checked={isEnabled}
-                  aria-label={language === 'vi' ? 'Bật/tắt âm thanh nền' : 'Toggle background sound'}
-                >
-                  <div className="switch-thumb" />
-                </button>
-              </div>
-
-              {/* Hàng điều khiển đang phát & Thanh Volume */}
+              {/* Hàng điều khiển đang phát (Now Playing) */}
               {isAnyAudioActive && (
-                <>
-                  <div className="music-now-playing-row">
-                    <Disc
-                      size={17}
-                      className={`music-disc-icon ${isCurrentAudioPlaying ? 'is-spinning' : ''} ${isYouTubeActive ? 'is-yt' : ''}`}
-                    />
+                <div className="music-now-playing-row">
+                  <Disc
+                    size={17}
+                    className={`music-disc-icon ${isCurrentAudioPlaying ? 'is-spinning' : ''} ${isYouTubeActive ? 'is-yt' : ''}`}
+                  />
 
-                    <span
-                      className="music-now-playing-title"
-                      title={isYouTubeActive ? (ytTitle || 'YouTube Audio') : (currentTrack?.title || 'Study Session')}
+                  <span
+                    className="music-now-playing-title"
+                    title={isYouTubeActive ? (ytTitle || 'YouTube Audio') : (currentTrack?.title || 'Study Session')}
+                  >
+                    {isYouTubeActive
+                      ? (ytTitle || 'YouTube Audio')
+                      : (currentTrack?.title || 'Study Session')}
+                  </span>
+
+                  <div className="music-mini-controls-group">
+                    {/* Play / Pause */}
+                    <button
+                      type="button"
+                      className="music-mini-control-btn play-pause-btn"
+                      onClick={handleToggleCurrentAudio}
+                      title={
+                        isCurrentAudioPlaying
+                          ? language === 'vi' ? 'Tạm dừng' : 'Pause'
+                          : language === 'vi' ? 'Phát' : 'Play'
+                      }
+                      aria-label={isCurrentAudioPlaying ? 'Pause' : 'Play'}
                     >
-                      {isYouTubeActive
-                        ? (ytTitle || 'YouTube Audio')
-                        : (currentTrack?.title || 'Study Session')}
-                    </span>
+                      {isCurrentAudioPlaying ? (
+                        <Pause size={13} fill="currentColor" />
+                      ) : (
+                        <Play size={13} fill="currentColor" className="ml-0.5" />
+                      )}
+                    </button>
 
-                    <div className="music-mini-controls-group">
-                      {/* Play / Pause */}
-                      <button
-                        type="button"
-                        className="music-mini-control-btn play-pause-btn"
-                        onClick={handleToggleCurrentAudio}
-                        title={
-                          isCurrentAudioPlaying
-                            ? language === 'vi' ? 'Tạm dừng' : 'Pause'
-                            : language === 'vi' ? 'Phát' : 'Play'
-                        }
-                        aria-label={isCurrentAudioPlaying ? 'Pause' : 'Play'}
-                      >
-                        {isCurrentAudioPlaying ? (
-                          <Pause size={13} fill="currentColor" />
-                        ) : (
-                          <Play size={13} fill="currentColor" className="ml-0.5" />
-                        )}
-                      </button>
-
-                      {/* Next track */}
-                      <button
-                        type="button"
-                        className="music-mini-control-btn next-btn"
-                        onClick={handleNextTrack}
-                        title={language === 'vi' ? 'Bài tiếp theo' : 'Next track'}
-                        aria-label="Next track"
-                      >
-                        <SkipForward size={13} fill="currentColor" />
-                      </button>
-                    </div>
+                    {/* Next track */}
+                    <button
+                      type="button"
+                      className="music-mini-control-btn next-btn"
+                      onClick={handleNextTrack}
+                      title={language === 'vi' ? 'Bài tiếp theo' : 'Next track'}
+                      aria-label="Next track"
+                    >
+                      <SkipForward size={13} fill="currentColor" />
+                    </button>
                   </div>
-
-                  {/* Thanh volume */}
-                  <div className="music-volume-row">
-                    {volume === 0 ? (
-                      <VolumeX size={14} className="music-volume-icon" />
-                    ) : (
-                      <Volume2 size={14} className="music-volume-icon" />
-                    )}
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.02"
-                      value={volume}
-                      onChange={(e) => changeVolume(parseFloat(e.target.value))}
-                      className="music-volume-slider"
-                      aria-label={language === 'vi' ? 'Âm lượng' : 'Volume'}
-                    />
-                    <span className="music-volume-val">{Math.round(volume * 100)}%</span>
-                  </div>
-                </>
+                </div>
               )}
 
-              {/* 2. Danh sách BẢN LOFI (8 bài như hiện tại, play trong app) */}
+              {/* 1. Danh sách BẢN LOFI (8 bài như hiện tại, play trong app) */}
               <div className="music-section-block">
                 <div className="music-subheading">
                   {language === 'vi' ? 'BẢN LOFI' : 'LOFI TRACKS'}
@@ -723,7 +942,7 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                 <div className="music-tracks-compact-list">
                   {tracks.map((track, idx) => {
                     const isSelected = currentTrack?.id === track.id && !track.isComingSoon;
-                    const isTrackPlaying = isSelected && isPlaying && isEnabled && !isYouTubeActive && !activeEmbed;
+                    const isTrackPlaying = isSelected && isPlaying && !isYouTubeActive && !activePopup;
                     const trackNumber = idx + 1;
 
                     return (
@@ -755,7 +974,7 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                 </div>
               </div>
 
-              {/* 3. Section YOUR LINKS (Link của bạn) */}
+              {/* 2. Section YOUR LINKS (Link của bạn) */}
               <div className="music-section-block">
                 <div className="music-section-header-row">
                   <div className="music-subheading">
@@ -783,9 +1002,10 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                         link.provider === 'youtube' && ytActiveUrl === link.url && isYtPlaying;
                       const isThisYtActive =
                         link.provider === 'youtube' && ytActiveUrl === link.url;
-                      const isThisEmbedActive =
-                        activeEmbed && activeEmbed.url === link.url;
-                      const isItemActive = isThisYtActive || isThisEmbedActive;
+                      const isThisPopupActive =
+                        activePopup && activePopup.url === link.url;
+                      const isItemActive = isThisYtActive || isThisPopupActive;
+                      const isAudioPlaying = isThisYtPlaying || isThisPopupActive;
 
                       return (
                         <div
@@ -793,37 +1013,42 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                           className={`music-user-link-item ${isItemActive ? 'is-active' : ''}`}
                           onClick={() => handlePlayUserLink(link)}
                         >
-                          {/* Play / Open Button */}
+                          {/* Play / Action Button on the left */}
                           <button
                             type="button"
-                            className={`user-link-play-btn ${link.provider} ${isThisYtPlaying || isThisEmbedActive ? 'is-playing' : ''}`}
+                            className={`user-link-play-btn ${link.provider} ${isAudioPlaying ? 'is-playing' : ''}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               handlePlayUserLink(link);
                             }}
                             title={
-                              isThisYtPlaying
+                              isAudioPlaying
                                 ? language === 'vi' ? 'Tạm dừng' : 'Pause'
                                 : language === 'vi' ? 'Phát' : 'Play'
                             }
-                            aria-label={isThisYtPlaying ? 'Pause' : 'Play'}
+                            aria-label={isAudioPlaying ? 'Pause' : 'Play'}
                           >
-                            {link.provider === 'youtube' ? (
-                              isThisYtPlaying ? (
-                                <Pause size={12} fill="currentColor" />
-                              ) : (
-                                <Play size={12} fill="currentColor" className="ml-0.5" />
-                              )
+                            {isAudioPlaying ? (
+                              <Pause size={12} fill="currentColor" />
                             ) : (
-                              <ExternalLink size={12} />
+                              <Play size={12} fill="currentColor" className="ml-0.5" />
                             )}
                           </button>
 
                           {/* Link Info with Icon + Title + Secondary Label */}
                           <div className="user-link-info">
-                            <span className="user-link-title" title={link.title}>
-                              {link.title}
-                            </span>
+                            <div className="user-link-title-row">
+                              <span className="user-link-title" title={link.title}>
+                                {link.title}
+                              </span>
+                              {isAudioPlaying && (
+                                <div className="music-wave-indicator mini" title="Playing">
+                                  <span className="wave-bar bar-1" />
+                                  <span className="wave-bar bar-2" />
+                                  <span className="wave-bar bar-3" />
+                                </div>
+                              )}
+                            </div>
                             <div className="user-link-meta">
                               {link.provider === 'youtube' && <YouTubeIcon size={12} />}
                               {link.provider === 'spotify' && <SpotifyIcon size={12} />}
@@ -834,23 +1059,28 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                             </div>
                           </div>
 
-                          {/* Wave indicator & Delete Button */}
+                          {/* Action Buttons: Mở popup (bên trái) + Xóa (bên phải), ẩn mặc định, hiện khi hover */}
                           <div className="user-link-actions" onClick={(e) => e.stopPropagation()}>
-                            {(isThisYtPlaying || isThisEmbedActive) && (
-                              <div className="music-wave-indicator mini" title="Playing">
-                                <span className="wave-bar bar-1" />
-                                <span className="wave-bar bar-2" />
-                                <span className="wave-bar bar-3" />
-                              </div>
-                            )}
+                            {/* Nút mở popup player */}
                             <button
                               type="button"
-                              className="user-link-delete-btn"
+                              className="user-link-action-btn popup-btn"
+                              onClick={() => handleOpenPopup(link)}
+                              title={language === 'vi' ? 'Mở popup player' : 'Open popup player'}
+                              aria-label="Open popup player"
+                            >
+                              <PictureInPicture2 size={13} />
+                            </button>
+
+                            {/* Nút xóa */}
+                            <button
+                              type="button"
+                              className="user-link-action-btn delete-btn"
                               onClick={(e) => handleDeleteUserLink(link.id, e)}
                               title={language === 'vi' ? 'Xóa link' : 'Delete link'}
                               aria-label="Delete"
                             >
-                              <Trash2 size={12} />
+                              <Trash2 size={13} />
                             </button>
                           </div>
                         </div>
@@ -920,6 +1150,28 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                     <span>{ytError}</span>
                   </div>
                 )}
+              </div>
+
+              {/* 3. Thanh Volume ở DƯỚI CÙNG của Panel (dưới Your Links / ô dán link) */}
+              <div className="music-bottom-volume-wrap">
+                <div className="music-volume-row">
+                  {volume === 0 ? (
+                    <VolumeX size={14} className="music-volume-icon" />
+                  ) : (
+                    <Volume2 size={14} className="music-volume-icon" />
+                  )}
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.02"
+                    value={volume}
+                    onChange={(e) => changeVolume(parseFloat(e.target.value))}
+                    className="music-volume-slider"
+                    aria-label={language === 'vi' ? 'Âm lượng' : 'Volume'}
+                  />
+                  <span className="music-volume-val">{Math.round(volume * 100)}%</span>
+                </div>
               </div>
             </div>
           </div>
