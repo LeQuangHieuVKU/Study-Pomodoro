@@ -332,7 +332,7 @@
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 60;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -692,32 +692,54 @@
 .theme-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.62);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  animation: fadeInBackdrop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 998;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fadeInBackdrop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .theme-modal-card {
-  width: 100%;
-  max-width: 580px;
-  max-height: 88vh;
+  position: fixed;
+  left: 88px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  width: min(440px, calc(100vw - 105px));
+  max-height: min(620px, calc(100vh - 40px));
   background: rgba(18, 22, 34, 0.94);
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 26px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-radius: 22px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   color: #FFFFFF;
-  animation: scaleUpModal 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideInFromLeft 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (max-width: 640px) {
+    left: 10px;
+    right: 10px;
+    top: auto;
+    bottom: 12px;
+    transform: none;
+    width: calc(100vw - 20px);
+    max-height: min(85vh, 580px);
+    animation: popoverFadeUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
 }
 
 .theme-modal-header {
@@ -1621,9 +1643,9 @@
 html:not(.dark):not(.ion-palette-dark),
 body:not(.dark):not(.ion-palette-dark) {
   .theme-modal-backdrop {
-    background: rgba(15, 23, 42, 0.35);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(15, 23, 42, 0.15);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 
   .theme-modal-card {
@@ -1631,7 +1653,7 @@ body:not(.dark):not(.ion-palette-dark) {
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
     border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.16), 0 4px 16px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14), 0 4px 16px rgba(15, 23, 42, 0.05);
     color: #0F172A;
   }
 
@@ -5809,6 +5831,10 @@ body:not(.dark):not(.ion-palette-dark) {
     &.spotify {
       background: #1DB954;
     }
+
+    &.appleMusic {
+      background: #FC3C44;
+    }
   }
 
   .user-link-info {
@@ -5844,6 +5870,10 @@ body:not(.dark):not(.ion-palette-dark) {
 
         &.spotify {
           color: #4ADE80;
+        }
+
+        &.appleMusic {
+          color: #FB7185;
         }
       }
 
@@ -5993,6 +6023,120 @@ body:not(.dark):not(.ion-palette-dark) {
   color: #FCA5A5;
   font-size: 0.74rem;
   padding: 4px 4px 0 4px;
+}
+
+// -----------------------------------------------------------------------------
+// FLOATING EMBED PLAYER (SPOTIFY & APPLE MUSIC) & TOAST
+// -----------------------------------------------------------------------------
+.music-embed-player-card {
+  position: fixed;
+  bottom: 84px;
+  right: 20px;
+  width: min(360px, calc(100vw - 32px));
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  animation: slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  .music-embed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 8px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    .music-embed-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1;
+
+      .music-embed-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #F1F5F9;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .music-embed-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+
+      .music-embed-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.08);
+        border: none;
+        color: #94A3B8;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.18);
+          color: #FFFFFF;
+        }
+      }
+    }
+  }
+
+  .music-embed-body {
+    padding: 8px 10px 10px 10px;
+    background: transparent;
+
+    iframe {
+      display: block;
+      width: 100%;
+      border-radius: 12px;
+      border: 0;
+    }
+  }
+}
+
+.music-toast-popup {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1002;
+  background: rgba(239, 68, 68, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  animation: fadeInDown 0.2s ease;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .music-embed-player-card {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    bottom: 80px;
+  }
 }
 
 // PHẦN C: DỊCH VỤ
@@ -6394,6 +6538,10 @@ body:not(.dark):not(.ion-palette-dark),
           color: #15803D;
         }
 
+        .user-link-type-tag.appleMusic {
+          color: #E11D48;
+        }
+
         .user-link-domain {
           color: #64748B;
         }
@@ -6431,6 +6579,30 @@ body:not(.dark):not(.ion-palette-dark),
 
     .music-link-error {
       color: #DC2626;
+    }
+  }
+
+  .music-embed-player-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14), 0 2px 10px rgba(15, 23, 42, 0.06);
+
+    .music-embed-header {
+      border-bottom-color: rgba(0, 0, 0, 0.08);
+
+      .music-embed-title {
+        color: #0F172A;
+      }
+
+      .music-embed-actions .music-embed-btn {
+        background: rgba(0, 0, 0, 0.06);
+        color: #475569;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.12);
+          color: #0F172A;
+        }
+      }
     }
   }
 }

@@ -67,6 +67,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({
   const [isTasksOpen, setIsTasksOpen] = useState(false);
   const [isMusicOpen, setIsMusicOpen] = useState(false);
   const [isYtPlaying, setIsYtPlaying] = useState(false);
+  const [isEmbedActive, setIsEmbedActive] = useState(false);
   const stopYtRef = useRef<(() => void) | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [pipWindow, setPipWindow] = useState<Window | null>(null);
@@ -453,12 +454,13 @@ export const TimerPage: React.FC<TimerPageProps> = ({
         </React.Suspense>
       )}
 
-      {(isMusicOpen || isYtPlaying) && (
+      {(isMusicOpen || isYtPlaying || isEmbedActive) && (
         <React.Suspense fallback={null}>
           <MusicPanel
             isOpen={isMusicOpen}
             onClose={() => setIsMusicOpen(false)}
             onYtPlayingChange={setIsYtPlaying}
+            onEmbedActiveChange={setIsEmbedActive}
             stopYtRef={stopYtRef}
           />
         </React.Suspense>
