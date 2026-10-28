@@ -8,23 +8,32 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
-  Radio,
-  ChevronDown,
+  Plus,
+  Trash2,
+  ExternalLink,
+  Link as LinkIcon,
   AlertCircle,
+  Radio,
 } from 'lucide-react';
 import { Preferences } from '@capacitor/preferences';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSound } from '../context/SoundContext';
-
-// Dynamically import react-player so heavy media engines (dash, hls) are never in the critical path
-const ReactPlayer = React.lazy(() => import('react-player'));
 import {
-  fetchYouTubeTitle,
-  isValidYouTubeUrl,
   YOUTUBE_URL_STORAGE_KEY,
   YOUTUBE_TITLE_STORAGE_KEY,
 } from '../services/youtubeService';
+import {
+  UserSavedLink,
+  detectLinkType,
+  fetchMediaTitle,
+  isDuplicateUrl,
+  loadUserSavedLinks,
+  saveUserSavedLinks,
+} from '../services/mediaLinkService';
 import type { LofiTrack } from '../types';
+
+// Dynamically import react-player so heavy media engines (dash, hls) are never in the critical path
+const ReactPlayer = React.lazy(() => import('react-player'));
 
 export interface MusicPanelProps {
   isOpen: boolean;
@@ -53,13 +62,16 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
   } = useSound();
 
   // YouTube audio player state
-  const [ytInputUrl, setYtInputUrl] = useState('');
   const [ytActiveUrl, setYtActiveUrl] = useState('');
   const [ytTitle, setYtTitle] = useState('');
   const [isYtPlaying, setIsYtPlaying] = useState(false);
   const [ytError, setYtError] = useState<string | null>(null);
-  const [isFetchingTitle, setIsFetchingTitle] = useState(false);
-  const [isYtExpanded, setIsYtExpanded] = useState(false);
+
+  // User Saved Links state (YouTube & Spotify)
+  const [userLinks, setUserLinks] = useState<UserSavedLink[]>([]);
+  const [linkInput, setLinkInput] = useState('');
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [isAddingLink, setIsAddingLink] = useState(false);
 
   // Notify parent of YouTube play state
   useEffect(() => {
@@ -80,29 +92,47 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     };
   }, [stopYtRef]);
 
-  // Load saved YouTube URL & Title
+  // Load saved links and migrate legacy single-URL storage
   useEffect(() => {
-    Promise.all([
-      Preferences.get({ key: YOUTUBE_URL_STORAGE_KEY }),
-      Preferences.get({ key: YOUTUBE_TITLE_STORAGE_KEY }),
-    ])
-      .then(([{ value: savedUrl }, { value: savedTitle }]) => {
-        if (savedUrl) {
-          setYtInputUrl(savedUrl);
-          setYtActiveUrl(savedUrl);
-          if (savedTitle) {
-            setYtTitle(savedTitle);
-          } else {
-            fetchYouTubeTitle(savedUrl).then((title) => {
-              if (title) {
-                setYtTitle(title);
-                Preferences.set({ key: YOUTUBE_TITLE_STORAGE_KEY, value: title }).catch(console.error);
-              }
-            });
-          }
+    const initializeLinks = async () => {
+      try {
+        const loaded = await loadUserSavedLinks();
+        const [{ value: savedYtUrl }, { value: savedYtTitle }] = await Promise.all([
+          Preferences.get({ key: YOUTUBE_URL_STORAGE_KEY }),
+          Preferences.get({ key: YOUTUBE_TITLE_STORAGE_KEY }),
+        ]);
+
+        let combined = [...loaded];
+
+        // Migrate legacy saved YouTube URL if not already present
+        if (savedYtUrl && !combined.some((l) => l.url === savedYtUrl)) {
+          const migrated: UserSavedLink = {
+            id: `link_${Date.now()}_legacy`,
+            url: savedYtUrl,
+            title: savedYtTitle || 'YouTube Audio',
+            type: 'youtube',
+            addedAt: Date.now(),
+          };
+          combined = [migrated, ...combined];
+          await saveUserSavedLinks(combined);
         }
-      })
-      .catch(console.error);
+
+        setUserLinks(combined);
+
+        // Restore active playback URL
+        if (savedYtUrl) {
+          setYtActiveUrl(savedYtUrl);
+          setYtTitle(savedYtTitle || 'YouTube Audio');
+        } else if (combined.length > 0 && combined[0].type === 'youtube') {
+          setYtActiveUrl(combined[0].url);
+          setYtTitle(combined[0].title);
+        }
+      } catch (err) {
+        console.warn('Failed to initialize user links:', err);
+      }
+    };
+
+    initializeLinks();
   }, []);
 
   // Escape key handler to close panel
@@ -117,102 +147,181 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Handle YouTube Play/Pause Toggle
-  const handleToggleYtPlay = async () => {
-    const trimmed = ytInputUrl.trim();
+  // Helper to extract clean domain string
+  const getDomainFromUrl = (url: string): string => {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '');
+    } catch {
+      return '';
+    }
+  };
+
+  // Play / Toggle a User Saved Link
+  const handlePlayUserLink = async (link: UserSavedLink) => {
+    if (link.type === 'youtube') {
+      if (ytActiveUrl === link.url) {
+        // Toggle play/pause on the same video
+        const nextState = !isYtPlaying;
+        setIsYtPlaying(nextState);
+        if (nextState && isPlaying) {
+          await togglePlayPause(); // pause Lofi
+        }
+      } else {
+        // Switch to new YouTube video
+        setYtActiveUrl(link.url);
+        setYtTitle(link.title);
+        setIsYtPlaying(true);
+        setYtError(null);
+        if (isPlaying) {
+          await togglePlayPause(); // pause Lofi
+        }
+        Preferences.set({ key: YOUTUBE_URL_STORAGE_KEY, value: link.url }).catch(console.error);
+        Preferences.set({ key: YOUTUBE_TITLE_STORAGE_KEY, value: link.title }).catch(console.error);
+      }
+    } else if (link.type === 'spotify') {
+      // Open Spotify web player / app directly without breaking Lofi or YouTube
+      window.open(link.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  // Delete a saved link
+  const handleDeleteUserLink = async (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const target = userLinks.find((l) => l.id === id);
+    const updated = userLinks.filter((l) => l.id !== id);
+    setUserLinks(updated);
+    await saveUserSavedLinks(updated);
+
+    // If currently active YouTube video was deleted
+    if (target && target.type === 'youtube' && ytActiveUrl === target.url) {
+      setIsYtPlaying(false);
+      setYtActiveUrl('');
+      setYtTitle('');
+      Preferences.remove({ key: YOUTUBE_URL_STORAGE_KEY }).catch(console.error);
+      Preferences.remove({ key: YOUTUBE_TITLE_STORAGE_KEY }).catch(console.error);
+    }
+  };
+
+  // Add a new YouTube or Spotify link
+  const handleAddUserLink = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const trimmed = linkInput.trim();
     if (!trimmed) {
-      setYtError(
+      setLinkError(
         language === 'vi'
-          ? 'Vui lòng dán link YouTube'
-          : 'Please paste a YouTube link'
-      );
-      return;
-    }
-    if (!isValidYouTubeUrl(trimmed)) {
-      setYtError(
-        language === 'vi'
-          ? 'Link không hợp lệ (youtube.com, youtu.be)'
-          : 'Invalid link (youtube.com, youtu.be)'
+          ? 'Vui lòng dán link YouTube hoặc Spotify'
+          : 'Please paste a YouTube or Spotify link'
       );
       return;
     }
 
-    setYtError(null);
+    const type = detectLinkType(trimmed);
+    if (!type) {
+      setLinkError(
+        language === 'vi'
+          ? 'Chỉ hỗ trợ link YouTube hoặc Spotify'
+          : 'Only YouTube or Spotify links are supported'
+      );
+      return;
+    }
 
-    if (trimmed !== ytActiveUrl) {
-      setYtActiveUrl(trimmed);
-      setIsYtPlaying(true);
-      setIsFetchingTitle(true);
+    if (isDuplicateUrl(trimmed, userLinks)) {
+      setLinkError(
+        language === 'vi'
+          ? 'Link này đã có trong danh sách'
+          : 'This link is already in your list'
+      );
+      return;
+    }
 
-      fetchYouTubeTitle(trimmed)
-        .then((title) => {
-          if (title) {
-            setYtTitle(title);
-            Preferences.set({ key: YOUTUBE_TITLE_STORAGE_KEY, value: title }).catch(console.error);
-          }
-        })
-        .finally(() => {
-          setIsFetchingTitle(false);
-        });
+    setLinkError(null);
+    setIsAddingLink(true);
 
-      // Pause Lofi so only 1 source plays
-      if (isPlaying) {
-        await togglePlayPause();
+    try {
+      const fetchedTitle = await fetchMediaTitle(trimmed, type);
+      const defaultTitle =
+        type === 'youtube'
+          ? language === 'vi' ? 'YouTube Audio' : 'YouTube Audio'
+          : language === 'vi' ? 'Spotify Track/Playlist' : 'Spotify Track/Playlist';
+
+      const newLink: UserSavedLink = {
+        id: `link_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        url: trimmed,
+        title: fetchedTitle || defaultTitle,
+        type,
+        addedAt: Date.now(),
+      };
+
+      const updated = [newLink, ...userLinks];
+      setUserLinks(updated);
+      await saveUserSavedLinks(updated);
+      setLinkInput('');
+
+      // Auto-start playback if it's a YouTube link
+      if (type === 'youtube') {
+        setYtActiveUrl(newLink.url);
+        setYtTitle(newLink.title);
+        setIsYtPlaying(true);
+        if (isPlaying) {
+          await togglePlayPause();
+        }
+        Preferences.set({ key: YOUTUBE_URL_STORAGE_KEY, value: newLink.url }).catch(console.error);
+        Preferences.set({ key: YOUTUBE_TITLE_STORAGE_KEY, value: newLink.title }).catch(console.error);
       }
-      Preferences.set({ key: YOUTUBE_URL_STORAGE_KEY, value: trimmed }).catch(console.error);
-    } else {
-      const nextPlay = !isYtPlaying;
-      setIsYtPlaying(nextPlay);
-      if (nextPlay && isPlaying) {
-        await togglePlayPause();
-      }
+    } catch (err) {
+      console.warn('Error adding media link:', err);
+      setLinkError(
+        language === 'vi'
+          ? 'Không thể lấy thông tin link'
+          : 'Could not fetch link info'
+      );
+    } finally {
+      setIsAddingLink(false);
     }
   };
 
-  const handleClearYt = () => {
-    setIsYtPlaying(false);
-    setYtActiveUrl('');
-    setYtInputUrl('');
-    setYtTitle('');
-    setYtError(null);
-    Preferences.remove({ key: YOUTUBE_URL_STORAGE_KEY }).catch(console.error);
-    Preferences.remove({ key: YOUTUBE_TITLE_STORAGE_KEY }).catch(console.error);
-  };
-
-  // Next Track Handler (supports Lofi and transition to YouTube)
+  // Next Track Handler (supports cycling Lofi and saved YouTube links)
   const handleNextTrack = async () => {
     const playable = tracks.filter((t) => !t.isComingSoon && t.url);
     if (playable.length === 0) return;
 
     if (isYtPlaying) {
-      // Đang phát YouTube -> Next quay lại bài Lofi đầu tiên
+      // Find current YouTube link in userLinks
+      const ytLinks = userLinks.filter((l) => l.type === 'youtube');
+      const curYtIdx = ytLinks.findIndex((l) => l.url === ytActiveUrl);
+      if (curYtIdx >= 0 && curYtIdx < ytLinks.length - 1) {
+        // Next YouTube link
+        const nextLink = ytLinks[curYtIdx + 1];
+        setYtActiveUrl(nextLink.url);
+        setYtTitle(nextLink.title);
+        setIsYtPlaying(true);
+        return;
+      }
+      // If at end of YouTube links, switch back to first Lofi track
       setIsYtPlaying(false);
       await selectTrack(playable[0]);
       return;
     }
 
-    // Đang phát Lofi:
+    // Currently playing Lofi
     const curIdx = playable.findIndex((t) => t.id === currentTrack.id);
     const isLastLofiTrack = curIdx >= playable.length - 1;
 
     if (isLastLofiTrack) {
-      // Khi đã hết list Lofi -> nếu có link YouTube thì chuyển sang phát YouTube
-      const targetYt = (ytActiveUrl || ytInputUrl).trim();
-      if (targetYt && isValidYouTubeUrl(targetYt)) {
+      // Check if user has saved YouTube links to transition to
+      const ytLinks = userLinks.filter((l) => l.type === 'youtube');
+      if (ytLinks.length > 0) {
         if (isPlaying) {
           await togglePlayPause();
         }
-        setYtActiveUrl(targetYt);
+        setYtActiveUrl(ytLinks[0].url);
+        setYtTitle(ytLinks[0].title);
         setIsYtPlaying(true);
-        fetchYouTubeTitle(targetYt).then((title) => {
-          if (title) setYtTitle(title);
-        });
         return;
       }
-      // Nếu không có YouTube -> quay lại bài Lofi đầu
+      // Loop back to first Lofi track
       await selectTrack(playable[0]);
     } else {
-      // Next lần lượt trong các bài Lofi có file thật
       await selectTrack(playable[curIdx + 1]);
     }
   };
@@ -234,7 +343,7 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
     await toggleMasterSound();
   };
 
-  // Audio source state (YouTube takes priority when playing)
+  // Audio source active status (YouTube takes priority when playing)
   const isYouTubeActive = isYtPlaying;
   const isLofiActive = isEnabled && !isYtPlaying;
   const isAnyAudioActive = isYouTubeActive || isLofiActive;
@@ -242,7 +351,7 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
 
   const handleToggleCurrentAudio = async () => {
     if (isYouTubeActive) {
-      await handleToggleYtPlay();
+      setIsYtPlaying((prev) => !prev);
     } else {
       await togglePlayPause();
     }
@@ -270,11 +379,13 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                 setIsYtPlaying(false);
                 setYtError(
                   language === 'vi'
-                    ? 'Không thể phát video này'
-                    : 'Cannot play this video'
+                    ? 'Không thể phát audio này'
+                    : 'Cannot play this audio'
                 );
               }}
-              onEnded={() => setIsYtPlaying(false)}
+              onEnded={() => {
+                handleNextTrack();
+              }}
             />
           </React.Suspense>
         </div>
@@ -283,21 +394,21 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
       {/* Popover Card & Transparent / Subtle Frosted Backdrop */}
       {isOpen && (
         <>
-          {/* Transparent backdrop for outside clicks - no dark/blur overlay */}
+          {/* Transparent backdrop for outside clicks */}
           <div
             className="music-popover-backdrop"
             onClick={onClose}
             aria-hidden="true"
           />
 
-          {/* Compact Popover Card Floating Near Control Bar (Shifted to Left) */}
+          {/* Compact Popover Card Floating Near Control Bar */}
           <div
             className="music-popover-card"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-label={language === 'vi' ? 'Bảng âm thanh' : 'Sound popover'}
           >
-            {/* PHẦN A: PHẦN ĐANG PHÁT */}
+            {/* Header */}
             <div className="music-popover-header">
               <span className="music-popover-tag">
                 {language === 'vi' ? 'ÂM THANH' : 'MUSIC'}
@@ -314,7 +425,7 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
             </div>
 
             <div className="music-popover-body">
-              {/* Dòng 1: icon nhạc + chữ “Âm thanh nền” + toggle bật/tắt bên phải */}
+              {/* 1. Toggle Âm thanh nền */}
               <div className="music-master-toggle-row">
                 <div className="music-row-left">
                   <Music size={16} className="music-row-icon" />
@@ -334,10 +445,9 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                 </button>
               </div>
 
-              {/* CHỈ HIỆN KHI ÂM THANH NỀN BẬT HOẶC YOUTUBE ĐANG PHÁT */}
+              {/* Hàng điều khiển đang phát & Thanh Volume */}
               {isAnyAudioActive && (
                 <>
-                  {/* Dòng 2: Hàng điều khiển đang phát (Lofi hoặc YouTube) */}
                   <div className="music-now-playing-row">
                     <Disc
                       size={17}
@@ -349,12 +459,12 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                       title={isYouTubeActive ? (ytTitle || 'YouTube Audio') : (currentTrack?.title || 'Study Session')}
                     >
                       {isYouTubeActive
-                        ? (ytTitle || (language === 'vi' ? 'YouTube Audio' : 'YouTube Audio'))
+                        ? (ytTitle || 'YouTube Audio')
                         : (currentTrack?.title || 'Study Session')}
                     </span>
 
                     <div className="music-mini-controls-group">
-                      {/* Nút Play / Pause */}
+                      {/* Play / Pause */}
                       <button
                         type="button"
                         className="music-mini-control-btn play-pause-btn"
@@ -373,16 +483,12 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                         )}
                       </button>
 
-                      {/* Nút Chuyển bài tiếp (Next) */}
+                      {/* Next track */}
                       <button
                         type="button"
                         className="music-mini-control-btn next-btn"
                         onClick={handleNextTrack}
-                        title={
-                          isYouTubeActive
-                            ? language === 'vi' ? 'Bỏ qua YouTube' : 'Skip YouTube'
-                            : language === 'vi' ? 'Bài tiếp theo' : 'Next track'
-                        }
+                        title={language === 'vi' ? 'Bài tiếp theo' : 'Next track'}
                         aria-label="Next track"
                       >
                         <SkipForward size={13} fill="currentColor" />
@@ -390,7 +496,7 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                     </div>
                   </div>
 
-                  {/* Dòng 3: Thanh volume ngang (icon loa + slider) */}
+                  {/* Thanh volume */}
                   <div className="music-volume-row">
                     {volume === 0 ? (
                       <VolumeX size={14} className="music-volume-icon" />
@@ -412,7 +518,7 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                 </>
               )}
 
-              {/* PHẦN B: DANH SÁCH LOFI */}
+              {/* 2. Danh sách BẢN LOFI (8 bài như hiện tại, play trong app) */}
               <div className="music-section-block">
                 <div className="music-subheading">
                   {language === 'vi' ? 'BẢN LOFI' : 'LOFI TRACKS'}
@@ -471,14 +577,192 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                 </div>
               </div>
 
-              {/* PHẦN C: DỊCH VỤ */}
+              {/* 3. Section YOUR LINKS (Link của bạn) */}
+              <div className="music-section-block">
+                <div className="music-section-header-row">
+                  <div className="music-subheading">
+                    {language === 'vi' ? 'LINK CỦA BẠN' : 'YOUR LINKS'}
+                    {userLinks.length > 0 && (
+                      <span className="music-count-pill">{userLinks.length}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Danh sách link user đã lưu */}
+                {userLinks.length === 0 ? (
+                  <div className="music-empty-links">
+                    <LinkIcon size={14} className="empty-icon" />
+                    <span>
+                      {language === 'vi'
+                        ? 'Chưa có link — dán YouTube hoặc Spotify bên dưới'
+                        : 'No links yet — paste YouTube or Spotify below'}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="music-user-links-list">
+                    {userLinks.map((link) => {
+                      const isThisYtPlaying =
+                        link.type === 'youtube' && ytActiveUrl === link.url && isYtPlaying;
+                      const isThisYtActive =
+                        link.type === 'youtube' && ytActiveUrl === link.url;
+
+                      return (
+                        <div
+                          key={link.id}
+                          className={`music-user-link-item ${isThisYtActive ? 'is-active' : ''}`}
+                          onClick={() => handlePlayUserLink(link)}
+                        >
+                          {/* Play / Open Button */}
+                          <button
+                            type="button"
+                            className={`user-link-play-btn ${link.type} ${isThisYtPlaying ? 'is-playing' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePlayUserLink(link);
+                            }}
+                            title={
+                              link.type === 'spotify'
+                                ? language === 'vi' ? 'Mở trên Spotify' : 'Open on Spotify'
+                                : isThisYtPlaying
+                                ? language === 'vi' ? 'Tạm dừng' : 'Pause'
+                                : language === 'vi' ? 'Phát' : 'Play'
+                            }
+                            aria-label={link.type === 'spotify' ? 'Open Spotify' : isThisYtPlaying ? 'Pause' : 'Play'}
+                          >
+                            {link.type === 'spotify' ? (
+                              <ExternalLink size={12} />
+                            ) : isThisYtPlaying ? (
+                              <Pause size={12} fill="currentColor" />
+                            ) : (
+                              <Play size={12} fill="currentColor" className="ml-0.5" />
+                            )}
+                          </button>
+
+                          {/* Link Info */}
+                          <div className="user-link-info">
+                            <span className="user-link-title" title={link.title}>
+                              {link.title}
+                            </span>
+                            <div className="user-link-meta">
+                              <span className={`user-link-type-tag ${link.type}`}>
+                                {link.type === 'youtube' ? 'YouTube' : 'Spotify'}
+                              </span>
+                              <span className="user-link-bullet">•</span>
+                              <span className="user-link-domain">
+                                {getDomainFromUrl(link.url) || (link.type === 'youtube' ? 'youtube.com' : 'spotify.com')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Wave indicator & Delete Button */}
+                          <div className="user-link-actions" onClick={(e) => e.stopPropagation()}>
+                            {isThisYtPlaying && (
+                              <div className="music-wave-indicator mini" title="Playing">
+                                <span className="wave-bar bar-1" />
+                                <span className="wave-bar bar-2" />
+                                <span className="wave-bar bar-3" />
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              className="user-link-delete-btn"
+                              onClick={(e) => handleDeleteUserLink(link.id, e)}
+                              title={language === 'vi' ? 'Xóa link' : 'Delete link'}
+                              aria-label="Delete"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Ô dán link + Nút thêm */}
+                <form className="music-add-link-bar" onSubmit={handleAddUserLink}>
+                  <div className="add-link-input-wrap">
+                    <input
+                      type="text"
+                      className="add-link-input"
+                      placeholder={
+                        language === 'vi'
+                          ? 'Dán link YouTube hoặc Spotify'
+                          : 'Paste YouTube or Spotify link'
+                      }
+                      value={linkInput}
+                      onChange={(e) => {
+                        setLinkInput(e.target.value);
+                        if (linkError) setLinkError(null);
+                      }}
+                    />
+                    {linkInput && (
+                      <button
+                        type="button"
+                        className="add-link-clear-btn"
+                        onClick={() => {
+                          setLinkInput('');
+                          setLinkError(null);
+                        }}
+                        title={language === 'vi' ? 'Xóa' : 'Clear'}
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    className="add-link-submit-btn"
+                    disabled={isAddingLink || !linkInput.trim()}
+                    title={language === 'vi' ? 'Thêm' : 'Add'}
+                    aria-label="Add link"
+                  >
+                    {isAddingLink ? (
+                      <span className="add-link-spinner" />
+                    ) : (
+                      <Plus size={15} />
+                    )}
+                  </button>
+                </form>
+
+                {/* Link Error */}
+                {linkError && (
+                  <div className="music-link-error">
+                    <AlertCircle size={12} />
+                    <span>{linkError}</span>
+                  </div>
+                )}
+
+                {/* Error from YouTube Player if any */}
+                {ytError && isYouTubeActive && (
+                  <div className="music-link-error">
+                    <Radio size={12} className="text-red-500 animate-pulse" />
+                    <span>{ytError}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 4. DỊCH VỤ (Hỗ trợ trực tiếp) */}
               <div className="music-section-block">
                 <div className="music-subheading">
-                  {language === 'vi' ? 'DỊCH VỤ' : 'SERVICES'}
+                  {language === 'vi' ? 'DỊCH VỤ HỖ TRỢ' : 'SUPPORTED SERVICES'}
                 </div>
 
                 <div className="music-services-list">
-                  {/* Dòng Spotify + badge “Sắp có” */}
+                  {/* YouTube */}
+                  <div className="music-service-row">
+                    <div className="service-info-left">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="#FF0000">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                      </svg>
+                      <span className="service-title">YouTube</span>
+                    </div>
+                    <span className="track-badge-ready">
+                      {language === 'vi' ? 'Phát trong app' : 'In-app Audio'}
+                    </span>
+                  </div>
+
+                  {/* Spotify */}
                   <div className="music-service-row">
                     <div className="service-info-left">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="#1DB954">
@@ -486,110 +770,9 @@ export const MusicPanel: React.FC<MusicPanelProps> = ({
                       </svg>
                       <span className="service-title">Spotify</span>
                     </div>
-                    <span className="track-badge-soon">
-                      {language === 'vi' ? 'Sắp có' : 'Coming soon'}
+                    <span className="track-badge-ready">
+                      {language === 'vi' ? 'Lưu & Mở' : 'Save & Open'}
                     </span>
-                  </div>
-
-                  {/* Dòng Apple Music + badge “Sắp có” */}
-                  <div className="music-service-row">
-                    <div className="service-info-left">
-                      <svg viewBox="0 0 24 24" width="16" height="16" fill="#FC3C44">
-                        <path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-2.93a5.53 5.53 0 00-2.4-.6c-3.17-.03-6.34-.02-9.51-.02-1.92 0-3.83.03-5.75.22A5.62 5.62 0 001.274 2.87C.454 3.79.094 4.9.024 6.13c-.05 1.88-.02 3.76-.02 5.64 0 2.22-.03 4.44.02 6.66.04 1.48.51 2.76 1.54 3.76 1.02.99 2.27 1.48 3.69 1.63 2.15.22 4.32.18 6.48.18 2.37 0 4.74.02 7.11-.07 1.52-.06 2.85-.56 3.89-1.66 1.02-1.07 1.46-2.39 1.51-3.84.07-2.18.03-4.36.03-6.54 0-1.92.03-3.84-.28-5.77zm-9.35 8.78c0 .24-.04.47-.13.69-.32.78-1.06 1.17-1.89 1.04-.97-.15-1.63-.84-1.66-1.72-.03-.92.6-1.68 1.55-1.86.66-.12 1.32-.08 2.01-.1v-4.8c-2.43.68-4.85 1.36-7.27 2.04v5.39c0 .2-.04.39-.1.58-.33.88-1.12 1.34-2.02 1.18-.94-.17-1.57-.88-1.58-1.78-.02-.91.64-1.68 1.58-1.83.67-.11 1.32-.08 2.01-.1v-7.39c0-.46.33-.8.78-.92 2.67-.74 5.34-1.49 8.01-2.24.4-.11.75.12.75.54v10.37z" />
-                      </svg>
-                      <span className="service-title">Apple Music</span>
-                    </div>
-                    <span className="track-badge-soon">
-                      {language === 'vi' ? 'Sắp có' : 'Coming soon'}
-                    </span>
-                  </div>
-
-                  {/* Dòng YouTube: bấm để mở ô dán link YouTube để phát audio trong app */}
-                  <div className={`music-youtube-accordion ${isYtExpanded || isYtPlaying || ytActiveUrl ? 'expanded' : ''}`}>
-                    <button
-                      type="button"
-                      className="music-service-row youtube-trigger"
-                      onClick={() => setIsYtExpanded((prev) => !prev)}
-                    >
-                      <div className="service-info-left">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="#FF0000">
-                          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                        </svg>
-                        <span className="service-title">YouTube</span>
-                        {isYtPlaying && (
-                          <span className="yt-dot-live" title={language === 'vi' ? 'Đang phát' : 'Playing'} />
-                        )}
-                      </div>
-                      <ChevronDown
-                        size={15}
-                        className={`yt-expand-arrow ${isYtExpanded || isYtPlaying || ytActiveUrl ? 'open' : ''}`}
-                      />
-                    </button>
-
-                    {/* Expandable YouTube Input Drawer */}
-                    {(isYtExpanded || isYtPlaying || ytActiveUrl) && (
-                      <div className="yt-input-drawer">
-                        <div className="yt-field-row">
-                          <input
-                            type="text"
-                            className="yt-input-compact"
-                            placeholder={
-                              language === 'vi'
-                                ? 'Dán link YouTube...'
-                                : 'Paste YouTube link...'
-                            }
-                            value={ytInputUrl}
-                            onChange={(e) => {
-                              setYtInputUrl(e.target.value);
-                              if (ytError) setYtError(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                handleToggleYtPlay();
-                              }
-                            }}
-                          />
-                          {ytInputUrl && (
-                            <button
-                              type="button"
-                              className="yt-clear-compact-btn"
-                              onClick={handleClearYt}
-                              title={language === 'vi' ? 'Xóa' : 'Clear'}
-                            >
-                              <X size={12} />
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            className={`yt-play-compact-btn ${isYtPlaying ? 'playing' : ''}`}
-                            onClick={handleToggleYtPlay}
-                            title={isYtPlaying ? 'Tạm dừng' : 'Phát'}
-                          >
-                            {isYtPlaying ? (
-                              <Pause size={12} fill="currentColor" />
-                            ) : (
-                              <Play size={12} fill="currentColor" className="ml-0.5" />
-                            )}
-                          </button>
-                        </div>
-
-                        {(ytTitle || isFetchingTitle) && (
-                          <div className="yt-title-compact">
-                            <Radio size={12} className={isYtPlaying ? 'animate-pulse text-red-500' : ''} />
-                            <span className="yt-title-text" title={ytTitle || ''}>
-                              {isFetchingTitle ? '...' : ytTitle}
-                            </span>
-                          </div>
-                        )}
-
-                        {ytError && (
-                          <div className="yt-error-compact">
-                            <AlertCircle size={12} />
-                            <span>{ytError}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
