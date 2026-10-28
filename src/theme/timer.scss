@@ -12,6 +12,93 @@
   }
 }
 
+.timer-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.timer-top-right-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  z-index: 10;
+
+  .timer-current-time-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #F8FAFC;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+
+    .time-icon {
+      color: rgba(255, 255, 255, 0.6);
+      flex-shrink: 0;
+    }
+  }
+
+  .timer-fullscreen-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #CBD5E1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeInDropdown 0.2s ease;
+
+    &:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  @media (max-width: 480px) {
+    gap: 6px;
+
+    .timer-current-time-badge {
+      padding: 4px 8px;
+      font-size: 0.74rem;
+
+      .time-icon {
+        display: none;
+      }
+    }
+
+    .timer-fullscreen-btn {
+      width: 28px;
+      height: 28px;
+    }
+  }
+}
+
 .timer-page-wrapper {
   max-width: 520px;
   margin: 0 auto;
@@ -1655,6 +1742,30 @@
 // ==========================================
 html:not(.dark):not(.ion-palette-dark),
 body:not(.dark):not(.ion-palette-dark) {
+  .timer-top-right-bar {
+    .timer-current-time-badge {
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: rgba(0, 0, 0, 0.04);
+      color: #0F172A;
+
+      .time-icon {
+        color: #64748B;
+      }
+    }
+
+    .timer-fullscreen-btn {
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.04);
+      color: #334155;
+
+      &:hover {
+        color: #0F172A;
+        background: rgba(0, 0, 0, 0.08);
+        border-color: rgba(0, 0, 0, 0.18);
+      }
+    }
+  }
+
   .theme-modal-backdrop {
     background: transparent;
     backdrop-filter: none;

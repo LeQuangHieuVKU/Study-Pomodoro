@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   IonPage,
   IonContent,
@@ -20,6 +20,9 @@ import {
   Palette,
   BarChart2,
   Settings,
+  Clock,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import { TimerDisplay } from '../components/TimerDisplay';
 import { MotivationalQuote } from '../components/MotivationalQuote';
@@ -145,56 +148,140 @@ export const TimerPage: React.FC<TimerPageProps> = ({
 
   const isPiPActive = !!pipWindow || isInPageFloating;
 
+  // Đồng hồ giờ hệ thống cập nhật mỗi giây
+  const [currentTime, setCurrentTime] = useState<Date>(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedCurrentTime = useMemo(() => {
+    return currentTime.toLocaleTimeString(language === 'vi' ? 'vi-VN' : 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: language !== 'vi',
+    });
+  }, [currentTime, language]);
+
+  // Quản lý Fullscreen API
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        } else if ((document.documentElement as any).webkitRequestFullscreen) {
+          await (document.documentElement as any).webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        }
+      }
+    } catch (err) {
+      console.warn('Fullscreen toggle failed:', err);
+    }
+  }, []);
+
   // Hiện nút Đặt lại khi đã bấm Bắt đầu (timer đang chạy hoặc đã từng chạy trong phiên), ẩn khi ở trạng thái ban đầu
   const canReset = status !== 'idle' || timeLeft < totalSeconds;
+
+  // Nút Fullscreen chỉ hiện khi timer đã Bắt đầu (đang chạy hoặc đang tạm dừng), ẩn khi idle
+  const canFullscreen = status !== 'idle';
 
   return (
     <IonPage className="timer-page-root">
 
       <IonHeader className="ion-no-border app-header">
         <IonToolbar className="app-toolbar">
-          <div className="header-brand-container">
-            <div className="brand-logo-mark">
-              <Timer size={18} className="brand-logo-icon" />
-            </div>
-            <div className="brand-text-block">
-              {isEditingTitle ? (
-                <input
-                  type="text"
-                  className="brand-title-input"
-                  value={titleDraft}
-                  autoFocus
-                  onChange={(e) => setTitleDraft(e.target.value)}
-                  onBlur={handleSaveTitle}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveTitle();
-                    if (e.key === 'Escape') {
-                      setTitleDraft(appTitle);
-                      setIsEditingTitle(false);
-                    }
-                  }}
-                  maxLength={40}
-                  aria-label="Tên ứng dụng"
-                />
-              ) : (
-                <span
-                  className="brand-title brand-title-editable"
-                  onClick={() => {
-                    setTitleDraft(appTitle);
-                    setIsEditingTitle(true);
-                  }}
-                  title={language === 'vi' ? 'Bấm để đổi tên' : 'Click to edit title'}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+          <div className="timer-header-inner">
+            <div className="header-brand-container">
+              <div className="brand-logo-mark">
+                <Timer size={18} className="brand-logo-icon" />
+              </div>
+              <div className="brand-text-block">
+                {isEditingTitle ? (
+                  <input
+                    type="text"
+                    className="brand-title-input"
+                    value={titleDraft}
+                    autoFocus
+                    onChange={(e) => setTitleDraft(e.target.value)}
+                    onBlur={handleSaveTitle}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveTitle();
+                      if (e.key === 'Escape') {
+                        setTitleDraft(appTitle);
+                        setIsEditingTitle(false);
+                      }
+                    }}
+                    maxLength={40}
+                    aria-label="Tên ứng dụng"
+                  />
+                ) : (
+                  <span
+                    className="brand-title brand-title-editable"
+                    onClick={() => {
                       setTitleDraft(appTitle);
                       setIsEditingTitle(true);
-                    }
-                  }}
+                    }}
+                    title={language === 'vi' ? 'Bấm để đổi tên' : 'Click to edit title'}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setTitleDraft(appTitle);
+                        setIsEditingTitle(true);
+                      }
+                    }}
+                  >
+                    {appTitle}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Top Right: Giờ hiện tại & Nút Phóng to (Fullscreen) */}
+            <div className="timer-top-right-bar">
+              <div
+                className="timer-current-time-badge"
+                title={language === 'vi' ? 'Giờ hệ thống' : 'Current time'}
+              >
+                <Clock size={13} className="time-icon" />
+                <span className="time-text">{formattedCurrentTime}</span>
+              </div>
+
+              {canFullscreen && (
+                <button
+                  type="button"
+                  className="timer-fullscreen-btn"
+                  onClick={toggleFullscreen}
+                  title={
+                    isFullscreen
+                      ? (language === 'vi' ? 'Thu nhỏ toàn màn hình (Esc)' : 'Exit fullscreen (Esc)')
+                      : (language === 'vi' ? 'Toàn màn hình' : 'Fullscreen')
+                  }
+                  aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
                 >
-                  {appTitle}
-                </span>
+                  {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                </button>
               )}
             </div>
           </div>
