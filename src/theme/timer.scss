@@ -31,23 +31,31 @@
   .timer-current-time-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 10px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
     color: #F8FAFC;
-    font-size: 0.8rem;
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.92rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
+    line-height: 1;
     transition: all 0.2s ease;
 
     .time-icon {
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(255, 255, 255, 0.65);
       flex-shrink: 0;
+    }
+
+    .time-text {
+      font-family: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 600;
     }
   }
 

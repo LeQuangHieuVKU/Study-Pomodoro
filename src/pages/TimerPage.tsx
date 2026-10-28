@@ -113,17 +113,38 @@ export const TimerPage: React.FC<TimerPageProps> = ({
   };
 
 
+  const pipWindowRef = useRef<Window | null>(null);
+  const userClosedPiPRef = useRef(false);
+  const statusRef = useRef(status);
+
+  useEffect(() => {
+    statusRef.current = status;
+    // Khi timer ở trạng thái ban đầu (idle), reset lại flag đóng thủ công cho phiên tiếp theo
+    if (status === 'idle') {
+      userClosedPiPRef.current = false;
+    }
+  }, [status]);
+
+  useEffect(() => {
+    pipWindowRef.current = pipWindow;
+  }, [pipWindow]);
+
   // Hẹn giờ nổi (Document Picture-in-Picture API + fallback in-page mini panel)
   const togglePiP = useCallback(async () => {
     if (pipWindow) {
+      userClosedPiPRef.current = true;
       pipWindow.close();
       setPipWindow(null);
+      pipWindowRef.current = null;
       return;
     }
     if (isInPageFloating) {
+      userClosedPiPRef.current = true;
       setIsInPageFloating(false);
       return;
     }
+
+    userClosedPiPRef.current = false;
 
     // Ưu tiên Document Picture-in-Picture API (Chrome/Edge hỗ trợ)
     if (typeof window !== 'undefined' && 'documentPictureInPicture' in window) {
@@ -134,8 +155,11 @@ export const TimerPage: React.FC<TimerPageProps> = ({
         });
         win.addEventListener('pagehide', () => {
           setPipWindow(null);
+          pipWindowRef.current = null;
+          userClosedPiPRef.current = true;
         });
         setPipWindow(win);
+        pipWindowRef.current = win;
         return;
       } catch (err) {
         console.warn('Document Picture-in-Picture error, fallback:', err);
@@ -145,6 +169,47 @@ export const TimerPage: React.FC<TimerPageProps> = ({
     // Fallback: panel mini nổi trong trang
     setIsInPageFloating(true);
   }, [pipWindow, isInPageFloating]);
+
+  // Tự động mở Document Picture-in-Picture khi rời tab và Focus/phiên đang chạy
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      // Chỉ kích hoạt khi tab bị ẩn
+      if (!document.hidden) return;
+
+      // Chỉ kích hoạt khi timer đang chạy thực sự
+      if (statusRef.current !== 'running') return;
+
+      // Không mở nếu PiP đã đang mở
+      if (pipWindowRef.current || isInPageFloating) return;
+
+      // Không mở lại nếu user đã chủ động đóng PiP trong phiên này
+      if (userClosedPiPRef.current) return;
+
+      if (typeof window !== 'undefined' && 'documentPictureInPicture' in window) {
+        try {
+          const win = await (window as any).documentPictureInPicture.requestWindow({
+            width: 250,
+            height: 310,
+          });
+          win.addEventListener('pagehide', () => {
+            setPipWindow(null);
+            pipWindowRef.current = null;
+            userClosedPiPRef.current = true;
+          });
+          setPipWindow(win);
+          pipWindowRef.current = win;
+        } catch (err) {
+          // Trình duyệt không cấp quyền auto-open không gesture hoặc không hỗ trợ -> fail safe không crash
+          console.warn('Auto Document PiP skipped (gesture required or not permitted):', err);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isInPageFloating]);
 
   const isPiPActive = !!pipWindow || isInPageFloating;
 
