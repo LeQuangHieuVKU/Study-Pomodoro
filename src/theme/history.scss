@@ -1,216 +1,511 @@
-.history-page-root {
-  background: transparent;
-}
+// ==========================================
+// STATISTICS & HISTORY PANEL
+// ==========================================
 
-.history-content-area {
-  --background: transparent;
-}
+.history-modal-card {
+  width: min(460px, calc(100vw - 105px));
+  max-width: 460px;
+  max-height: min(680px, calc(100vh - 30px));
 
-.history-page-wrapper {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 16px 20px 40px 20px;
-}
-
-.section-label-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
-
-  &.mt-6 {
-    margin-top: 24px;
-  }
-}
-
-.section-label-text {
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-transform: none;
-  letter-spacing: normal;
-  color: var(--text-muted);
-}
-
-// KPI Grid
-.stats-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.kpi-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 18px;
-  padding: 16px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  box-shadow: var(--card-shadow);
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-
-  .kpi-icon-wrap {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
+  .header-icon-btn.btn-danger-subtle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.1);
+    color: #EF4444;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.18s ease;
 
-    &.icon-indigo {
-      background: rgba(99, 102, 241, 0.12);
-      color: var(--color-indigo);
+    &:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      transform: scale(1.05);
     }
-    &.icon-cyan {
-      background: rgba(6, 182, 212, 0.12);
-      color: var(--color-cyan);
-    }
-    &.icon-emerald {
-      background: rgba(16, 185, 129, 0.12);
-      color: var(--color-emerald);
-    }
-  }
 
-  .kpi-value {
-    font-size: 1.45rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    color: var(--text-main);
-    line-height: 1.1;
-    margin-bottom: 4px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .kpi-title {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    letter-spacing: -0.01em;
+    &:active {
+      transform: scale(0.95);
+    }
   }
 }
 
-// Milestone Banner
-.milestone-banner {
-  margin-top: 16px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(6, 182, 212, 0.08));
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  border-radius: 16px;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  .milestone-icon {
-    color: var(--color-indigo);
-    flex-shrink: 0;
-  }
-
-  .milestone-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .milestone-title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-main);
-  }
-
-  .milestone-sub {
-    font-size: 0.76rem;
-    color: var(--text-muted);
-  }
-}
-
-// Timeline
-.session-timeline-list {
+.history-modal-body {
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+  }
 }
 
-.timeline-session-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+// 1. Period Selector Tabs
+.stats-period-tabs {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 3px;
+  gap: 3px;
+  width: 100%;
+  box-sizing: border-box;
+
+  .period-tab-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #94A3B8;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+    text-align: center;
+    white-space: nowrap;
+
+    &:hover:not(.active) {
+      color: #E2E8F0;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+  }
+}
+
+// 2. 4 Metric KPI Cards (2x2 Grid)
+.stats-kpi-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 380px) {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-kpi-card {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+    transition: transform 0.16s ease, border-color 0.16s ease;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-1px);
+    }
+
+    .kpi-top-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      .kpi-icon-pill {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.06);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .kpi-label {
+        font-size: 0.74rem;
+        font-weight: 600;
+        color: #94A3B8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .kpi-big-num {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #F8FAFC;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+  }
+}
+
+// 3. Khối biểu đồ cột
+.stats-chart-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 14px 16px;
   display: flex;
-  align-items: center;
-  gap: 14px;
-  box-shadow: var(--card-shadow);
-  transition: transform 0.2s ease;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
 
-  &:hover {
-    transform: translateX(3px);
-  }
-
-  .timeline-indicator {
+  .chart-header-row {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    position: relative;
+    justify-content: space-between;
+    gap: 10px;
 
-    .indicator-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
+    .chart-nav-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
 
-      &.dot-focus {
-        background: var(--color-indigo);
-        box-shadow: none;
+      .chart-nav-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: #CBD5E1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.16s ease;
+
+        &:hover:not(:disabled) {
+          color: #FFFFFF;
+          background: rgba(255, 255, 255, 0.14);
+          border-color: rgba(255, 255, 255, 0.22);
+          transform: scale(1.06);
+        }
+
+        &:disabled {
+          opacity: 0.25;
+          cursor: not-allowed;
+        }
       }
-      &.dot-break {
-        background: var(--color-emerald);
-        box-shadow: none;
+
+      .chart-period-label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #F8FAFC;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+      }
+    }
+
+    .chart-total-time-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #94A3B8;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 3px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+
+      .total-time-value {
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
       }
     }
   }
 
-  .session-info-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .session-headline {
+  // Tooltip helper row
+  .chart-tooltip-bar {
+    min-height: 20px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    font-size: 0.73rem;
+
+    .tooltip-active-text {
+      color: #F8FAFC;
+      font-weight: 500;
+      animation: fadeInDropdown 0.15s ease;
+    }
+
+    .tooltip-idle-text {
+      color: #64748B;
+      font-style: normal;
+    }
   }
 
-  .session-type-name {
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: var(--text-main);
+  // Stage: Gridlines + Bars
+  .chart-stage {
+    position: relative;
+    height: 155px;
+    width: 100%;
+    margin-top: 4px;
+    box-sizing: border-box;
+
+    .chart-gridlines {
+      position: absolute;
+      inset: 0 0 20px 0; // leave bottom 20px for X-labels
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 1;
+
+      .grid-line {
+        position: relative;
+        width: 100%;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
+
+        &.bottom {
+          border-bottom-style: solid;
+          border-bottom-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .grid-label {
+          position: absolute;
+          right: 0;
+          bottom: 2px;
+          font-size: 0.65rem;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.28);
+          font-variant-numeric: tabular-nums;
+        }
+      }
+    }
+
+    .chart-bars-wrap {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      z-index: 2;
+      box-sizing: border-box;
+
+      &.mode-today {
+        gap: 2px;
+      }
+      &.mode-week {
+        gap: 8px;
+      }
+      &.mode-month {
+        gap: 2px;
+      }
+
+      .chart-col-item {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        cursor: pointer;
+        min-width: 0;
+
+        .chart-bar-track {
+          flex: 1;
+          width: 100%;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          padding-bottom: 2px;
+          box-sizing: border-box;
+
+          .chart-bar-fill {
+            width: 70%;
+            max-width: 18px;
+            border-radius: 3px 3px 0 0;
+            transition: height 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s ease;
+          }
+        }
+
+        &:hover,
+        &.hovered {
+          .chart-bar-track .chart-bar-fill {
+            transform: scaleY(1.04);
+            filter: brightness(1.2);
+          }
+
+          .chart-x-label-slot .chart-x-label {
+            color: #FFFFFF;
+            font-weight: 700;
+          }
+        }
+
+        .chart-x-label-slot {
+          height: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+
+          .chart-x-label {
+            font-size: 0.66rem;
+            font-weight: 600;
+            color: #64748B;
+            white-space: nowrap;
+            letter-spacing: -0.02em;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ==========================================
+// LIGHT MODE: STATISTICS & HISTORY
+// ==========================================
+html:not(.dark):not(.ion-palette-dark),
+body:not(.dark):not(.ion-palette-dark) {
+  .history-modal-card {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: #0F172A;
   }
 
-  .session-badge {
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 6px;
-    background: var(--bg-card-subtle);
-    color: var(--text-muted);
-    font-variant-numeric: tabular-nums;
+  .history-modal-body {
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+    }
   }
 
-  .session-meta-time {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    color: var(--text-subtle);
+  .stats-period-tabs {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.07);
 
-    .bullet-sep {
-      opacity: 0.5;
+    .period-tab-btn {
+      color: #64748B;
+
+      &:hover:not(.active) {
+        color: #0F172A;
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      &.active {
+        background: #FFFFFF;
+        color: #0F172A;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      }
+    }
+  }
+
+  .stats-kpi-grid-4 {
+    .stats-kpi-card {
+      background: rgba(0, 0, 0, 0.025);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.045);
+        border-color: rgba(0, 0, 0, 0.14);
+      }
+
+      .kpi-top-row {
+        .kpi-icon-pill {
+          background: rgba(0, 0, 0, 0.05);
+        }
+
+        .kpi-label {
+          color: #64748B;
+        }
+      }
+
+      .kpi-big-num {
+        color: #0F172A;
+      }
+    }
+  }
+
+  .stats-chart-card {
+    background: rgba(0, 0, 0, 0.025);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+
+    .chart-header-row {
+      .chart-nav-group {
+        .chart-nav-btn {
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          background: rgba(0, 0, 0, 0.04);
+          color: #334155;
+
+          &:hover:not(:disabled) {
+            color: #0F172A;
+            background: rgba(0, 0, 0, 0.08);
+            border-color: rgba(0, 0, 0, 0.16);
+          }
+        }
+
+        .chart-period-label {
+          color: #0F172A;
+        }
+      }
+
+      .chart-total-time-badge {
+        background: rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        color: #64748B;
+      }
+    }
+
+    .chart-tooltip-bar {
+      .tooltip-active-text {
+        color: #0F172A;
+      }
+      .tooltip-idle-text {
+        color: #94A3B8;
+      }
+    }
+
+    .chart-stage {
+      .chart-gridlines {
+        .grid-line {
+          border-bottom-color: rgba(0, 0, 0, 0.06);
+
+          &.bottom {
+            border-bottom-color: rgba(0, 0, 0, 0.12);
+          }
+
+          .grid-label {
+            color: rgba(0, 0, 0, 0.35);
+          }
+        }
+      }
+
+      .chart-bars-wrap {
+        .chart-col-item {
+          .chart-bar-track .chart-bar-fill {
+            background-color: rgba(0, 0, 0, 0.08);
+          }
+
+          .chart-x-label-slot .chart-x-label {
+            color: #64748B;
+          }
+
+          &:hover,
+          &.hovered {
+            .chart-x-label-slot .chart-x-label {
+              color: #0F172A;
+            }
+          }
+        }
+      }
     }
   }
 }

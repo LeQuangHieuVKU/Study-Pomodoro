@@ -431,6 +431,7 @@ export const useNotes = () => {
         labels: singleLabel,
         createdAt: now,
         updatedAt: now,
+        completedAt: status === 'completed' ? now : undefined,
       };
       const updated = [newNote, ...notes];
       await saveNotes(updated);
@@ -462,6 +463,10 @@ export const useNotes = () => {
               dueDate: dueDate || null,
               labels: singleLabel,
               updatedAt: new Date().toISOString(),
+              completedAt:
+                status === 'completed'
+                  ? (note.status === 'completed' && note.completedAt ? note.completedAt : new Date().toISOString())
+                  : undefined,
             }
           : note
       );

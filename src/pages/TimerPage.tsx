@@ -440,6 +440,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({
             sessions={sessions}
             todayStats={todayStats}
             onClearHistory={onClearHistory}
+            accentColor={settings.accentColor}
           />
         </React.Suspense>
       )}

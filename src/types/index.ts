@@ -30,6 +30,7 @@ export interface NoteItemType {
   labels: string[];
   createdAt: string;
   updatedAt: string;
+  completedAt?: string;
   tag?: NoteTag;
 }
 export type AppLanguage = 'vi' | 'en';

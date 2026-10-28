@@ -119,6 +119,21 @@ export const useHistory = () => {
     };
 
     syncWithStorage();
+
+    const handleSyncEvent = () => {
+      syncWithStorage();
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('study_pomodoro_history_changed', handleSyncEvent);
+      window.addEventListener('storage', handleSyncEvent);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('study_pomodoro_history_changed', handleSyncEvent);
+        window.removeEventListener('storage', handleSyncEvent);
+      }
+    };
   }, []);
 
   // Add a newly completed session (called when timer countdown hits 00:00)
@@ -172,6 +187,10 @@ export const useHistory = () => {
         return nextStats;
       });
 
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('study_pomodoro_history_changed'));
+      }
+
       return newSession;
     },
     []
@@ -201,6 +220,10 @@ export const useHistory = () => {
       Preferences.set({ key: HISTORY_KEY, value: JSON.stringify([]) }),
       Preferences.set({ key: DAILY_STATS_KEY, value: JSON.stringify(emptyStats) }),
     ]);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('study_pomodoro_history_changed'));
+    }
   }, []);
 
   return {
