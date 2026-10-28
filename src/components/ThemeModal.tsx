@@ -11,7 +11,6 @@ import {
   Waves,
   Sun,
   Moon,
-  Image as ImageIcon,
 } from 'lucide-react';
 import type { AppSettings, BackgroundEffectType } from '../types';
 import { PRESET_ACCENT_COLORS, PRESET_BG_IMAGES } from '../data/themePresets';
@@ -58,44 +57,37 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
   const ambientEffects: {
     key: BackgroundEffectType;
     label: string;
-    desc: string;
     icon: React.ReactNode;
   }[] = [
     {
       key: 'none',
       label: language === 'vi' ? 'Tắt' : 'Off',
-      desc: language === 'vi' ? 'Không dùng hiệu ứng chuyển động' : 'No ambient motion',
-      icon: <Ban size={18} />,
+      icon: <Ban size={16} />,
     },
     {
       key: 'particles',
       label: language === 'vi' ? 'Hạt bụi' : 'Motes',
-      desc: language === 'vi' ? 'Đom đóm & hạt bụi lơ lửng' : 'Floating dust motes & particles',
-      icon: <Sparkles size={18} />,
+      icon: <Sparkles size={16} />,
     },
     {
       key: 'stars',
       label: language === 'vi' ? 'Sao đêm' : 'Stars',
-      desc: language === 'vi' ? 'Bầu trời sao đêm lấp lánh' : 'Twinkling night sky stars',
-      icon: <Star size={18} />,
+      icon: <Star size={16} />,
     },
     {
       key: 'rain',
       label: language === 'vi' ? 'Mưa rơi' : 'Rain',
-      desc: language === 'vi' ? 'Mưa rơi êm dịu sâu lắng' : 'Calming falling raindrops',
-      icon: <CloudRain size={18} />,
+      icon: <CloudRain size={16} />,
     },
     {
       key: 'bubbles',
       label: language === 'vi' ? 'Bong bóng' : 'Bubbles',
-      desc: language === 'vi' ? 'Bong bóng nổi bồng bềnh' : 'Gentle floating air bubbles',
-      icon: <CircleDot size={18} />,
+      icon: <CircleDot size={16} />,
     },
     {
       key: 'wave',
       label: language === 'vi' ? 'Gợn sóng' : 'Waves',
-      desc: language === 'vi' ? 'Gợn sóng nước thư giãn' : 'Relaxing harmonic ripples',
-      icon: <Waves size={18} />,
+      icon: <Waves size={16} />,
     },
   ];
 
@@ -113,21 +105,14 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
 
         {/* Modal Header */}
         <div className="theme-modal-header">
-          <div className="theme-modal-title-group">
-            <h2 className="theme-modal-title">{language === 'vi' ? 'Giao diện' : 'Theme'}</h2>
-            <p className="theme-modal-subtitle">
-              {language === 'vi'
-                ? 'Tùy chỉnh không gian học tập và làm việc'
-                : 'Customize your study space and atmosphere'}
-            </p>
-          </div>
+          <h2 className="theme-modal-title">{language === 'vi' ? 'Giao diện' : 'Theme'}</h2>
           <button
             type="button"
             className="theme-modal-close-btn"
             onClick={onClose}
             aria-label={language === 'vi' ? 'Đóng' : 'Close'}
           >
-            <X size={19} />
+            <X size={18} />
           </button>
         </div>
 
@@ -144,7 +129,7 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
                 className={`quick-mode-pill ${!settings.darkMode ? 'active' : ''}`}
                 onClick={() => onUpdateSetting('darkMode', false)}
               >
-                <Sun size={15} />
+                <Sun size={14} />
                 <span>{language === 'vi' ? 'Sáng' : 'Light'}</span>
               </button>
               <button
@@ -152,23 +137,18 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
                 className={`quick-mode-pill ${settings.darkMode ? 'active' : ''}`}
                 onClick={() => onUpdateSetting('darkMode', true)}
               >
-                <Moon size={15} />
+                <Moon size={14} />
                 <span>{language === 'vi' ? 'Tối' : 'Dark'}</span>
               </button>
             </div>
           </div>
 
-          {/* SECTION A: BACKGROUND */}
+          {/* SECTION: BACKGROUND */}
           <div className="theme-section">
             <div className="theme-section-header">
               <h3 className="theme-section-title">
-                {language === 'vi' ? 'A. Hình nền' : 'A. Background'}
+                {language === 'vi' ? 'Ảnh nền' : 'Background'}
               </h3>
-              <span className="theme-section-hint">
-                {language === 'vi'
-                  ? 'Chọn không gian hoặc tải ảnh cá nhân'
-                  : 'Choose scenery wallpapers or upload your own'}
-              </span>
             </div>
 
             <div className="theme-bg-grid">
@@ -269,7 +249,7 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <div className="bg-card-preview bg-upload-preview">
-                    <Upload size={22} className="upload-icon" />
+                    <Upload size={20} className="upload-icon" />
                     <span className="upload-label">
                       {language === 'vi' ? 'Tải ảnh lên' : 'Upload photo'}
                     </span>
@@ -284,17 +264,12 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
             </div>
           </div>
 
-          {/* SECTION B: ACCENT COLOR */}
+          {/* SECTION: ACCENT COLOR */}
           <div className="theme-section">
             <div className="theme-section-header">
               <h3 className="theme-section-title">
-                {language === 'vi' ? 'B. Màu nhấn' : 'B. Accent Color'}
+                {language === 'vi' ? 'Màu nhấn' : 'Accent Color'}
               </h3>
-              <span className="theme-section-hint">
-                {language === 'vi'
-                  ? 'Đổi màu nút bấm và chi tiết trên toàn bộ ứng dụng'
-                  : 'Customize button highlights across the application'}
-              </span>
             </div>
 
             <div className="theme-accent-row">
@@ -323,17 +298,12 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
             </div>
           </div>
 
-          {/* SECTION C: AMBIENT EFFECT */}
+          {/* SECTION: AMBIENT EFFECT */}
           <div className="theme-section">
             <div className="theme-section-header">
               <h3 className="theme-section-title">
-                {language === 'vi' ? 'C. Hiệu ứng nền' : 'C. Ambient Effect'}
+                {language === 'vi' ? 'Hiệu ứng nền' : 'Ambient Effect'}
               </h3>
-              <span className="theme-section-hint">
-                {language === 'vi'
-                  ? 'Hiệu ứng chuyển động nền giúp tăng độ tập trung'
-                  : 'Atmospheric visual effects to enhance focus'}
-              </span>
             </div>
 
             <div className="theme-effects-grid">
@@ -352,10 +322,7 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
                     >
                       {eff.icon}
                     </div>
-                    <div className="effect-text-block">
-                      <span className="effect-title">{eff.label}</span>
-                      <span className="effect-desc">{eff.desc}</span>
-                    </div>
+                    <span className="effect-title">{eff.label}</span>
                     {isSelected && (
                       <span className="effect-check" style={{ backgroundColor: settings.accentColor }}>
                         <Check size={12} strokeWidth={3} />
@@ -371,4 +338,5 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
     </div>
   );
 };
+
 export default ThemeModal;
