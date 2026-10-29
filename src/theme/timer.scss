@@ -24,49 +24,29 @@
 .timer-top-right-bar {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   user-select: none;
   z-index: 10;
 
-  .timer-current-time-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-    color: #F8FAFC;
+  .timer-current-time-text {
     font-family: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 0.92rem;
+    font-size: 1.05rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
     line-height: 1;
-    transition: all 0.2s ease;
-
-    .time-icon {
-      color: rgba(255, 255, 255, 0.65);
-      flex-shrink: 0;
-    }
-
-    .time-text {
-      font-family: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
-      font-weight: 600;
-    }
+    color: #F8FAFC;
+    transition: color 0.2s ease;
   }
 
   .timer-fullscreen-btn {
     width: 32px;
     height: 32px;
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     color: #CBD5E1;
     display: inline-flex;
     align-items: center;
@@ -89,15 +69,10 @@
   }
 
   @media (max-width: 480px) {
-    gap: 6px;
+    gap: 8px;
 
-    .timer-current-time-badge {
-      padding: 4px 8px;
-      font-size: 0.74rem;
-
-      .time-icon {
-        display: none;
-      }
+    .timer-current-time-text {
+      font-size: 0.88rem;
     }
 
     .timer-fullscreen-btn {
@@ -631,7 +606,7 @@
   }
 }
 
-// Bottom-Left "Giới thiệu" Pill / Chip Button
+// Bottom-Left "Giới thiệu" Flat Text Button
 .timer-about-chip {
   position: fixed;
   bottom: 28px;
@@ -640,40 +615,38 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: #334155;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  padding: 4px 6px;
+  border-radius: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: #94A3B8;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
   cursor: pointer;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.2s ease, color 0.2s ease;
   user-select: none;
   outline: none;
 
   &:hover {
-    color: var(--color-indigo, #6366F1);
-    background: rgba(255, 255, 255, 0.75);
-    border-color: rgba(99, 102, 241, 0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    color: #FFFFFF;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    opacity: 1;
   }
 
   &:active {
-    transform: scale(0.94);
+    opacity: 0.7;
   }
 
   @media (max-width: 640px) {
-    bottom: 20px;
+    bottom: 18px;
     left: 14px;
-    padding: 6px 12px;
-    font-size: 0.7rem;
+    font-size: 0.76rem;
   }
 }
 
@@ -765,17 +738,18 @@
   }
 
   .timer-about-chip {
-    background: rgba(18, 24, 38, 0.45) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    color: #E2E8F0 !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    color: #94A3B8 !important;
 
     &:hover {
       color: #FFFFFF !important;
-      background: rgba(30, 41, 59, 0.75) !important;
-      border-color: rgba(99, 102, 241, 0.5) !important;
+      background: transparent !important;
+      border: none !important;
+      text-decoration: underline;
     }
   }
 }
@@ -1751,14 +1725,8 @@
 html:not(.dark):not(.ion-palette-dark),
 body:not(.dark):not(.ion-palette-dark) {
   .timer-top-right-bar {
-    .timer-current-time-badge {
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      background: rgba(0, 0, 0, 0.04);
+    .timer-current-time-text {
       color: #0F172A;
-
-      .time-icon {
-        color: #64748B;
-      }
     }
 
     .timer-fullscreen-btn {
@@ -1771,6 +1739,15 @@ body:not(.dark):not(.ion-palette-dark) {
         background: rgba(0, 0, 0, 0.08);
         border-color: rgba(0, 0, 0, 0.18);
       }
+    }
+  }
+
+  .timer-about-chip {
+    color: #64748B !important;
+
+    &:hover {
+      color: #0F172A !important;
+      text-decoration: underline;
     }
   }
 
@@ -2503,6 +2480,21 @@ body:not(.dark) .motivational-quote-card {
       background: transparent !important;
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
+    }
+
+    .timer-top-right-bar .timer-current-time-text {
+      color: #FFFFFF !important;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 2px rgba(0, 0, 0, 0.8) !important;
+    }
+
+    .timer-about-chip {
+      color: rgba(255, 255, 255, 0.9) !important;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9) !important;
+
+      &:hover {
+        color: #FFFFFF !important;
+        text-decoration: underline;
+      }
     }
   }
 

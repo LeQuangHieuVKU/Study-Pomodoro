@@ -20,7 +20,6 @@ import {
   Palette,
   BarChart2,
   Settings,
-  Clock,
   Maximize2,
   Minimize2,
 } from 'lucide-react';
@@ -115,6 +114,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({
 
   const pipWindowRef = useRef<Window | null>(null);
   const userClosedPiPRef = useRef(false);
+  const isAutoClosingPiPRef = useRef(false);
   const statusRef = useRef(status);
 
   useEffect(() => {
@@ -133,7 +133,13 @@ export const TimerPage: React.FC<TimerPageProps> = ({
   const togglePiP = useCallback(async () => {
     if (pipWindow) {
       userClosedPiPRef.current = true;
-      pipWindow.close();
+      try {
+        if (!pipWindow.closed) {
+          pipWindow.close();
+        }
+      } catch (e) {
+        console.warn('Safe catch closing PiP:', e);
+      }
       setPipWindow(null);
       pipWindowRef.current = null;
       return;
@@ -156,7 +162,9 @@ export const TimerPage: React.FC<TimerPageProps> = ({
         win.addEventListener('pagehide', () => {
           setPipWindow(null);
           pipWindowRef.current = null;
-          userClosedPiPRef.current = true;
+          if (!isAutoClosingPiPRef.current) {
+            userClosedPiPRef.current = true;
+          }
         });
         setPipWindow(win);
         pipWindowRef.current = win;
@@ -170,13 +178,28 @@ export const TimerPage: React.FC<TimerPageProps> = ({
     setIsInPageFloating(true);
   }, [pipWindow, isInPageFloating]);
 
-  // Tự động mở Document Picture-in-Picture khi rời tab và Focus/phiên đang chạy
+  // Tự động mở Document Picture-in-Picture khi rời tab và tự đóng khi quay lại tab
   useEffect(() => {
     const handleVisibilityChange = async () => {
-      // Chỉ kích hoạt khi tab bị ẩn
-      if (!document.hidden) return;
+      // 1. Khi quay lại tab StudyPomodoro (tab visible) -> tự động đóng PiP an toàn
+      if (!document.hidden) {
+        if (pipWindowRef.current) {
+          try {
+            if (!pipWindowRef.current.closed) {
+              isAutoClosingPiPRef.current = true;
+              pipWindowRef.current.close();
+            }
+          } catch (err) {
+            console.warn('Safe catch closing PiP on tab return:', err);
+          }
+          setPipWindow(null);
+          pipWindowRef.current = null;
+          isAutoClosingPiPRef.current = false;
+        }
+        return;
+      }
 
-      // Chỉ kích hoạt khi timer đang chạy thực sự
+      // 2. Khi tab bị ẩn (rời tab) và timer đang chạy -> tự mở Document PiP
       if (statusRef.current !== 'running') return;
 
       // Không mở nếu PiP đã đang mở
@@ -194,7 +217,9 @@ export const TimerPage: React.FC<TimerPageProps> = ({
           win.addEventListener('pagehide', () => {
             setPipWindow(null);
             pipWindowRef.current = null;
-            userClosedPiPRef.current = true;
+            if (!isAutoClosingPiPRef.current) {
+              userClosedPiPRef.current = true;
+            }
           });
           setPipWindow(win);
           pipWindowRef.current = win;
@@ -325,13 +350,12 @@ export const TimerPage: React.FC<TimerPageProps> = ({
 
             {/* Top Right: Giờ hiện tại & Nút Phóng to (Fullscreen) */}
             <div className="timer-top-right-bar">
-              <div
-                className="timer-current-time-badge"
+              <span
+                className="timer-current-time-text"
                 title={language === 'vi' ? 'Giờ hệ thống' : 'Current time'}
               >
-                <Clock size={13} className="time-icon" />
-                <span className="time-text">{formattedCurrentTime}</span>
-              </div>
+                {formattedCurrentTime}
+              </span>
 
               {canFullscreen && (
                 <button
@@ -345,7 +369,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({
                   }
                   aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
                 >
-                  {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                  {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                 </button>
               )}
             </div>
@@ -542,7 +566,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({
           title={language === 'vi' ? 'Giới thiệu về Study Pomodoro' : 'About Study Pomodoro'}
           aria-label={language === 'vi' ? 'Giới thiệu' : 'About'}
         >
-          {language === 'vi' ? 'GIỚI THIỆU' : 'ABOUT'}
+          {language === 'vi' ? 'Giới thiệu' : 'About'}
         </button>
 
         {/* Thông báo Toast ngắn */}
