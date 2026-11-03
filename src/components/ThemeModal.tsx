@@ -13,7 +13,7 @@ import {
   Moon,
 } from 'lucide-react';
 import type { AppSettings, BackgroundEffectType } from '../types';
-import { PRESET_ACCENT_COLORS, PRESET_BG_IMAGES } from '../data/themePresets';
+import { PRESET_ACCENT_COLORS, PRESET_BG_IMAGES, PRESET_ALIAS_MAP } from '../data/themePresets';
 import { applyAccentColorToDOM } from '../hooks/useSettings';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -175,8 +175,9 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
 
               {/* Preset Backgrounds */}
               {PRESET_BG_IMAGES.map((preset) => {
-                const isSelected = settings.backgroundImage === preset.id;
+                const isSelected = settings.backgroundImage === preset.id || PRESET_ALIAS_MAP[settings.backgroundImage] === preset.id;
                 const name = language === 'vi' ? preset.nameVi : preset.nameEn;
+                const previewUrl = settings.darkMode ? (preset.darkUrl || preset.url) : (preset.lightUrl || preset.url);
                 return (
                   <button
                     key={preset.id}
@@ -186,7 +187,7 @@ export const ThemeModal: React.FC<ThemeModalProps> = ({
                   >
                     <div
                       className="bg-card-preview"
-                      style={{ backgroundImage: `url(${preset.url})` }}
+                      style={{ backgroundImage: `url(${previewUrl})` }}
                     />
                     <div className="bg-card-footer">
                       <span className="bg-card-name">{name}</span>

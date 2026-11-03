@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import type { AppSettings } from '../types';
-import { PRESET_BG_IMAGES } from '../data/themePresets';
+import { PRESET_BG_IMAGES, PRESET_ALIAS_MAP } from '../data/themePresets';
 
 // Lazy-load ripple wave animation to keep initial paint bundle small and lightweight
 const ThreeWaveRipple = React.lazy(() =>
@@ -14,15 +14,17 @@ interface BackgroundRendererProps {
 export const BackgroundRenderer: React.FC<BackgroundRendererProps> = ({ settings }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Determine active background image URL
+  // Determine active background image URL according to Theme + Light/Dark mode
   const bgImageUrl = useMemo(() => {
     if (settings.backgroundImage === 'none') return null;
     if (settings.backgroundImage === 'custom' && settings.customBgData) {
       return settings.customBgData;
     }
-    const preset = PRESET_BG_IMAGES.find((p) => p.id === settings.backgroundImage);
-    return preset ? preset.url : null;
-  }, [settings.backgroundImage, settings.customBgData]);
+    const normalizedId = PRESET_ALIAS_MAP[settings.backgroundImage] || settings.backgroundImage;
+    const preset = PRESET_BG_IMAGES.find((p) => p.id === normalizedId);
+    if (!preset) return null;
+    return settings.darkMode ? (preset.darkUrl || preset.url) : (preset.lightUrl || preset.url);
+  }, [settings.backgroundImage, settings.customBgData, settings.darkMode]);
 
   // Handle Canvas effects: Particles & Rain
   useEffect(() => {

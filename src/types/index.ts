@@ -51,6 +51,8 @@ export interface BgImagePreset {
   nameVi: string;
   nameEn: string;
   url: string;
+  lightUrl?: string;
+  darkUrl?: string;
 }
 
 export interface AppSettings {
