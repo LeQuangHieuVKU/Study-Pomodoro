@@ -1918,15 +1918,24 @@ body:not(.dark):not(.ion-palette-dark) {
         border-color: rgba(0, 0, 0, 0.15);
       }
 
+      .effect-icon-badge {
+        background: rgba(0, 0, 0, 0.04);
+        color: #475569;
+      }
+
+      .effect-title {
+        color: #0F172A;
+      }
+
       &.selected {
         border-color: var(--color-indigo);
         background: rgba(99, 102, 241, 0.08);
         box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
-      }
 
-      .effect-icon-badge {
-        background: rgba(0, 0, 0, 0.04);
-        color: #475569;
+        .effect-title {
+          color: var(--color-indigo);
+          font-weight: 700;
+        }
       }
 
       .effect-text-block {
