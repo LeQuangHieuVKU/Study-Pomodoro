@@ -1028,24 +1028,29 @@
     }
 
     .bg-card-footer {
-      padding: 7px 10px;
+      padding: 6px 9px;
+      min-height: 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
       background: rgba(10, 14, 22, 0.7);
 
       .bg-card-name {
         font-size: 0.74rem;
         font-weight: 600;
+        line-height: 1.25;
         color: #E2E8F0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        word-break: break-word;
+        overflow: visible;
+        text-overflow: clip;
+        flex: 1;
       }
 
       .bg-card-check {
-        width: 18px;
-        height: 18px;
+        width: 17px;
+        height: 17px;
         border-radius: 50%;
         display: inline-flex;
         align-items: center;
