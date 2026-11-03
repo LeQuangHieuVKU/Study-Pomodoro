@@ -156,13 +156,25 @@ export const AboutPage: React.FC = () => {
   const [ctaIsDeleting, setCtaIsDeleting] = useState(false);
 
   useEffect(() => {
-    const currentPhrase = ctaPhrases[ctaPhraseIdx % ctaPhrases.length];
+    const rawPhrase = (ctaPhrases[ctaPhraseIdx % ctaPhrases.length] || '').normalize('NFC');
+    // Segment phrase into complete grapheme clusters to prevent splitting Vietnamese diacritics
+    const graphemes = typeof Intl !== 'undefined' && 'Segmenter' in Intl
+      ? Array.from(new (Intl as any).Segmenter(language === 'vi' ? 'vi' : 'en', { granularity: 'grapheme' }).segment(rawPhrase), (s: any) => s.segment)
+      : Array.from(rawPhrase);
+
+    // Current displayed grapheme count
+    const currentGraphemeCount = Array.from(
+      typeof Intl !== 'undefined' && 'Segmenter' in Intl
+        ? Array.from(new (Intl as any).Segmenter(language === 'vi' ? 'vi' : 'en', { granularity: 'grapheme' }).segment(ctaDisplayText), (s: any) => s.segment)
+        : Array.from(ctaDisplayText)
+    ).length;
+
     let timeout: ReturnType<typeof setTimeout>;
 
     if (!ctaIsDeleting) {
-      if (ctaDisplayText.length < currentPhrase.length) {
+      if (currentGraphemeCount < graphemes.length) {
         timeout = setTimeout(() => {
-          setCtaDisplayText(currentPhrase.slice(0, ctaDisplayText.length + 1));
+          setCtaDisplayText(graphemes.slice(0, currentGraphemeCount + 1).join(''));
         }, 55);
       } else {
         // Full phrase displayed: pause for 2.2s before deleting
@@ -171,9 +183,9 @@ export const AboutPage: React.FC = () => {
         }, 2200);
       }
     } else {
-      if (ctaDisplayText.length > 0) {
+      if (currentGraphemeCount > 0) {
         timeout = setTimeout(() => {
-          setCtaDisplayText(ctaDisplayText.slice(0, -1));
+          setCtaDisplayText(graphemes.slice(0, currentGraphemeCount - 1).join(''));
         }, 26);
       } else {
         // Finished backspacing: switch to next phrase and loop back
@@ -183,7 +195,7 @@ export const AboutPage: React.FC = () => {
     }
 
     return () => clearTimeout(timeout);
-  }, [ctaDisplayText, ctaIsDeleting, ctaPhraseIdx, ctaPhrases]);
+  }, [ctaDisplayText, ctaIsDeleting, ctaPhraseIdx, ctaPhrases, language]);
 
   // 3. Typing animation for Installation Section (looping between Windows <-> MacOS or Android <-> iOS)
   const osWords = activePlatform === 'desktop' ? ['Windows', 'MacOS'] : ['Android', 'iOS'];

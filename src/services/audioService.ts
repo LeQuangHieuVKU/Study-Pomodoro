@@ -14,9 +14,7 @@ class AudioService {
   private synthGainNode: GainNode | null = null;
 
   constructor() {
-    if (typeof window !== 'undefined') {
-      this.initAudio();
-    }
+    // Lazy: Never instantiate HTMLAudioElement or load media upfront until user interacts / plays sound
   }
 
   private initAudio() {
